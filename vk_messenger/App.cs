@@ -1,46 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 using Xamarin.Forms;
 using Tizen.Wearable.CircularUI.Forms;
+using System.Web;
+using Tizen.Applications;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace vk_messenger
 {
-    public class App : Application
+    public class App : Xamarin.Forms.Application
     {
-        public App()
-        {
-            // The root page of your application
-            MainPage = new CirclePage
-            {
-                Content = new StackLayout
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    Children = {
-                        new Label {
-                            HorizontalTextAlignment = TextAlignment.Center,
-                            Text = "Welcome to Xamarin Forms!"
-                        }
-                    }
-                }
-            };
-        }
-
         protected override void OnStart()
         {
-            // Handle when your app starts
+            if (Preference.Contains("token"))
+            {
+                MainPage = new DialogsPage();
+            }
+            else
+            {
+                MainPage = new LoginPage();
+            }
         }
 
         protected override void OnSleep()
         {
-            // Handle when your app sleeps
         }
 
         protected override void OnResume()
         {
-            // Handle when your app resumes
         }
     }
 }
