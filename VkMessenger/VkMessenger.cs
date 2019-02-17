@@ -1,8 +1,9 @@
-using System;
+using Tizen.Wearable.CircularUI.Forms.Renderer;
+using Xamarin.Forms.Platform.Tizen;
 
-namespace vk_messenger
+namespace VkMessenger
 {
-    class Program : global::Xamarin.Forms.Platform.Tizen.FormsApplication
+    class Program : FormsApplication
     {
         protected override void OnCreate()
         {
@@ -14,8 +15,8 @@ namespace vk_messenger
         static void Main(string[] args)
         {
             var app = new Program();
-            global::Xamarin.Forms.Platform.Tizen.Forms.Init(app);
-            global::Tizen.Wearable.CircularUI.Forms.Renderer.FormsCircularUI.Init();
+            Forms.Init(app);
+            FormsCircularUI.Init();
             app.Run(args);
         }
     }

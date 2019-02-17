@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace vk_messenger.models
+namespace VkMessenger.Models
 {
     public class Message
     {

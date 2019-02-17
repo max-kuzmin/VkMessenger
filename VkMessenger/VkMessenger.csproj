@@ -3,6 +3,10 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>tizen40</TargetFramework>
+    <AssemblyName>VkMessenger</AssemblyName>
+    <RootNamespace>VkMessenger</RootNamespace>
+    <Authors>Max Kuzmin</Authors>
+    <Company />
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -19,12 +23,12 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="Tizen.NET" Version="4.0.0">
+    <PackageReference Include="Tizen.NET" Version="5.0.0.14562">
       <ExcludeAssets>Runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Tizen.NET.Sdk" Version="1.0.1" />
     <PackageReference Include="Tizen.Wearable.CircularUI" Version="1.0.0" />
-    <PackageReference Include="Xamarin.Forms" Version="3.2.0.871581" />
+    <PackageReference Include="Xamarin.Forms" Version="3.5.0.129452" />
   </ItemGroup>
 
 </Project>
