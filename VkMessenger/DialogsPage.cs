@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Timers;
 using Tizen.Wearable.CircularUI.Forms;
 using VkMessenger.Models;
 using Xamarin.Forms;
@@ -16,9 +17,15 @@ namespace VkMessenger
 
             SetupPage();
             ShowDialogs();
+            App.UpdateTimer.Elapsed += ShowDialogs;
         }
 
-        private void ShowDialogs()
+        ~DialogsPage()
+        {
+            App.UpdateTimer.Elapsed -= ShowDialogs;
+        }
+
+        private void ShowDialogs(object sender = null, ElapsedEventArgs e = null)
         {
             var json = JObject.Parse(Api.GetDialogsJson());
             var profiles = Profile.FromJsonArray(json["response"]["profiles"] as JArray);
@@ -52,6 +59,12 @@ namespace VkMessenger
                 return cell;
             });
             Content = dialogsListView;
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            App.UpdateTimer.Elapsed += ShowDialogs;
         }
     }
 }
