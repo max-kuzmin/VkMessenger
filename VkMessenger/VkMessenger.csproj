@@ -4,9 +4,10 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>tizen40</TargetFramework>
     <AssemblyName>VkMessenger</AssemblyName>
-    <RootNamespace>VkMessenger</RootNamespace>
+    <RootNamespace>ru.MaxKuzmin.VkMessenger</RootNamespace>
     <Authors>Max Kuzmin</Authors>
     <Company />
+    <PackageId>ru.MaxKuzmin.VkMessenger</PackageId>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

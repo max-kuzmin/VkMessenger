@@ -5,7 +5,7 @@ using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
-namespace VkMessenger
+namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class LoginPage : CirclePage
     {

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace VkMessenger.Models
+namespace ru.MaxKuzmin.VkMessenger.Models
 {
     public class Message
     {

@@ -1,7 +1,7 @@
 ﻿using Tizen.Applications;
 using Xamarin.Forms;
 
-namespace VkMessenger
+namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class NavigationMainPage : NavigationPage
     {

@@ -1,7 +1,8 @@
-﻿using System.Timers;
+﻿using ru.MaxKuzmin.VkMessenger.Pages;
+using System.Timers;
 using Xamarin.Forms;
 
-namespace VkMessenger
+namespace ru.MaxKuzmin.VkMessenger
 {
     public class App : Application
     {

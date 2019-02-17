@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json.Linq;
+using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.Generic;
 using System.Timers;
 using Tizen.Wearable.CircularUI.Forms;
-using VkMessenger.Models;
 using Xamarin.Forms;
 
-namespace VkMessenger
+namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class DialogsPage : CirclePage
     {
