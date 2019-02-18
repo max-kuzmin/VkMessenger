@@ -14,15 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         public DialogsPage()
         {
             NavigationPage.SetHasNavigationBar(this, false);
-
             SetupPage();
-            ShowDialogs();
-            App.UpdateTimer.Elapsed += ShowDialogs;
-        }
-
-        ~DialogsPage()
-        {
-            App.UpdateTimer.Elapsed -= ShowDialogs;
         }
 
         private void ShowDialogs(object sender = null, ElapsedEventArgs e = null)
@@ -35,12 +27,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var cellsData = new List<object>();
             foreach (var item in dialogs)
             {
-                var cellData =  new
+                var cellData = new CellData
                 {
                     Text = item.GetTitle(),
                     Detail = item.LastMessage.Text,
-                    ImageSource = item.GetPhoto().Source
-                    
+                    ImageSource = item.GetPhoto().Source,
+                    Dialog = item,
+                    TextColor = item.UnreadCount > 0 ? Color.Yellow : Color.White
+
                 };
                 cellsData.Add(cellData);
             }
@@ -53,18 +47,36 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             dialogsListView.ItemTemplate = new DataTemplate(() =>
             {
                 var cell = new ImageCell();
-                cell.SetBinding(ImageCell.TextProperty, "Text");
-                cell.SetBinding(ImageCell.DetailProperty, "Detail");
-                cell.SetBinding(ImageCell.ImageSourceProperty, "ImageSource");
+                cell.SetBinding(ImageCell.TextProperty, nameof(CellData.Text));
+                cell.SetBinding(ImageCell.DetailProperty, nameof(CellData.Detail));
+                cell.SetBinding(ImageCell.ImageSourceProperty, nameof(CellData.ImageSource));
+                cell.SetBinding(ImageCell.TextColorProperty, nameof(CellData.TextColor));
                 return cell;
             });
+            dialogsListView.ItemSelected += OnDialogSelected;
             Content = dialogsListView;
+        }
+
+        private void OnDialogSelected(object sender, SelectedItemChangedEventArgs e)
+        {
+            var dialog = (e.SelectedItem as CellData).Dialog;
+            Navigation.PushAsync(new MessagesPage(dialog));
+            Api.MarkAsRead(dialog.GetPeerId());
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            App.UpdateTimer.Elapsed += ShowDialogs;
+            ShowDialogs();
+        }
+
+        public class CellData
+        {
+            public string Text { get; set; }
+            public string Detail { get; set; }
+            public ImageSource ImageSource { get; set; }
+            public Dialog Dialog { get; set; }
+            public Color TextColor { get; set; }
         }
     }
 }

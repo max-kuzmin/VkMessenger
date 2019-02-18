@@ -15,6 +15,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public DialogType Type { get; set; }
         public string Name { get; set; }
         public Image Photo { get; set; }
+        public int UnreadCount { get; set; }
 
         public enum DialogType
         {
@@ -40,6 +41,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             var result = new Dialog
             {
                 Id = dialog["conversation"]["peer"]["id"].Value<int>(),
+                UnreadCount = dialog["conversation"]["unread_count"]?.Value<int>() ?? 0,
                 LastMessage = Message.FromJson(dialog["last_message"] as JObject)
             };
 
@@ -88,6 +90,20 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
 
             return string.Empty;
+        }
+
+        public int GetPeerId()
+        {
+            switch (Type)
+            {
+                case DialogType.User:
+                case DialogType.Chat:
+                    return Id;
+                case DialogType.Group:
+                    return -Id;
+            }
+
+            return 0;
         }
 
         public Image GetPhoto()
