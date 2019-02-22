@@ -12,6 +12,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     {
         private readonly CircleListView messagesListView = new CircleListView();
         private readonly Dialog dialog;
+        private readonly List<Message> messages = new List<Message>();
 
         public MessagesPage(Dialog dialog)
         {
@@ -21,33 +22,22 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             SetupPage();
         }
 
-        private void ShowMessages(object sender = null, ElapsedEventArgs e = null)
-        {
-            var json = JObject.Parse(Api.GetMessagesJson(dialog.GetPeerId()));
-            var messages = Message.FromJsonArray(json["response"]["items"] as JArray);
-
-            var cellsData = new List<string>();
-            foreach (var item in messages)
-            {
-                var user = dialog.Profiles.FirstOrDefault(s => s.Id == item.Sender);
-                if (user != null)
-                    cellsData.Add($"{user.Name}: {item.Text}");
-                else
-                    cellsData.Add(item.Text);
-            }
-            messagesListView.ItemsSource = cellsData;
-        }
-
         private void SetupPage()
         {
             SetBinding(CirclePage.RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
+            messagesListView.ItemTemplate = new DataTemplate(() =>
+            {
+                var cell = new EntryCell();
+                cell.SetBinding(EntryCell.TextProperty, nameof(Message.Text));
+                return cell;
+            });
             Content = messagesListView;
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            ShowMessages();
+            messages.AddRange(Message.GetMessages(dialog.PeerId));
         }
 
         protected override bool OnBackButtonPressed()

@@ -4,6 +4,6 @@
     {
         static public string TokenKey = "Token";
         static public int UpdateInterval = 60000;
-        static public int ClientId = 6863412;
+        static public int ClientId = 6872680;
     }
 }

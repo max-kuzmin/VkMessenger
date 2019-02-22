@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using ru.MaxKuzmin.VkMessenger.Models;
+﻿using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.Generic;
-using System.Timers;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -10,35 +8,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     public class DialogsPage : CirclePage
     {
         private readonly CircleListView dialogsListView = new CircleListView();
+        private readonly List<Dialog> dialogs = new List<Dialog>();
 
         public DialogsPage()
         {
             NavigationPage.SetHasNavigationBar(this, false);
             SetupPage();
-        }
-
-        private void ShowDialogs(object sender = null, ElapsedEventArgs e = null)
-        {
-            var json = JObject.Parse(Api.GetDialogsJson());
-            var profiles = Profile.FromJsonArray(json["response"]["profiles"] as JArray);
-            var groups = Group.FromJsonArray(json["response"]["groups"] as JArray);
-            var dialogs = Dialog.FromJsonArray(json["response"]["items"] as JArray, profiles, groups);
-
-            var cellsData = new List<object>();
-            foreach (var item in dialogs)
-            {
-                var cellData = new CellData
-                {
-                    Text = item.GetTitle(),
-                    Detail = item.LastMessage.Text,
-                    ImageSource = item.GetPhoto().Source,
-                    Dialog = item,
-                    TextColor = item.UnreadCount > 0 ? Color.Yellow : Color.White
-
-                };
-                cellsData.Add(cellData);
-            }
-            dialogsListView.ItemsSource = cellsData;
         }
 
         private void SetupPage()
@@ -47,36 +22,28 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             dialogsListView.ItemTemplate = new DataTemplate(() =>
             {
                 var cell = new ImageCell();
-                cell.SetBinding(ImageCell.TextProperty, nameof(CellData.Text));
-                cell.SetBinding(ImageCell.DetailProperty, nameof(CellData.Detail));
-                cell.SetBinding(ImageCell.ImageSourceProperty, nameof(CellData.ImageSource));
-                cell.SetBinding(ImageCell.TextColorProperty, nameof(CellData.TextColor));
+                cell.SetBinding(ImageCell.TextProperty, nameof(Dialog.Title));
+                cell.SetBinding(ImageCell.DetailProperty, nameof(Dialog.Text));
+                cell.SetBinding(ImageCell.ImageSourceProperty, nameof(Dialog.Photo));
+                cell.SetBinding(ImageCell.TextColorProperty, nameof(Dialog.TextColor));
                 return cell;
             });
             dialogsListView.ItemSelected += OnDialogSelected;
+            dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
         }
 
         private void OnDialogSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            var dialog = (e.SelectedItem as CellData).Dialog;
+            var dialog = e.SelectedItem as Dialog;
             Navigation.PushAsync(new MessagesPage(dialog));
-            Api.MarkAsRead(dialog.GetPeerId());
+            Api.MarkAsRead(dialog.PeerId);
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            ShowDialogs();
-        }
-
-        public class CellData
-        {
-            public string Text { get; set; }
-            public string Detail { get; set; }
-            public ImageSource ImageSource { get; set; }
-            public Dialog Dialog { get; set; }
-            public Color TextColor { get; set; }
+            dialogs.AddRange(Dialog.GetDialogs());
         }
     }
 }

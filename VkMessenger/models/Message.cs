@@ -11,7 +11,13 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public int Sender { get; set; }
         public DateTime Date { get; set; }
 
-        public static List<Message> FromJsonArray(JArray source)
+        public static List<Message> GetMessages(int peerId)
+        {
+            var json = JObject.Parse(Api.GetMessagesJson(peerId));
+            return Message.FromJsonArray(json["response"]["items"] as JArray);
+        }
+
+        private static List<Message> FromJsonArray(JArray source)
         {
             var result = new List<Message>();
 
@@ -23,7 +29,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             return result;
         }
 
-        public static Message FromJson(JObject source)
+        private static Message FromJson(JObject source)
         {
             return new Message
             {

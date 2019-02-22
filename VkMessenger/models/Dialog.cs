@@ -8,14 +8,17 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 {
     public class Dialog
     {
+        private Image chatPhoto;
+        private string profileName;
+
         public int Id { get; set; }
         public Message LastMessage { get; set; }
         public List<Profile> Profiles { get; set; }
         public Group Group { get; set; }
         public DialogType Type { get; set; }
-        public string Name { get; set; }
-        public Image Photo { get; set; }
         public int UnreadCount { get; set; }
+        public Color TextColor => UnreadCount > 0 ? Color.Yellow : Color.White;
+        public string Text => LastMessage.Text;
 
         public enum DialogType
         {
@@ -24,7 +27,55 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Chat
         }
 
-        public static List<Dialog> FromJsonArray(JArray dialogs, List<Profile> profiles, List<Group> groups)
+        public string Title
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case DialogType.User:
+                        return Profiles.First().Name + " " + Profiles.First().Surname;
+                    case DialogType.Group:
+                        return Group.Name;
+                    case DialogType.Chat:
+                        return profileName;
+                }
+
+                return string.Empty;
+            }
+        }
+
+        public int PeerId
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case DialogType.User:
+                    case DialogType.Chat:
+                        return Id;
+                    case DialogType.Group:
+                        return -Id;
+                    default:
+                        throw new NotImplementedException();
+                }
+            }
+        }
+
+        public Image Photo
+        {
+            get
+            {
+                if (chatPhoto != null)
+                    return chatPhoto;
+                else if (Group != null)
+                    return Group.Photo;
+                else
+                    return Profiles.First().Photo;
+            }
+        }
+
+        private static List<Dialog> FromJsonArray(JArray dialogs, List<Profile> profiles, List<Group> groups)
         {
             var result = new List<Dialog>();
 
@@ -36,7 +87,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             return result;
         }
 
-        public static Dialog FromJson(JObject dialog, List<Profile> profiles, List<Group> groups)
+        private static Dialog FromJson(JObject dialog, List<Profile> profiles, List<Group> groups)
         {
             var result = new Dialog
             {
@@ -59,7 +110,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             else if (peerType == "chat")
             {
                 result.Type = DialogType.Chat;
-                result.Name = dialog["conversation"]["chat_settings"]["title"].Value<string>();
+                result.profileName = dialog["conversation"]["chat_settings"]["title"].Value<string>();
                 result.Profiles = new List<Profile>();
                 var ids = dialog["conversation"]["chat_settings"]["active_ids"] as JArray;
 
@@ -70,50 +121,11 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
                 if (dialog["conversation"]["chat_settings"]["photo"] != null)
                 {
-                    result.Photo = new Image { Source = dialog["conversation"]["chat_settings"]["photo"]["photo_50"].Value<string>() };
+                    result.chatPhoto = new Image { Source = dialog["conversation"]["chat_settings"]["photo"]["photo_50"].Value<string>() };
                 }
             }
 
             return result;
-        }
-
-        public string GetTitle()
-        {
-            switch (Type)
-            {
-                case DialogType.User:
-                    return Profiles.First().Name + " " + Profiles.First().Surname;
-                case DialogType.Group:
-                    return Group.Name;
-                case DialogType.Chat:
-                    return Name;
-            }
-
-            return string.Empty;
-        }
-
-        public int GetPeerId()
-        {
-            switch (Type)
-            {
-                case DialogType.User:
-                case DialogType.Chat:
-                    return Id;
-                case DialogType.Group:
-                    return -Id;
-            }
-
-            return 0;
-        }
-
-        public Image GetPhoto()
-        {
-            if (Photo != null)
-                return Photo;
-            else if (Group != null)
-                return Group.Photo;
-            else
-                return Profiles.First().Photo;
         }
 
         private static Profile GetFriend(JObject dialog, JArray profiles)
@@ -128,6 +140,14 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             {
                 return null;
             }
+        }
+
+        public static List<Dialog> GetDialogs()
+        {
+            var json = JObject.Parse(Api.GetDialogsJson());
+            var profiles = Profile.FromJsonArray(json["response"]["profiles"] as JArray);
+            var groups = Group.FromJsonArray(json["response"]["groups"] as JArray);
+            return Dialog.FromJsonArray(json["response"]["items"] as JArray, profiles, groups);
         }
     }
 }
