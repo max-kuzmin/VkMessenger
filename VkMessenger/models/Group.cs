@@ -8,7 +8,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public Image Photo { get; set; }
+        public ImageSource Photo { get; set; }
 
         public static List<Group> FromJsonArray(JArray groups)
         {
@@ -28,7 +28,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             {
                 Id = group["id"].Value<int>(),
                 Name = group["name"].Value<string>(),
-                Photo = new Image { Source = group["photo_50"].Value<string>() }
+                Photo = group["photo_50"].Value<string>()
             };
         }
     }

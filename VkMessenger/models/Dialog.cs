@@ -8,7 +8,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 {
     public class Dialog
     {
-        private Image chatPhoto;
+        private ImageSource chatPhoto;
         private string profileName;
 
         public int Id { get; set; }
@@ -25,16 +25,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             User,
             Group,
             Chat
-        }
-
-        public class Comparer : IComparer<Dialog>
-        {
-            public int Compare(Dialog x, Dialog y)
-            {
-                if (x.LastMessage.Date < y.LastMessage.Date) return 1;
-                else if (x.LastMessage.Date > y.LastMessage.Date) return -1;
-                else return 0;
-            }
         }
 
         public string Title
@@ -72,7 +62,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
-        public Image Photo
+        public ImageSource Photo
         {
             get
             {
@@ -131,7 +121,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
                 if (dialog["conversation"]["chat_settings"]["photo"] != null)
                 {
-                    result.chatPhoto = new Image { Source = dialog["conversation"]["chat_settings"]["photo"]["photo_50"].Value<string>() };
+                    result.chatPhoto = dialog["conversation"]["chat_settings"]["photo"]["photo_50"].Value<string>();
                 }
             }
 

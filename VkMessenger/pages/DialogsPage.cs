@@ -1,5 +1,5 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Models;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
@@ -9,7 +9,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     public class DialogsPage : CirclePage
     {
         private readonly CircleListView dialogsListView = new CircleListView();
-        private readonly List<Dialog> dialogs = new List<Dialog>();
+        private readonly ObservableCollection<Dialog> dialogs = new ObservableCollection<Dialog>();
 
         public DialogsPage()
         {
@@ -27,10 +27,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 {
                     found.LastMessage = item.LastMessage;
                     found.UnreadCount = item.UnreadCount;
+                    dialogs.Move(dialogs.IndexOf(found), 0);
                 }
-                else dialogs.Add(item);
+                else dialogs.Insert(0, item);
             }
-            dialogs.Sort(new Dialog.Comparer());
         }
 
         private void Setup()

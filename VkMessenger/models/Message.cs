@@ -11,16 +11,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public int Sender { get; set; }
         public DateTime Date { get; set; }
 
-        public class Comparer : IComparer<Message>
-        {
-            public int Compare(Message x, Message y)
-            {
-                if (x.Date < y.Date) return 1;
-                else if (x.Date > y.Date) return -1;
-                else return 0;
-            }
-        }
-
         public static List<Message> GetMessages(int peerId)
         {
             var json = JObject.Parse(Api.GetMessagesJson(peerId));

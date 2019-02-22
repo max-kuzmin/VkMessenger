@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
-using ru.MaxKuzmin.VkMessenger.Models;
-using System.Collections.Generic;
+﻿using ru.MaxKuzmin.VkMessenger.Models;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Timers;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -12,7 +10,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     {
         private readonly CircleListView messagesListView = new CircleListView();
         private readonly Dialog dialog;
-        private readonly List<Message> messages = new List<Message>();
+        private readonly ObservableCollection<Message> messages = new ObservableCollection<Message>();
 
         public MessagesPage(Dialog dialog)
         {
@@ -29,9 +27,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 var found = messages.FirstOrDefault(d => d.Id == item.Id);
 
                 if (found == null)
-                    messages.Add(item);
+                    messages.Insert(0, item);
             }
-            messages.Sort(new Message.Comparer());
         }
 
         private void Setup()

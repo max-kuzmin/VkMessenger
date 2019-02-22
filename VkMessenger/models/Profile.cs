@@ -9,7 +9,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
-        public Image Photo { get; set; }
+        public ImageSource Photo { get; set; }
         public bool IsOnline { get; set; }
 
         public static List<Profile> FromJsonArray(JArray profiles)
@@ -31,7 +31,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 Id = profile["id"].Value<int>(),
                 Name = profile["first_name"].Value<string>(),
                 Surname = profile["last_name"].Value<string>(),
-                Photo = new Image { Source = profile["photo_50"].Value<string>() },
+                Photo = profile["photo_50"].Value<string>(),
                 IsOnline = profile["online"].Value<int>() != 0
             };
         }
