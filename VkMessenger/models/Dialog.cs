@@ -27,6 +27,16 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Chat
         }
 
+        public class Comparer : IComparer<Dialog>
+        {
+            public int Compare(Dialog x, Dialog y)
+            {
+                if (x.LastMessage.Date < y.LastMessage.Date) return 1;
+                else if (x.LastMessage.Date > y.LastMessage.Date) return -1;
+                else return 0;
+            }
+        }
+
         public string Title
         {
             get
@@ -75,7 +85,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
-        private static List<Dialog> FromJsonArray(JArray dialogs, List<Profile> profiles, List<Group> groups)
+        public static List<Dialog> FromJsonArray(JArray dialogs, List<Profile> profiles, List<Group> groups)
         {
             var result = new List<Dialog>();
 
@@ -87,7 +97,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             return result;
         }
 
-        private static Dialog FromJson(JObject dialog, List<Profile> profiles, List<Group> groups)
+        public static Dialog FromJson(JObject dialog, List<Profile> profiles, List<Group> groups)
         {
             var result = new Dialog
             {

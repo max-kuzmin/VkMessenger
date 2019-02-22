@@ -1,5 +1,6 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.Generic;
+using System.Linq;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -13,10 +14,26 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         public DialogsPage()
         {
             NavigationPage.SetHasNavigationBar(this, false);
-            SetupPage();
+            Setup();
         }
 
-        private void SetupPage()
+        private void Update()
+        {
+            foreach (var item in Dialog.GetDialogs())
+            {
+                var found = dialogs.FirstOrDefault(d => d.Id == item.Id);
+
+                if (found != null && item.UnreadCount > 0)
+                {
+                    found.LastMessage = item.LastMessage;
+                    found.UnreadCount = item.UnreadCount;
+                }
+                else dialogs.Add(item);
+            }
+            dialogs.Sort(new Dialog.Comparer());
+        }
+
+        private void Setup()
         {
             SetBinding(CirclePage.RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
             dialogsListView.ItemTemplate = new DataTemplate(() =>
@@ -43,7 +60,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            dialogs.AddRange(Dialog.GetDialogs());
+            Update();
         }
     }
 }

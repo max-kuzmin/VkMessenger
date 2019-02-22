@@ -19,10 +19,22 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             NavigationPage.SetHasNavigationBar(this, false);
 
             this.dialog = dialog;
-            SetupPage();
+            Setup();
         }
 
-        private void SetupPage()
+        private void Update()
+        {
+            foreach (var item in Message.GetMessages(dialog.PeerId))
+            {
+                var found = messages.FirstOrDefault(d => d.Id == item.Id);
+
+                if (found == null)
+                    messages.Add(item);
+            }
+            messages.Sort(new Message.Comparer());
+        }
+
+        private void Setup()
         {
             SetBinding(CirclePage.RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
             messagesListView.ItemTemplate = new DataTemplate(() =>
@@ -37,7 +49,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            messages.AddRange(Message.GetMessages(dialog.PeerId));
+            Update();
         }
 
         protected override bool OnBackButtonPressed()

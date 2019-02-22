@@ -11,13 +11,23 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public int Sender { get; set; }
         public DateTime Date { get; set; }
 
+        public class Comparer : IComparer<Message>
+        {
+            public int Compare(Message x, Message y)
+            {
+                if (x.Date < y.Date) return 1;
+                else if (x.Date > y.Date) return -1;
+                else return 0;
+            }
+        }
+
         public static List<Message> GetMessages(int peerId)
         {
             var json = JObject.Parse(Api.GetMessagesJson(peerId));
             return Message.FromJsonArray(json["response"]["items"] as JArray);
         }
 
-        private static List<Message> FromJsonArray(JArray source)
+        public static List<Message> FromJsonArray(JArray source)
         {
             var result = new List<Message>();
 
@@ -29,7 +39,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             return result;
         }
 
-        private static Message FromJson(JObject source)
+        public static Message FromJson(JObject source)
         {
             return new Message
             {
