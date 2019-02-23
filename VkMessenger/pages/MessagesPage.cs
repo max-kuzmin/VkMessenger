@@ -1,4 +1,5 @@
-﻿using ru.MaxKuzmin.VkMessenger.Models;
+﻿using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Tizen.Wearable.CircularUI.Forms;
@@ -22,7 +23,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private void Update()
         {
-            foreach (var item in Message.GetMessages(dialog.PeerId))
+            foreach (var item in MessagesClient.GetMessages(dialog.PeerId))
             {
                 var found = messages.FirstOrDefault(d => d.Id == item.Id);
 

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using ru.MaxKuzmin.VkMessenger.Clients;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Tizen.Applications;
@@ -15,7 +16,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             NavigationPage.SetHasNavigationBar(this, false);
             Content = loginWebView;
-            loginWebView.Source = Api.GetAutorizeUri();
+            loginWebView.Source = AuthorizationClient.GetAutorizeUri();
             loginWebView.Navigated += LoginCallback;
         }
 

@@ -1,4 +1,5 @@
-﻿using ru.MaxKuzmin.VkMessenger.Models;
+﻿using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Tizen.Wearable.CircularUI.Forms;
@@ -19,7 +20,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private void Update()
         {
-            foreach (var item in Dialog.GetDialogs())
+            foreach (var item in DialogsClient.GetDialogs())
             {
                 var found = dialogs.FirstOrDefault(d => d.Id == item.Id);
 
@@ -39,7 +40,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             dialogsListView.ItemTemplate = new DataTemplate(() =>
             {
                 var cell = new ImageCell();
-                cell.SetBinding(ImageCell.TextProperty, nameof(Dialog.Title));
+                cell.SetBinding(ImageCell.TextProperty, nameof(Dialog.Name));
                 cell.SetBinding(ImageCell.DetailProperty, nameof(Dialog.Text));
                 cell.SetBinding(ImageCell.ImageSourceProperty, nameof(Dialog.Photo));
                 cell.SetBinding(ImageCell.TextColorProperty, nameof(Dialog.TextColor));
@@ -54,7 +55,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             var dialog = e.SelectedItem as Dialog;
             Navigation.PushAsync(new MessagesPage(dialog));
-            Api.MarkAsRead(dialog.PeerId);
+            DialogsClient.MarkAsRead(dialog.PeerId);
         }
 
         protected override void OnAppearing()
