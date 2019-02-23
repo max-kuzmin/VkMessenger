@@ -1,4 +1,4 @@
-﻿using Tizen.Applications;
+﻿using ru.MaxKuzmin.VkMessenger.Clients;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
@@ -9,14 +9,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             SetHasNavigationBar(this, false);
 
-            if (Preference.Contains(Setting.TokenKey))
-            {
+            if (AuthorizationClient.Token != null)
                 PushAsync(new DialogsPage());
-            }
             else
-            {
-                PushAsync(new LoginPage());
-            }
+                PushAsync(new AuthorizationPage());
         }
     }
 }

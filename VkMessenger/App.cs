@@ -1,4 +1,5 @@
-﻿using ru.MaxKuzmin.VkMessenger.Pages;
+﻿using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Pages;
 using System.Timers;
 using Xamarin.Forms;
 
@@ -10,9 +11,6 @@ namespace ru.MaxKuzmin.VkMessenger
 
         protected override void OnStart()
         {
-#if DEBUG
-            Tizen.Applications.Preference.Set(Setting.TokenKey, DebugSetting.Token);
-#endif
             MainPage = new NavigationMainPage();
             UpdateTimer.Start();
         }

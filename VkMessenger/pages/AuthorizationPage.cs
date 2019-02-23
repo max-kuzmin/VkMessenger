@@ -1,18 +1,15 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Clients;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    public class LoginPage : CirclePage
+    public class AuthorizationPage : CirclePage
     {
         WebView loginWebView = new WebView();
 
-        public LoginPage()
+        public AuthorizationPage()
         {
             NavigationPage.SetHasNavigationBar(this, false);
             Content = loginWebView;
@@ -23,13 +20,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void LoginCallback(object sender, WebNavigatedEventArgs e)
         {
             await Task.Delay(1000);
-            var uri = (loginWebView.Source as UrlWebViewSource).Url;
-            var token = string.Concat(Regex.Match(uri, @"access_token=(\d|\w)*").Value.Skip(13));
-            if (token != string.Empty)
+            var url = (loginWebView.Source as UrlWebViewSource).Url;
+            if (AuthorizationClient.SetToken(url))
             {
-                Preference.Set(Setting.TokenKey, token);
                 loginWebView.Navigated -= LoginCallback;
-
                 await Navigation.PushAsync(new DialogsPage());
                 Navigation.RemovePage(this);
             }

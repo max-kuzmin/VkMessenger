@@ -3,7 +3,6 @@ using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Tizen.Applications;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -44,7 +43,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "https://api.vk.com/method/messages.getHistory" +
                 "?v=5.92" +
                 "&peer_id=" + peerId +
-                "&access_token=" + Preference.Get<string>(Setting.TokenKey);
+                "&access_token=" + AuthorizationClient.Token;
 
             using (var client = new WebClient())
             {

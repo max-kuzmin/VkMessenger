@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Tizen.Applications;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -94,7 +93,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "https://api.vk.com/method/messages.getConversations" +
                 "?v=5.92" +
                 "&extended=1" +
-                "&access_token=" + Preference.Get<string>(Setting.TokenKey);
+                "&access_token=" + AuthorizationClient.Token;
 
             using (var client = new WebClient())
             {
@@ -108,7 +107,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "https://api.vk.com/method/messages.markAsRead" +
                 "?v=5.92" +
                 "&peer_id=" + peerId +
-                "&access_token=" + Preference.Get<string>(Setting.TokenKey);
+                "&access_token=" + AuthorizationClient.Token;
 
             using (var client = new WebClient())
             {
