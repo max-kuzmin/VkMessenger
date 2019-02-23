@@ -1,4 +1,5 @@
-﻿using ru.MaxKuzmin.VkMessenger.Clients;
+﻿using ru.MaxKuzmin.VkMessenger.Cells;
+using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -34,13 +35,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private void Setup()
         {
-            SetBinding(CirclePage.RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
-            messagesListView.ItemTemplate = new DataTemplate(() =>
-            {
-                var cell = new EntryCell();
-                cell.SetBinding(EntryCell.TextProperty, nameof(Message.Text));
-                return cell;
-            });
+            SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
+            messagesListView.ItemTemplate = new DataTemplate(typeof(MessageCell));
             Content = messagesListView;
         }
 

@@ -1,4 +1,5 @@
-﻿using ru.MaxKuzmin.VkMessenger.Clients;
+﻿using ru.MaxKuzmin.VkMessenger.Cells;
+using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -36,16 +37,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private void Setup()
         {
-            SetBinding(CirclePage.RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
-            dialogsListView.ItemTemplate = new DataTemplate(() =>
-            {
-                var cell = new ImageCell();
-                cell.SetBinding(ImageCell.TextProperty, nameof(Dialog.Name));
-                cell.SetBinding(ImageCell.DetailProperty, nameof(Dialog.Text));
-                cell.SetBinding(ImageCell.ImageSourceProperty, nameof(Dialog.Photo));
-                cell.SetBinding(ImageCell.TextColorProperty, nameof(Dialog.TextColor));
-                return cell;
-            });
+            SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
+            dialogsListView.ItemTemplate = new DataTemplate(typeof(DialogCell));
             dialogsListView.ItemSelected += OnDialogSelected;
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
