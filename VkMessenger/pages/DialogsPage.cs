@@ -1,6 +1,7 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Cells;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Models;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Tizen.Wearable.CircularUI.Forms;
@@ -47,8 +48,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private void OnDialogSelected(object sender, SelectedItemChangedEventArgs e)
         {
             var dialog = e.SelectedItem as Dialog;
-            Navigation.PushAsync(new MessagesPage(dialog));
-            DialogsClient.MarkAsRead(dialog.PeerId);
+            Navigation.PushAsync(new MessagesPage(dialog.Id));
+            DialogsClient.MarkAsRead(dialog.Id);
         }
 
         protected override void OnAppearing()

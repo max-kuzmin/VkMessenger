@@ -11,20 +11,20 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     public class MessagesPage : CirclePage
     {
         private readonly CircleListView messagesListView = new CircleListView();
-        private readonly Dialog dialog;
+        private readonly int dialogId;
         private readonly ObservableCollection<Message> messages = new ObservableCollection<Message>();
 
-        public MessagesPage(Dialog dialog)
+        public MessagesPage(int dialogId)
         {
             NavigationPage.SetHasNavigationBar(this, false);
 
-            this.dialog = dialog;
+            this.dialogId = dialogId;
             Setup();
         }
 
         private void Update()
         {
-            foreach (var item in MessagesClient.GetMessages(dialog.PeerId))
+            foreach (var item in MessagesClient.GetMessages(dialogId))
             {
                 var found = messages.FirstOrDefault(d => d.Id == item.Id);
 
@@ -37,6 +37,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
             messagesListView.ItemTemplate = new DataTemplate(typeof(MessageCell));
+            messagesListView.HasUnevenRows = true;
+            messagesListView.ItemsSource = messages;
             Content = messagesListView;
         }
 

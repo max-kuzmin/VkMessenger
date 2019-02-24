@@ -6,7 +6,10 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     {
         public int Id { get; set; }
         public string Text { get; set; }
-        public int Sender { get; set; }
         public DateTime Date { get; set; }
+        public Profile Profile { get; set; }
+
+        public int SenderId => Profile?.Id ?? Authorization.UserId;
+        public string Photo => Profile?.Photo ?? Authorization.Photo;
     }
 }

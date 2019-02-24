@@ -25,9 +25,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var result = new Dialog
             {
-                Id = dialog["conversation"]["peer"]["id"].Value<int>(),
                 UnreadCount = dialog["conversation"]["unread_count"]?.Value<uint>() ?? 0,
-                LastMessage = MessagesClient.FromJson(dialog["last_message"] as JObject)
+                LastMessage = MessagesClient.FromJson(dialog["last_message"] as JObject, profiles)
             };
 
             var peerType = dialog["conversation"]["peer"]["type"].Value<string>();
@@ -46,7 +45,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 result.Type = DialogType.Chat;
                 result.Chat = new Chat
                 {
-                    Name = dialog["conversation"]["chat_settings"]["title"].Value<string>()
+                    Name = dialog["conversation"]["chat_settings"]["title"].Value<string>(),
+                    Id = dialog["conversation"]["peer"]["id"].Value<int>()
                 };
 
                 result.Profiles = new List<Profile>();
@@ -93,7 +93,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "https://api.vk.com/method/messages.getConversations" +
                 "?v=5.92" +
                 "&extended=1" +
-                "&access_token=" + AuthorizationClient.Token;
+                "&access_token=" + Models.Authorization.Token;
 
             using (var client = new WebClient())
             {
@@ -101,13 +101,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        public static void MarkAsRead(int peerId)
+        public static void MarkAsRead(int dialogId)
         {
             var url =
                 "https://api.vk.com/method/messages.markAsRead" +
                 "?v=5.92" +
-                "&peer_id=" + peerId +
-                "&access_token=" + AuthorizationClient.Token;
+                "&peer_id=" + dialogId +
+                "&access_token=" + Models.Authorization.Token;
 
             using (var client = new WebClient())
             {

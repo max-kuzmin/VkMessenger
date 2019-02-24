@@ -1,20 +1,12 @@
-﻿using System.Linq;
+﻿using Newtonsoft.Json.Linq;
+using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
-using Tizen.Applications;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class AuthorizationClient
     {
-        private const string TokenKey = "Token";
-
-#if DEBUG
-        static AuthorizationClient()
-        {
-            Token = DebugSetting.Token;
-        }
-#endif
-
         public static string GetAutorizeUri()
         {
             return
@@ -26,21 +18,34 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&v=5.92";
         }
 
-        public static string Token
+        public static bool SetUserFromUrl(string url)
         {
-            get => Preference.Contains(TokenKey) ? Preference.Get<string>(TokenKey) : null;
-            set => Preference.Set(TokenKey, value);
-        }
-
-        public static bool SetToken(string urlWithToken)
-        {
-            var token = string.Concat(Regex.Match(urlWithToken, @"access_token=(\d|\w)*").Value.Skip(13));
-            if (token.Length == 85)
+            var token = string.Concat(Regex.Match(url, @"access_token=(\d|\w)*").Value.Skip(13));
+            var userIdString = string.Concat(Regex.Match(url, @"user_id=\d*").Value.Skip(8));
+            if (token.Length == 85 && int.TryParse(userIdString, out var userId))
             {
-                Preference.Set(TokenKey, token);
+                Models.Authorization.Token = token;
+                Models.Authorization.UserId = userId;
+                GetPhoto();
                 return true;
             }
             else return false;
+        }
+
+        private static void GetPhoto()
+        {
+            var url =
+                "https://api.vk.com/method/users.get" +
+                "?user_ids=" + Models.Authorization.UserId +
+                "&v=5.92" +
+                "&fields=photo_50" +
+                "&access_token=" + Models.Authorization.Token;
+
+            using (var client = new WebClient())
+            {
+                var json = JObject.Parse(client.DownloadString(url));
+                Models.Authorization.Photo = json["response"][0]["photo_50"].Value<string>();
+            }
         }
     }
 }

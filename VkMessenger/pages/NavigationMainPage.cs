@@ -1,4 +1,4 @@
-﻿using ru.MaxKuzmin.VkMessenger.Clients;
+﻿using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
@@ -9,7 +9,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             SetHasNavigationBar(this, false);
 
-            if (AuthorizationClient.Token != null)
+            if (Authorization.Token != null)
                 PushAsync(new DialogsPage());
             else
                 PushAsync(new AuthorizationPage());

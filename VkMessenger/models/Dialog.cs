@@ -11,7 +11,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public Group Group { get; set; }
         public Chat Chat { get; set; }
 
-        public int Id { get; set; }
         public Message LastMessage { get; set; }
         public DialogType Type { get; set; }
         public uint UnreadCount { get; set; }
@@ -35,24 +34,25 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
-        public int PeerId
+        public int Id
         {
             get
             {
                 switch (Type)
                 {
                     case DialogType.User:
+                        return Profiles.First().Id;
                     case DialogType.Chat:
-                        return Id;
+                        return Chat.Id;
                     case DialogType.Group:
-                        return -Id;
+                        return -Group.Id;
                     default:
-                        throw new InvalidOperationException();
+                        return 0;
                 }
             }
         }
 
-        public ImageSource Photo
+        public string Photo
         {
             get
             {
@@ -63,7 +63,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 else if (Profiles.Any())
                     return Profiles.First().Photo;
                 else
-                    return string.Empty;
+                    return null;
             }
         }
     }
