@@ -26,7 +26,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var result = new Dialog
             {
                 Id = dialog["conversation"]["peer"]["id"].Value<int>(),
-                UnreadCount = dialog["conversation"]["unread_count"]?.Value<int>() ?? 0,
+                UnreadCount = dialog["conversation"]["unread_count"]?.Value<uint>() ?? 0,
                 LastMessage = MessagesClient.FromJson(dialog["last_message"] as JObject)
             };
 

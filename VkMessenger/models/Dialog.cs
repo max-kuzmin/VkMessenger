@@ -14,8 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public int Id { get; set; }
         public Message LastMessage { get; set; }
         public DialogType Type { get; set; }
-        public int UnreadCount { get; set; }
-        public Color TextColor => UnreadCount > 0 ? Color.Yellow : Color.White;
+        public uint UnreadCount { get; set; }
         public string Text => LastMessage.Text;
 
         public string Name
