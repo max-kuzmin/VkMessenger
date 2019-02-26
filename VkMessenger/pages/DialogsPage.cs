@@ -1,7 +1,6 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Cells;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Models;
-using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Tizen.Wearable.CircularUI.Forms;
@@ -18,6 +17,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             NavigationPage.SetHasNavigationBar(this, false);
             Setup();
+            LongPollingClient.OnMessageAdd += (s, e) => Update();
+            LongPollingClient.OnDialogUpdate += (s, e) => Update();
         }
 
         private void Update()

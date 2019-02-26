@@ -10,7 +10,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             return new Group
             {
-                Id = group["id"].Value<int>(),
+                Id = group["id"].Value<uint>(),
                 Name = group["name"].Value<string>(),
                 Photo = group["photo_50"].Value<string>()
             };

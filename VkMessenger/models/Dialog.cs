@@ -41,11 +41,11 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 switch (Type)
                 {
                     case DialogType.User:
-                        return Profiles.First().Id;
+                        return (int)Profiles.First().Id;
                     case DialogType.Chat:
-                        return Chat.Id;
+                        return (int)Chat.Id;
                     case DialogType.Group:
-                        return -Group.Id;
+                        return -(int)Group.Id;
                     default:
                         return 0;
                 }

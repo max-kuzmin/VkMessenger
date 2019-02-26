@@ -46,7 +46,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 result.Chat = new Chat
                 {
                     Name = dialog["conversation"]["chat_settings"]["title"].Value<string>(),
-                    Id = dialog["conversation"]["peer"]["id"].Value<int>()
+                    Id = dialog["conversation"]["peer"]["id"].Value<uint>()
                 };
 
                 result.Profiles = new List<Profile>();

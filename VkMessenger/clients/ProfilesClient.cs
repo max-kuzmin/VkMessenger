@@ -10,7 +10,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             return new Profile
             {
-                Id = profile["id"].Value<int>(),
+                Id = profile["id"].Value<uint>(),
                 Name = profile["first_name"].Value<string>(),
                 Surname = profile["last_name"].Value<string>(),
                 Photo = profile["photo_50"].Value<string>(),

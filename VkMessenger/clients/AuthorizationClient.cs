@@ -7,11 +7,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class AuthorizationClient
     {
+        
+
         public static string GetAutorizeUri()
         {
             return
                 "https://oauth.vk.com/authorize" +
-                "?client_id=" + Setting.ClientId +
+                "?client_id=" + Models.Authorization.ClientId +
                 "&redirect_uri=https://oauth.vk.com/blank.html" +
                 "&scope=4096" +
                 "&response_type=token" +
@@ -22,7 +24,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var token = string.Concat(Regex.Match(url, @"access_token=(\d|\w)*").Value.Skip(13));
             var userIdString = string.Concat(Regex.Match(url, @"user_id=\d*").Value.Skip(8));
-            if (token.Length == 85 && int.TryParse(userIdString, out var userId))
+            if (token.Length == 85 && uint.TryParse(userIdString, out var userId))
             {
                 Models.Authorization.Token = token;
                 Models.Authorization.UserId = userId;

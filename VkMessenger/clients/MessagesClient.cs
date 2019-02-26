@@ -32,7 +32,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             return new Message
             {
-                Id = source["id"].Value<int>(),
+                Id = source["id"].Value<uint>(),
                 Text = source["text"].Value<string>(),
                 Date = new DateTime(source["date"].Value<int>(), DateTimeKind.Utc),
                 Profile = profiles.FirstOrDefault(p => p.Id == source["from_id"].Value<int>())

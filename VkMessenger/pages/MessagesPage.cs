@@ -20,6 +20,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             this.dialogId = dialogId;
             Setup();
+            LongPollingClient.OnMessageAdd += (s, e) => { if (e.DialogId == dialogId) Update(); };
+            LongPollingClient.OnMessageUpdate += (s, e) => { if (e.DialogId == dialogId) Update(); };
         }
 
         private void Update()
@@ -30,6 +32,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
                 if (found == null)
                     messages.Insert(0, item);
+                else if (found.Text != item.Text)
+                    found.Text = item.Text;
             }
         }
 
