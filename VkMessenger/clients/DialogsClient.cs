@@ -25,21 +25,21 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var result = new Dialog
             {
-                UnreadCount = dialog["conversation"]["unread_count"]?.Value<uint>() ?? 0,
-                LastMessage = MessagesClient.FromJson(dialog["last_message"] as JObject, profiles)
+                UnreadCount = dialog["conversation"]["unread_count"]?.Value<uint>() ?? 0u,
+                LastMessage = MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups)
             };
 
-            var peerId = dialog["conversation"]["peer"]["id"].Value<int>();
+            var dialogId = dialog["conversation"]["peer"]["id"].Value<int>();
             var peerType = dialog["conversation"]["peer"]["type"].Value<string>();
             if (peerType == "user")
             {
                 result.Type = DialogType.User;
-                result.Profiles = new List<Profile> { profiles.First(p => p.Id == peerId) };
+                result.Profiles = new List<Profile> { profiles.First(p => p.Id == dialogId) };
             }
             else if (peerType == "group")
             {
                 result.Type = DialogType.Group;
-                result.Group = groups.First(g => g.Id == Math.Abs(peerId));
+                result.Group = groups.First(g => g.Id == Math.Abs(dialogId));
             }
             else if (peerType == "chat")
             {
@@ -47,14 +47,14 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 result.Chat = new Chat
                 {
                     Name = dialog["conversation"]["chat_settings"]["title"].Value<string>(),
-                    Id = (uint)peerId
+                    Id = (uint)dialogId
                 };
 
                 result.Profiles = new List<Profile>();
                 var ids = dialog["conversation"]["chat_settings"]["active_ids"] as JArray;
                 foreach (var id in ids)
                 {
-                    result.Profiles.Add(profiles.First(p => p.Id == id.Value<int>()));
+                    result.Profiles.Add(profiles.First(p => p.Id == id.Value<uint>()));
                 }
 
                 if (dialog["conversation"]["chat_settings"]["photo"] != null)
@@ -69,15 +69,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         private static Profile GetFriend(JObject dialog, JArray profiles)
         {
             var dialogId = dialog["conversation"]["peer"]["id"].Value<int>();
-            var profile = profiles.Where(o => o["id"].Value<int>() == dialogId).FirstOrDefault();
+            var profile = profiles.Where(o => o["id"].Value<uint>() == dialogId).FirstOrDefault();
             if (profile != null)
             {
                 return ProfilesClient.FromJson(profile as JObject);
             }
-            else
-            {
-                return null;
-            }
+            else return null;
         }
 
         public static List<Dialog> GetDialogs()

@@ -20,9 +20,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var result = new List<Group>();
 
-            foreach (var item in groups)
+            if (groups != null)
             {
-                result.Add(FromJson(item as JObject));
+                foreach (var item in groups)
+                {
+                    result.Add(FromJson(item as JObject));
+                }
             }
 
             return result;

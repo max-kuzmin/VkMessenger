@@ -4,6 +4,6 @@
     {
         public uint MessageId { get; set; }
 
-        public uint DialogId { get; set; }
+        public int DialogId { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static event EventHandler<MessageEventArgs> OnMessageUpdate;
 
-        public static event EventHandler<uint> OnDialogUpdate;
+        public static event EventHandler<int> OnDialogUpdate;
 
         public static event EventHandler<UserStatusEventArgs> OnUserStatusUpdate;
 
@@ -55,14 +55,14 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     {
                         case 4:
                             OnMessageAdd?.Invoke(null,
-                                new MessageEventArgs { MessageId = update[1].Value<uint>(), DialogId = update[3].Value<uint>() });
+                                new MessageEventArgs { MessageId = update[1].Value<uint>(), DialogId = update[3].Value<int>() });
                             break;
                         case 1:
                         case 2:
                         case 3:
                         case 5:
                             OnMessageUpdate?.Invoke(null,
-                                new MessageEventArgs { MessageId = update[1].Value<uint>(), DialogId = update[3].Value<uint>() });
+                                new MessageEventArgs { MessageId = update[1].Value<uint>(), DialogId = update[3].Value<int>() });
                             break;
                         case 6:
                         case 7:
@@ -71,7 +71,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         case 12:
                         case 13:
                         case 14:
-                            OnDialogUpdate?.Invoke(null, update[1].Value<uint>());
+                            OnDialogUpdate?.Invoke(null, update[1].Value<int>());
                             break;
                         case 8:
                             OnUserStatusUpdate?.Invoke(null,

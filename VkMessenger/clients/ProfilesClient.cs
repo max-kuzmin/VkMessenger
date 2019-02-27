@@ -14,7 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 Name = profile["first_name"].Value<string>(),
                 Surname = profile["last_name"].Value<string>(),
                 Photo = profile["photo_50"].Value<string>(),
-                IsOnline = profile["online"].Value<int>() != 0
+                IsOnline = profile["online"].Value<uint>() != 0
             };
         }
 
@@ -22,9 +22,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var result = new List<Profile>();
 
-            foreach (var item in profiles)
+            if (profiles != null)
             {
-                result.Add(FromJson(item as JObject));
+                foreach (var item in profiles)
+                {
+                    result.Add(FromJson(item as JObject));
+                }
             }
 
             return result;

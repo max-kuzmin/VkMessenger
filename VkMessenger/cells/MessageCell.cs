@@ -46,7 +46,8 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         {
             if (bindable is MessageCell cell)
             {
-                if ((int)newValue != Authorization.UserId)
+                var dialogId = (int)newValue;
+                if (dialogId != Authorization.UserId)
                 {
                     cell.wrapperLayout.LowerChild(cell.photo);
                     cell.photo.HorizontalOptions = LayoutOptions.End;

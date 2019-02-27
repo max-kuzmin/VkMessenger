@@ -78,7 +78,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 var unreadCount = (uint)newValue;
                 if (unreadCount > 0)
                 {
-                    cell.unreadCount.Text = $"({(uint)newValue})";
+                    cell.unreadCount.Text = $"({unreadCount})";
                     cell.View.BackgroundColor = Color.FromHex("00354A");
                 }
                 else
