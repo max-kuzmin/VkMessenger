@@ -30,10 +30,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static Message FromJson(JObject source, List<Profile> profiles)
         {
+            var text = source["text"].Value<string>();
             return new Message
             {
                 Id = source["id"].Value<uint>(),
-                Text = source["text"].Value<string>(),
+                Text = text.Length > 200 ? text.Substring(0, 200) + "..." : text,
                 Date = new DateTime(source["date"].Value<int>(), DateTimeKind.Utc),
                 Profile = profiles.FirstOrDefault(p => p.Id == source["from_id"].Value<int>())
             };

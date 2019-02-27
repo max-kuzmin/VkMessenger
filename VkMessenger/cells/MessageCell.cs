@@ -13,8 +13,6 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         };
         private Label text = new Label
         {
-            VerticalOptions = LayoutOptions.FillAndExpand,
-            HorizontalOptions = LayoutOptions.FillAndExpand,
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             LineBreakMode = LineBreakMode.WordWrap
         };
@@ -52,11 +50,13 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 {
                     cell.wrapperLayout.LowerChild(cell.photo);
                     cell.photo.HorizontalOptions = LayoutOptions.End;
+                    cell.text.HorizontalOptions = LayoutOptions.StartAndExpand;
                 }
                 else
                 {
                     cell.wrapperLayout.RaiseChild(cell.photo);
                     cell.photo.HorizontalOptions = LayoutOptions.Start;
+                    cell.text.HorizontalOptions = LayoutOptions.EndAndExpand;
                 }
             }
         }

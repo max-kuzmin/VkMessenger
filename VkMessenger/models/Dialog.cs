@@ -56,7 +56,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         {
             get
             {
-                if (Chat.Photo != null)
+                if (Chat?.Photo != null)
                     return Chat.Photo;
                 else if (Group != null)
                     return Group.Photo;

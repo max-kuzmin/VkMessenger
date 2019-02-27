@@ -29,16 +29,17 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 LastMessage = MessagesClient.FromJson(dialog["last_message"] as JObject, profiles)
             };
 
+            var peerId = dialog["conversation"]["peer"]["id"].Value<int>();
             var peerType = dialog["conversation"]["peer"]["type"].Value<string>();
             if (peerType == "user")
             {
                 result.Type = DialogType.User;
-                result.Profiles = new List<Profile> { profiles.First(p => p.Id == result.Id) };
+                result.Profiles = new List<Profile> { profiles.First(p => p.Id == peerId) };
             }
             else if (peerType == "group")
             {
                 result.Type = DialogType.Group;
-                result.Group = groups.First(g => g.Id == Math.Abs(result.Id));
+                result.Group = groups.First(g => g.Id == Math.Abs(peerId));
             }
             else if (peerType == "chat")
             {
@@ -46,7 +47,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 result.Chat = new Chat
                 {
                     Name = dialog["conversation"]["chat_settings"]["title"].Value<string>(),
-                    Id = dialog["conversation"]["peer"]["id"].Value<uint>()
+                    Id = (uint)peerId
                 };
 
                 result.Profiles = new List<Profile>();

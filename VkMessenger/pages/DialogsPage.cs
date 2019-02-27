@@ -16,6 +16,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         public DialogsPage()
         {
             NavigationPage.SetHasNavigationBar(this, false);
+            Update();
             Setup();
             LongPollingClient.OnMessageAdd += (s, e) => Update();
             LongPollingClient.OnDialogUpdate += (s, e) => Update();
@@ -27,13 +28,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 var found = dialogs.FirstOrDefault(d => d.Id == item.Id);
 
-                if (found != null && item.UnreadCount > 0)
+                if (found == null)
+                    dialogs.Add(item);
+                else if (item.UnreadCount > 0)
                 {
                     found.LastMessage = item.LastMessage;
                     found.UnreadCount = item.UnreadCount;
-                    dialogs.Move(dialogs.IndexOf(found), 0);
+                    dialogs.Move(dialogs.IndexOf(found), dialogs.Count - 1);
                 }
-                else dialogs.Insert(0, item);
             }
         }
 
@@ -51,12 +53,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var dialog = e.SelectedItem as Dialog;
             Navigation.PushAsync(new MessagesPage(dialog.Id));
             DialogsClient.MarkAsRead(dialog.Id);
-        }
-
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            Update();
         }
     }
 }

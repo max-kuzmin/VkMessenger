@@ -19,6 +19,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             NavigationPage.SetHasNavigationBar(this, false);
 
             this.dialogId = dialogId;
+            Update();
             Setup();
             LongPollingClient.OnMessageAdd += (s, e) => { if (e.DialogId == dialogId) Update(); };
             LongPollingClient.OnMessageUpdate += (s, e) => { if (e.DialogId == dialogId) Update(); };
@@ -31,7 +32,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 var found = messages.FirstOrDefault(d => d.Id == item.Id);
 
                 if (found == null)
-                    messages.Insert(0, item);
+                    messages.Add(item);
                 else if (found.Text != item.Text)
                     found.Text = item.Text;
             }
@@ -44,12 +45,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             messagesListView.HasUnevenRows = true;
             messagesListView.ItemsSource = messages;
             Content = messagesListView;
-        }
-
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            Update();
         }
 
         protected override bool OnBackButtonPressed()

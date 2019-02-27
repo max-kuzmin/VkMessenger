@@ -15,31 +15,30 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         };
         private Label name = new Label
         {
-            VerticalOptions = LayoutOptions.Start,
+            VerticalOptions = LayoutOptions.Fill,
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
-            FontAttributes = FontAttributes.Bold
+            FontAttributes = FontAttributes.Bold,
+            LineBreakMode = LineBreakMode.TailTruncation
         };
         private Label unreadCount = new Label
         {
-            VerticalOptions = LayoutOptions.FillAndExpand,
+            VerticalOptions = LayoutOptions.Fill,
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
             FontAttributes = FontAttributes.Bold
         };
         private Label text = new Label
         {
-            VerticalOptions = LayoutOptions.FillAndExpand,
+            VerticalOptions = LayoutOptions.Fill,
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             TextColor = Color.Gray,
             LineBreakMode = LineBreakMode.TailTruncation
         };
         private StackLayout nameLayout = new StackLayout
         {
-            HorizontalOptions = LayoutOptions.Start,
             Orientation = StackOrientation.Horizontal
         };
         private StackLayout nameAndtextLayout = new StackLayout
         {
-            HorizontalOptions = LayoutOptions.FillAndExpand,
             Orientation = StackOrientation.Vertical
         };
         private StackLayout wrapperLayout = new StackLayout
