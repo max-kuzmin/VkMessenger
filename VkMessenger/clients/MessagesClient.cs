@@ -9,6 +9,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class MessagesClient
     {
+        private static readonly Random rnd = new Random((int)DateTime.UtcNow.Ticks);
+
         public static List<Message> GetMessages(int dialogId)
         {
             var json = JObject.Parse(GetMessagesJson(dialogId));
@@ -36,7 +38,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             return new Message
             {
                 Id = source["id"].Value<uint>(),
-                Text = text.Length > 200 ? text.Substring(0, 200) + "..." : text,
+                Text = text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text,
                 Date = new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc),
                 Profile = profiles.FirstOrDefault(p => p.Id == dialogId),
                 Group = groups.FirstOrDefault(p => p.Id == Math.Abs(dialogId))
@@ -55,6 +57,22 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using (var client = new WebClient())
             {
                 return client.DownloadString(url);
+            }
+        }
+
+        public static void Send(string text, int dialogId)
+        {
+            var url =
+                "https://api.vk.com/method/messages.send" +
+                "?v=5.92" +
+                "&random_id=" + rnd.Next() +
+                "&peer_id=" + dialogId +
+                "&message=" + text +
+                "&access_token=" + Models.Authorization.Token;
+
+            using (var client = new WebClient())
+            {
+                client.DownloadString(url);
             }
         }
     }

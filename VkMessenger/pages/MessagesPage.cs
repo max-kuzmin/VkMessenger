@@ -43,6 +43,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
             messagesListView.ItemTemplate = new DataTemplate(typeof(MessageCell));
             messagesListView.HasUnevenRows = true;
+            messagesListView.ItemSelected += OnMessageSelected;
             messagesListView.ItemsSource = messages;
             Content = messagesListView;
         }
@@ -51,6 +52,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             Navigation.PopAsync();
             return true;
+        }
+
+        private void OnMessageSelected(object sender, SelectedItemChangedEventArgs e)
+        {
+            Navigation.PushAsync(new SendMessagePage(dialogId));
         }
     }
 }

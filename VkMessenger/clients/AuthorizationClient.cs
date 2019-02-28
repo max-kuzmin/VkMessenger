@@ -15,7 +15,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "https://oauth.vk.com/authorize" +
                 "?client_id=" + Models.Authorization.ClientId +
                 "&redirect_uri=https://oauth.vk.com/blank.html" +
-                "&scope=4096" +
+                "&scope=" + (4096 + 65536) +
                 "&response_type=token" +
                 "&v=5.92";
         }
