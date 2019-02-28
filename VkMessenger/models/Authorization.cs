@@ -1,4 +1,6 @@
-﻿using Tizen.Applications;
+﻿using System;
+using Tizen.Applications;
+using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
 {
@@ -22,10 +24,24 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             set => Preference.Set(UserIdKey, (int)value);
         }
 
-        public static string Photo
+        public static UriImageSource Photo
         {
-            get => Preference.Contains(UserIdKey) ? Preference.Get<string>(PhotoKey) : null;
-            set => Preference.Set(PhotoKey, value);
+            get
+            {
+                if (photoSource == null && Preference.Contains(UserIdKey))
+                {
+                    photoSource = new UriImageSource { Uri = new Uri(Preference.Get<string>(PhotoKey)) };
+                }
+                return photoSource;
+            }
         }
+
+        public static void SetPhoto(string url)
+        {
+            Preference.Set(PhotoKey, url);
+            photoSource = new UriImageSource { Uri = new Uri(url) };
+        }
+
+        private static UriImageSource photoSource = null;
     }
 }

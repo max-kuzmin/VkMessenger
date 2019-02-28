@@ -52,7 +52,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
-        public string Photo
+        public UriImageSource Photo
         {
             get
             {

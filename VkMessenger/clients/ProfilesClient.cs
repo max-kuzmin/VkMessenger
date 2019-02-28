@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Models;
+using System;
 using System.Collections.Generic;
+using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -13,7 +15,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 Id = profile["id"].Value<uint>(),
                 Name = profile["first_name"].Value<string>(),
                 Surname = profile["last_name"].Value<string>(),
-                Photo = profile["photo_50"].Value<string>(),
+                Photo = new UriImageSource {  Uri = new Uri(profile["photo_50"].Value<string>()) },
                 IsOnline = profile["online"].Value<uint>() != 0
             };
         }

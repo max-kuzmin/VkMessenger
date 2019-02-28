@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -43,23 +44,24 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
             else if (peerType == "chat")
             {
+                var chatSettings = dialog["conversation"]["chat_settings"];
                 result.Type = DialogType.Chat;
                 result.Chat = new Chat
                 {
-                    Name = dialog["conversation"]["chat_settings"]["title"].Value<string>(),
+                    Name = chatSettings["title"].Value<string>(),
                     Id = (uint)dialogId
                 };
 
                 result.Profiles = new List<Profile>();
-                var ids = dialog["conversation"]["chat_settings"]["active_ids"] as JArray;
+                var ids = chatSettings["active_ids"] as JArray;
                 foreach (var id in ids)
                 {
                     result.Profiles.Add(profiles.First(p => p.Id == id.Value<uint>()));
                 }
 
-                if (dialog["conversation"]["chat_settings"]["photo"] != null)
+                if (chatSettings["photo"] != null)
                 {
-                    result.Chat.Photo = dialog["conversation"]["chat_settings"]["photo"]["photo_50"].Value<string>();
+                    result.Chat.Photo = new UriImageSource { Uri = new Uri(chatSettings["photo"]["photo_50"].Value<string>()) };
                 }
             }
 

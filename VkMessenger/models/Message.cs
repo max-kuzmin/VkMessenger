@@ -1,4 +1,5 @@
 ﻿using System;
+using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
 {
@@ -22,6 +23,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                     return (int)Authorization.UserId;
             }
         }
-        public string Photo => Profile?.Photo ?? Group?.Photo ?? Authorization.Photo;
+        public UriImageSource Photo => Profile?.Photo ?? Group?.Photo ?? Authorization.Photo;
     }
 }
