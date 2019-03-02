@@ -18,8 +18,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             NavigationPage.SetHasNavigationBar(this, false);
             Update();
             Setup();
-            LongPollingClient.OnMessageAdd += (s, e) => Update();
-            LongPollingClient.OnDialogUpdate += (s, e) => Update();
         }
 
         private void Update()
@@ -46,6 +44,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             dialogsListView.ItemSelected += OnDialogSelected;
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
+
+            LongPollingClient.OnMessageAdd += (s, e) => Update();
+            LongPollingClient.OnDialogUpdate += (s, e) => Update();
         }
 
         private void OnDialogSelected(object sender, SelectedItemChangedEventArgs e)
