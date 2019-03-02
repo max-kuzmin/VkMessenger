@@ -45,14 +45,20 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private void Update()
         {
-            foreach (var item in MessagesClient.GetMessages(dialogId))
+            lock (messages)
             {
-                var found = messages.FirstOrDefault(d => d.Id == item.Id);
+                foreach (var item in MessagesClient.GetMessages(dialogId).AsEnumerable().Reverse())
+                {
+                    var found = messages.FirstOrDefault(d => d.Id == item.Id);
 
-                if (found == null)
-                    messages.Add(item);
-                else if (found.Text != item.Text)
-                    found.Text = item.Text;
+                    if (found == null)
+                        messages.Insert(0, item);
+                    else if (found.Text != item.Text)
+                    {
+                        found.Text = item.Text;
+                        found.InvokePropertyChanged();
+                    }
+                }
             }
         }
 

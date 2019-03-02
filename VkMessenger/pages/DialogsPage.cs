@@ -10,7 +10,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class DialogsPage : CirclePage
     {
-        private readonly CircleListView dialogsListView = new CircleListView();
+        private readonly CircleListView dialogsListView = new CircleListView
+        {
+            ItemTemplate = new DataTemplate(typeof(DialogCell))
+        };
         private readonly ObservableCollection<Dialog> dialogs = new ObservableCollection<Dialog>();
 
         public DialogsPage()
@@ -22,17 +25,26 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private void Update()
         {
-            foreach (var item in DialogsClient.GetDialogs())
+            lock (dialogs)
             {
-                var found = dialogs.FirstOrDefault(d => d.Id == item.Id);
-
-                if (found == null)
-                    dialogs.Add(item);
-                else if (item.UnreadCount > 0)
+                foreach (var item in DialogsClient.GetDialogs().AsEnumerable().Reverse())
                 {
-                    found.LastMessage = item.LastMessage;
-                    found.UnreadCount = item.UnreadCount;
-                    dialogs.Move(dialogs.IndexOf(found), dialogs.Count - 1);
+                    var found = dialogs.FirstOrDefault(d => d.Id == item.Id);
+
+                    if (found == null)
+                        dialogs.Insert(0, item);
+                    else if (found.LastMessage.Text != item.LastMessage.Text)
+                    {
+                        found.LastMessage = item.LastMessage;
+                        found.UnreadCount = item.UnreadCount;
+
+                        if (dialogs.Last() != found)
+                        {
+                            dialogs.Remove(found);
+                            dialogs.Insert(0, found);
+                        }
+                        else found.InvokePropertyChanged();
+                    }
                 }
             }
         }
@@ -40,7 +52,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private void Setup()
         {
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
-            dialogsListView.ItemTemplate = new DataTemplate(typeof(DialogCell));
             dialogsListView.ItemSelected += OnDialogSelected;
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
@@ -50,7 +61,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         }
 
         private void OnDialogSelected(object sender, SelectedItemChangedEventArgs e)
-        {
+        {   
             var dialog = e.SelectedItem as Dialog;
             Navigation.PushAsync(new MessagesPage(dialog.Id));
             DialogsClient.MarkAsRead(dialog.Id);

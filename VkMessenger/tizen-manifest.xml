@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest package="ru.MaxKuzmin.VkMessenger" version="1.0.0" api-version="4" xmlns="http://tizen.org/ns/packages">
+<manifest package="ru.MaxKuzmin.VkMessenger" version="0.1.0" api-version="4" xmlns="http://tizen.org/ns/packages">
     <profile name="wearable" />
     <ui-application appid="ru.MaxKuzmin.VkMessenger" exec="VkMessenger.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" launch_mode="single">
         <label>VkMessenger</label>
@@ -11,6 +11,7 @@
     <privileges>
         <privilege>http://tizen.org/privilege/network.get</privilege>
         <privilege>http://tizen.org/privilege/internet</privilege>
+        <privilege>http://tizen.org/privilege/haptic</privilege>
     </privileges>
     <provides-appdefined-privileges />
 </manifest>

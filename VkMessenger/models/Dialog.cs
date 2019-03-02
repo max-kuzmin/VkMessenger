@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
 {
-    public class Dialog
+    public class Dialog : INotifyPropertyChanged
     {
         public List<Profile> Profiles { get; set; }
         public Group Group { get; set; }
@@ -66,5 +67,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                     return null;
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void InvokePropertyChanged() => PropertyChanged(this, new PropertyChangedEventArgs(null));
     }
 }

@@ -8,6 +8,7 @@
     <Authors>Max Kuzmin</Authors>
     <Company />
     <PackageId>ru.MaxKuzmin.VkMessenger</PackageId>
+    <Version>0.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

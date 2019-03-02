@@ -13,17 +13,17 @@ namespace ru.MaxKuzmin.VkMessenger
 #endif
 
             MainPage = new NavigationMainPage();
-            //LongPollingClient.Start();
+            LongPollingClient.Start();
         }
 
         protected override void OnSleep()
         {
-            //LongPollingClient.Stop();
+            LongPollingClient.Stop();
         }
 
         protected override void OnResume()
         {
-            //LongPollingClient.Start();
+            LongPollingClient.Start();
         }
     }
 }

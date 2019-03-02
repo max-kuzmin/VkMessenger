@@ -3,6 +3,7 @@ using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using Tizen.System;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -15,6 +16,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         public static event EventHandler<int> OnDialogUpdate;
 
         public static event EventHandler<UserStatusEventArgs> OnUserStatusUpdate;
+
+        public static event EventHandler<UserTypingEventArgs> OnUserTyping;
 
         private static void GetLongPollServer()
         {
@@ -53,15 +56,16 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 {
                     switch (update[0].Value<uint>())
                     {
-                        case 4:
-                            OnMessageAdd?.Invoke(null,
-                                new MessageEventArgs { MessageId = update[1].Value<uint>(), DialogId = update[3].Value<int>() });
-                            break;
                         case 1:
                         case 2:
                         case 3:
                         case 5:
                             OnMessageUpdate?.Invoke(null,
+                                new MessageEventArgs { MessageId = update[1].Value<uint>(), DialogId = update[3].Value<int>() });
+                            break;
+                        case 4:
+                            new Feedback().Play(FeedbackType.Vibration, "Tap");
+                            OnMessageAdd?.Invoke(null,
                                 new MessageEventArgs { MessageId = update[1].Value<uint>(), DialogId = update[3].Value<int>() });
                             break;
                         case 6:
@@ -71,6 +75,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         case 12:
                         case 13:
                         case 14:
+                        case 51:
+                        case 52:
                             OnDialogUpdate?.Invoke(null, update[1].Value<int>());
                             break;
                         case 8:
@@ -80,6 +86,14 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         case 9:
                             OnUserStatusUpdate?.Invoke(null,
                                 new UserStatusEventArgs { UserId = update[1].Value<uint>(), Online = false });
+                            break;
+                        case 61:
+                            OnUserTyping?.Invoke(null,
+                                new UserTypingEventArgs { UserId = update[1].Value<uint>(), DialogId = update[1].Value<int>() });
+                            break;
+                        case 62:
+                            OnUserTyping?.Invoke(null,
+                                new UserTypingEventArgs { UserId = update[1].Value<uint>(), DialogId = update[2].Value<int>() });
                             break;
                         default:
                             break;
@@ -102,12 +116,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         if (LongPolling.Key == null)
                         {
                             GetLongPollServer();
-                            Task.Delay(10000);
                         }
                         else
-                        {
                             SendLongRequest();
-                        }
                     }
                 }
             });

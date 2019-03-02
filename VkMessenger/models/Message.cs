@@ -1,9 +1,10 @@
 ﻿using System;
+using System.ComponentModel;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
 {
-    public class Message
+    public class Message : INotifyPropertyChanged
     {
         public const int MaxLength = 200;
 
@@ -26,5 +27,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
         public UriImageSource Photo => Profile?.Photo ?? Group?.Photo ?? Authorization.Photo;
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void InvokePropertyChanged() => PropertyChanged(this, new PropertyChangedEventArgs(null));
     }
 }
