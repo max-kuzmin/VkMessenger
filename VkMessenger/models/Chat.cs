@@ -6,6 +6,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     {
         public uint Id { get; set; }
         public UriImageSource Photo { get; set; }
-        public string Name { get; set; }
+        public string Title { get; set; }
     }
 }

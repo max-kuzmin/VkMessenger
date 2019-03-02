@@ -16,8 +16,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public DialogType Type { get; set; }
         public uint UnreadCount { get; set; }
         public string Text => LastMessage.Text;
+        public bool IsOnline => Type == DialogType.User ? Profiles.First().IsOnline : false;
 
-        public string Name
+        public string Title
         {
             get
             {
@@ -28,7 +29,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                     case DialogType.Group:
                         return Group.Name;
                     case DialogType.Chat:
-                        return Chat.Name;
+                        return Chat.Title;
                     default:
                         return string.Empty;
                 }

@@ -53,7 +53,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
                     if (found == null)
                         messages.Insert(0, item);
-                    else if (found.Text != item.Text)
+                    else
                     {
                         found.Text = item.Text;
                         found.InvokePropertyChanged();
@@ -66,13 +66,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
             messagesListView.ItemsSource = messages;
+            messagesListView.RefreshCommand = new Command(Update);
             popupEntryView.Completed += OnSend;
 
             verticalLayout.Children.Add(messagesListView);
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
 
-            LongPollingClient.OnMessageAdd += (s, e) => { if (e.DialogId == dialogId) Update(); };
+            //TODO: Replace with getting only one message
             LongPollingClient.OnMessageUpdate += (s, e) => { if (e.DialogId == dialogId) Update(); };
         }
 

@@ -48,7 +48,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 result.Type = DialogType.Chat;
                 result.Chat = new Chat
                 {
-                    Name = chatSettings["title"].Value<string>(),
+                    Title = chatSettings["title"].Value<string>(),
                     Id = (uint)dialogId
                 };
 

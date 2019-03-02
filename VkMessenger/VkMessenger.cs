@@ -1,3 +1,5 @@
+using System;
+using Tizen.Wearable.CircularUI.Forms;
 using Tizen.Wearable.CircularUI.Forms.Renderer;
 using Xamarin.Forms.Platform.Tizen;
 
@@ -17,7 +19,15 @@ namespace ru.MaxKuzmin.VkMessenger
             var app = new Program();
             Forms.Init(app);
             FormsCircularUI.Init();
-            app.Run(args);
+            try
+            {
+                app.Run(args);
+            }
+            catch (Exception e)
+            {
+                Log.Fatal(string.Empty, e.ToString());
+                Toast.DisplayText(e.Message, 10);
+            }
         }
     }
 }

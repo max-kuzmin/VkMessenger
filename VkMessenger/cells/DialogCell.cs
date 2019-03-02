@@ -13,7 +13,15 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             WidthRequest = 75
 
         };
-        private Label name = new Label
+        private Label text = new Label
+        {
+            VerticalOptions = LayoutOptions.Fill,
+            FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
+            TextColor = Color.Gray,
+            LineBreakMode = LineBreakMode.TailTruncation,
+            HeightRequest = 40
+        };
+        private Label title = new Label
         {
             VerticalOptions = LayoutOptions.Fill,
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
@@ -26,18 +34,18 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
             FontAttributes = FontAttributes.Bold
         };
-        private Label text = new Label
+        private Label isOnlineIndicator = new Label
         {
             VerticalOptions = LayoutOptions.Fill,
-            FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
-            TextColor = Color.Gray,
-            LineBreakMode = LineBreakMode.TailTruncation
+            FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
+            TextColor = Color.LightGreen,
+            FontAttributes = FontAttributes.Bold
         };
-        private StackLayout nameLayout = new StackLayout
+        private StackLayout titleLayout = new StackLayout
         {
             Orientation = StackOrientation.Horizontal
         };
-        private StackLayout nameAndtextLayout = new StackLayout
+        private StackLayout titleAndtextLayout = new StackLayout
         {
             Orientation = StackOrientation.Vertical
         };
@@ -55,19 +63,29 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 default(uint),
                 propertyChanged: OnUnreadCountPropertyChanged);
 
+        private static readonly BindableProperty IsOnlineProperty =
+            BindableProperty.Create(
+                nameof(Dialog.IsOnline),
+                typeof(bool),
+                typeof(DialogCell),
+                default(bool),
+                propertyChanged: OnIsOnlinePropertyChanged);
+
         public DialogCell()
         {
             photo.SetBinding(Image.SourceProperty, nameof(Dialog.Photo));
-            name.SetBinding(Label.TextProperty, nameof(Dialog.Name));
+            title.SetBinding(Label.TextProperty, nameof(Dialog.Title));
             text.SetBinding(Label.TextProperty, nameof(Dialog.Text));
             this.SetBinding(UnreadCountProperty, nameof(Dialog.UnreadCount));
+            this.SetBinding(IsOnlineProperty, nameof(Dialog.IsOnline));
 
-            nameLayout.Children.Add(name);
-            nameLayout.Children.Add(unreadCount);
-            nameAndtextLayout.Children.Add(nameLayout);
-            nameAndtextLayout.Children.Add(text);
+            titleLayout.Children.Add(title);
+            titleLayout.Children.Add(unreadCount);
+            titleLayout.Children.Add(isOnlineIndicator);
+            titleAndtextLayout.Children.Add(titleLayout);
+            titleAndtextLayout.Children.Add(text);
             wrapperLayout.Children.Add(photo);
-            wrapperLayout.Children.Add(nameAndtextLayout);
+            wrapperLayout.Children.Add(titleAndtextLayout);
             View = wrapperLayout;
         }
 
@@ -87,6 +105,12 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                     cell.View.BackgroundColor = Color.Black;
                 }
             }
+        }
+
+        private static void OnIsOnlinePropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is DialogCell cell)
+                cell.isOnlineIndicator.Text = (bool)newValue ? "•" : string.Empty;
         }
     }
 }

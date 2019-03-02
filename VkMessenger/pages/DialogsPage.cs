@@ -27,24 +27,39 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             lock (dialogs)
             {
-                foreach (var item in DialogsClient.GetDialogs().AsEnumerable().Reverse())
+                foreach (var newDialog in DialogsClient.GetDialogs().AsEnumerable().Reverse())
                 {
-                    var found = dialogs.FirstOrDefault(d => d.Id == item.Id);
+                    var foundDialog = dialogs.FirstOrDefault(d => d.Id == newDialog.Id);
 
-                    if (found == null)
-                        dialogs.Insert(0, item);
-                    else if (found.LastMessage.Text != item.LastMessage.Text)
+                    if (foundDialog == null)
+                        dialogs.Insert(0, newDialog);
+                    else
                     {
-                        found.LastMessage = item.LastMessage;
-                        found.UnreadCount = item.UnreadCount;
+                        UpdateDialog(newDialog, foundDialog);
 
-                        if (dialogs.Last() != found)
+                        if (dialogs.Last() != foundDialog)
                         {
-                            dialogs.Remove(found);
-                            dialogs.Insert(0, found);
+                            dialogs.Remove(foundDialog);
+                            dialogs.Insert(0, foundDialog);
                         }
-                        else found.InvokePropertyChanged();
+                        else foundDialog.InvokePropertyChanged();
                     }
+                }
+            }
+        }
+
+        private static void UpdateDialog(Dialog newDialog, Dialog foundDialog)
+        {
+            foundDialog.LastMessage = newDialog.LastMessage;
+            foundDialog.UnreadCount = newDialog.UnreadCount;
+
+            if (newDialog.Profiles != null)
+            {
+                foreach (var newProfile in newDialog.Profiles)
+                {
+                    var foundProfile = foundDialog.Profiles.FirstOrDefault(p => p.Id == newProfile.Id);
+                    if (foundProfile != null)
+                        foundProfile.IsOnline = newDialog.IsOnline;
                 }
             }
         }
@@ -54,14 +69,26 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
             dialogsListView.ItemSelected += OnDialogSelected;
             dialogsListView.ItemsSource = dialogs;
+            dialogsListView.RefreshCommand = new Command(Update);
             Content = dialogsListView;
 
-            LongPollingClient.OnMessageAdd += (s, e) => Update();
+            //TODO: Replace with getting only one dialog
+            LongPollingClient.OnMessageUpdate += (s, e) => Update();
             LongPollingClient.OnDialogUpdate += (s, e) => Update();
+
+            LongPollingClient.OnUserStatusUpdate += (s, e) =>
+            {
+                foreach (var dialog in dialogs)
+                {
+                    foreach (var profile in dialog.Profiles.Where(p => p.Id == e.UserId))
+                        profile.IsOnline = e.IsOnline;
+                    dialog.InvokePropertyChanged();
+                }
+            };
         }
 
         private void OnDialogSelected(object sender, SelectedItemChangedEventArgs e)
-        {   
+        {
             var dialog = e.SelectedItem as Dialog;
             Navigation.PushAsync(new MessagesPage(dialog.Id));
             DialogsClient.MarkAsRead(dialog.Id);

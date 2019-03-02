@@ -9,8 +9,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class LongPollingClient
     {
-        public static event EventHandler<MessageEventArgs> OnMessageAdd;
-
         public static event EventHandler<MessageEventArgs> OnMessageUpdate;
 
         public static event EventHandler<int> OnDialogUpdate;
@@ -59,13 +57,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         case 1:
                         case 2:
                         case 3:
+                        case 4:
                         case 5:
                             OnMessageUpdate?.Invoke(null,
-                                new MessageEventArgs { MessageId = update[1].Value<uint>(), DialogId = update[3].Value<int>() });
-                            break;
-                        case 4:
-                            new Feedback().Play(FeedbackType.Vibration, "Tap");
-                            OnMessageAdd?.Invoke(null,
                                 new MessageEventArgs { MessageId = update[1].Value<uint>(), DialogId = update[3].Value<int>() });
                             break;
                         case 6:
@@ -81,11 +75,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                             break;
                         case 8:
                             OnUserStatusUpdate?.Invoke(null,
-                                new UserStatusEventArgs { UserId = update[1].Value<uint>(), Online = true });
+                                new UserStatusEventArgs { UserId = update[1].Value<uint>(), IsOnline = true });
                             break;
                         case 9:
                             OnUserStatusUpdate?.Invoke(null,
-                                new UserStatusEventArgs { UserId = update[1].Value<uint>(), Online = false });
+                                new UserStatusEventArgs { UserId = update[1].Value<uint>(), IsOnline = false });
                             break;
                         case 61:
                             OnUserTyping?.Invoke(null,

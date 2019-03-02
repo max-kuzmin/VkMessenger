@@ -4,6 +4,6 @@
     {
         public uint UserId { get; set; }
 
-        public bool Online { get; set; }
+        public bool IsOnline { get; set; }
     }
 }
