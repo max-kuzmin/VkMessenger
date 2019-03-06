@@ -4,6 +4,7 @@ using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -39,15 +40,18 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             NavigationPage.SetHasNavigationBar(this, false);
 
             this.dialogId = dialogId;
-            Update();
             Setup();
+            Update();
         }
 
-        private void Update()
+        private async void Update()
         {
-            lock (messages)
+            try
             {
-                foreach (var item in MessagesClient.GetMessages(dialogId).AsEnumerable().Reverse())
+                Network.ThrowIfDisconnected();
+                var newMessages = await MessagesClient.GetMessages(dialogId);
+
+                foreach (var item in newMessages.AsEnumerable().Reverse())
                 {
                     var found = messages.FirstOrDefault(d => d.Id == item.Id);
 
@@ -59,6 +63,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                         found.InvokePropertyChanged();
                     }
                 }
+            }
+            catch (WebException)
+            {
+                Network.StartWaiting();
             }
         }
 
@@ -77,9 +85,21 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             LongPollingClient.OnMessageUpdate += (s, e) => { if (e.DialogId == dialogId) Update(); };
         }
 
-        private void OnSend(object sender, EventArgs e)
+        private async void OnSend(object sender, EventArgs e)
         {
-            MessagesClient.Send(popupEntryView.Text, dialogId);
+            var text = popupEntryView.Text;
+            try
+            {
+                Network.ThrowIfDisconnected();
+                await MessagesClient.Send(text, dialogId);
+                popupEntryView.Text = string.Empty;
+            }
+            catch (WebException)
+            {
+                popupEntryView.Text = text;
+                Network.StartWaiting();
+            }
+
             popupEntryView.Text = string.Empty;
         }
 

@@ -7,8 +7,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class AuthorizationClient
     {
-        
-
         public static string GetAutorizeUri()
         {
             return
@@ -34,7 +32,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             else return false;
         }
 
-        private static void GetPhoto()
+        private async static void GetPhoto()
         {
             var url =
                 "https://api.vk.com/method/users.get" +
@@ -45,7 +43,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using (var client = new WebClient())
             {
-                var json = JObject.Parse(client.DownloadString(url));
+                var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
                 Models.Authorization.SetPhoto(json["response"][0]["photo_50"].Value<string>());
             }
         }

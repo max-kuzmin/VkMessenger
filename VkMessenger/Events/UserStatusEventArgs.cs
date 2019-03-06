@@ -1,4 +1,4 @@
-﻿namespace ru.MaxKuzmin.VkMessenger.Models
+﻿namespace ru.MaxKuzmin.VkMessenger.Events
 {
     public class UserStatusEventArgs
     {

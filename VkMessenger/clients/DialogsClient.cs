@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
@@ -79,15 +80,15 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             else return null;
         }
 
-        public static List<Dialog> GetDialogs()
+        public async static Task<List<Dialog>> GetDialogs()
         {
-            var json = JObject.Parse(GetDialogsJson());
+            var json = JObject.Parse(await GetDialogsJson());
             var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
             var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
             return FromJsonArray(json["response"]["items"] as JArray, profiles, groups);
         }
 
-        private static string GetDialogsJson()
+        private async static Task<string> GetDialogsJson()
         {
             var url =
                 "https://api.vk.com/method/messages.getConversations" +
@@ -97,11 +98,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using (var client = new WebClient())
             {
-                return client.DownloadString(url);
+                return await client.DownloadStringTaskAsync(url);
             }
         }
 
-        public static void MarkAsRead(int dialogId)
+        public async static Task MarkAsRead(int dialogId)
         {
             var url =
                 "https://api.vk.com/method/messages.markAsRead" +
@@ -111,7 +112,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using (var client = new WebClient())
             {
-                client.DownloadString(url);
+                await client.DownloadStringTaskAsync(url);
             }
         }
     }

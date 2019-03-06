@@ -13,7 +13,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             NavigationPage.SetHasNavigationBar(this, false);
             Content = loginWebView;
-            loginWebView.Source = AuthorizationClient.GetAutorizeUri();
             loginWebView.Navigated += LoginCallback;
         }
 
@@ -27,6 +26,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 await Navigation.PushAsync(new DialogsPage());
                 Navigation.RemovePage(this);
             }
+        }
+
+        protected override void OnAppearing()
+        {
+            loginWebView.Source = AuthorizationClient.GetAutorizeUri();
+            base.OnAppearing();
         }
     }
 }

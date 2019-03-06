@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -11,9 +12,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
     {
         private static readonly Random rnd = new Random((int)DateTime.UtcNow.Ticks);
 
-        public static List<Message> GetMessages(int dialogId)
+        public async static Task<List<Message>> GetMessages(int dialogId)
         {
-            var json = JObject.Parse(GetMessagesJson(dialogId));
+            var json = JObject.Parse(await GetMessagesJson(dialogId));
             var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
             var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
             return FromJsonArray(json["response"]["items"] as JArray, profiles, groups);
@@ -45,7 +46,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             };
         }
 
-        private static string GetMessagesJson(int dialogId)
+        private async static Task<string> GetMessagesJson(int dialogId)
         {
             var url =
                 "https://api.vk.com/method/messages.getHistory" +
@@ -56,11 +57,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using (var client = new WebClient())
             {
-                return client.DownloadString(url);
+                return await client.DownloadStringTaskAsync(url);
             }
         }
 
-        public static void Send(string text, int dialogId)
+        public async static Task Send(string text, int dialogId)
         {
             var url =
                 "https://api.vk.com/method/messages.send" +
@@ -72,7 +73,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using (var client = new WebClient())
             {
-                client.DownloadString(url);
+                await client.DownloadStringTaskAsync(url);
             }
         }
     }

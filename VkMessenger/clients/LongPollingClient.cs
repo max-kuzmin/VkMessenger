@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Net;
@@ -17,7 +18,14 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static event EventHandler<UserTypingEventArgs> OnUserTyping;
 
-        private static void GetLongPollServer()
+        private static bool isStarted = false;
+
+        static LongPollingClient()
+        {
+            Network.OnConnected += Start;
+        }
+
+        private async static Task GetLongPollServer()
         {
             var url =
                 "https://api.vk.com/method/messages.getLongPollServer" +
@@ -27,7 +35,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using (var client = new WebClient())
             {
-                var json = JObject.Parse(client.DownloadString(url));
+                var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
 
                 LongPolling.Key = json["response"]["key"].Value<string>();
                 LongPolling.Server = json["response"]["server"].Value<string>();
@@ -35,7 +43,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private static void SendLongRequest()
+        private async static Task SendLongRequest()
         {
             var url = "https://" + LongPolling.Server +
                 "?act=a_check" +
@@ -46,7 +54,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using (var client = new WebClient())
             {
-                var json = JObject.Parse(client.DownloadString(url));
+                var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
 
                 LongPolling.Ts = json["ts"].Value<uint>();
 
@@ -96,31 +104,32 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        public static void Start()
+        private async static void Start(object sender, EventArgs e)
         {
-            if (LongPolling.Started) return;
-            LongPolling.Started = true;
+            if (isStarted)
+                return;
 
-            Task.Run(() =>
+            isStarted = true;
+
+            while (isStarted && Models.Authorization.Token != null)
             {
-                while (LongPolling.Started)
+                try
                 {
-                    if (Models.Authorization.Token != null)
+                    if (LongPolling.Key == null)
                     {
-                        if (LongPolling.Key == null)
-                        {
-                            GetLongPollServer();
-                        }
-                        else
-                            SendLongRequest();
+                        await GetLongPollServer();
                     }
-                }
-            });
-        }
+                    else
+                        await SendLongRequest();
 
-        public static void Stop()
-        {
-            LongPolling.Started = false;
+                    Network.ThrowIfDisconnected();
+                }
+                catch (WebException)
+                {
+                    isStarted = false;
+                    Network.StartWaiting();
+                }
+            }
         }
     }
 }

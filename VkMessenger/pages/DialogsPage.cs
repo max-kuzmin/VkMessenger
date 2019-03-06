@@ -1,8 +1,10 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Cells;
 using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -19,15 +21,18 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         public DialogsPage()
         {
             NavigationPage.SetHasNavigationBar(this, false);
-            Update();
             Setup();
+            Update();
         }
 
-        private void Update()
+        private async void Update()
         {
-            lock (dialogs)
+            try
             {
-                foreach (var newDialog in DialogsClient.GetDialogs().AsEnumerable().Reverse())
+                Network.ThrowIfDisconnected();
+                var newDialogs = await DialogsClient.GetDialogs();
+
+                foreach (var newDialog in newDialogs.AsEnumerable().Reverse())
                 {
                     var foundDialog = dialogs.FirstOrDefault(d => d.Id == newDialog.Id);
 
@@ -45,6 +50,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                         else foundDialog.InvokePropertyChanged();
                     }
                 }
+            }
+            catch (WebException)
+            {
+                Network.StartWaiting();
             }
         }
 
@@ -76,22 +85,32 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             LongPollingClient.OnMessageUpdate += (s, e) => Update();
             LongPollingClient.OnDialogUpdate += (s, e) => Update();
 
-            LongPollingClient.OnUserStatusUpdate += (s, e) =>
-            {
-                foreach (var dialog in dialogs)
-                {
-                    foreach (var profile in dialog.Profiles.Where(p => p.Id == e.UserId))
-                        profile.IsOnline = e.IsOnline;
-                    dialog.InvokePropertyChanged();
-                }
-            };
+            LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
         }
 
-        private void OnDialogSelected(object sender, SelectedItemChangedEventArgs e)
+        private void OnUserStatusUpdate(object sender, UserStatusEventArgs e)
         {
-            var dialog = e.SelectedItem as Dialog;
-            Navigation.PushAsync(new MessagesPage(dialog.Id));
-            DialogsClient.MarkAsRead(dialog.Id);
+            foreach (var dialog in dialogs)
+            {
+                foreach (var profile in dialog.Profiles.Where(p => p.Id == e.UserId))
+                    profile.IsOnline = e.IsOnline;
+                dialog.InvokePropertyChanged();
+            }
+        }
+
+        private async void OnDialogSelected(object sender, SelectedItemChangedEventArgs e)
+        {
+            try
+            {
+                Network.ThrowIfDisconnected();
+                var dialog = e.SelectedItem as Dialog;
+                await Navigation.PushAsync(new MessagesPage(dialog.Id));
+                await DialogsClient.MarkAsRead(dialog.Id);
+            }
+            catch (WebException)
+            {
+                Network.StartWaiting();
+            }
         }
     }
 }
