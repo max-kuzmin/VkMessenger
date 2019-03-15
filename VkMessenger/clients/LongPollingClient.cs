@@ -22,7 +22,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         static LongPollingClient()
         {
-            Network.OnConnected += Start;
+            Start();
+            Network.OnConnected += (o, e) => Start();
         }
 
         private async static Task GetLongPollServer()
@@ -104,7 +105,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private async static void Start(object sender, EventArgs e)
+        private async static void Start()
         {
             if (isStarted)
                 return;

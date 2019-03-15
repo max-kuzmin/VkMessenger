@@ -42,6 +42,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             this.dialogId = dialogId;
             Setup();
             Update();
+            Network.OnConnected += (s, e) => Update();
         }
 
         private async void Update()

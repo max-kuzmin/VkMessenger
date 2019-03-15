@@ -54,10 +54,10 @@ namespace ru.MaxKuzmin.VkMessenger
 
             while (isWaiting)
             {
-                if (ConnectionManager.BluetoothState == ConnectionState.Connected ||
-                    ConnectionManager.WiFiState == ConnectionState.Connected)
+                if (ConnectionManager.CurrentConnection.State == ConnectionState.Connected)
                 {
                     isConnected = true;
+                    isWaiting = false;
                     OnConnected?.Invoke(null, new EventArgs());
                     break;
                 }

@@ -23,6 +23,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             NavigationPage.SetHasNavigationBar(this, false);
             Setup();
             Update();
+            Network.OnConnected += (s, e) => Update();
         }
 
         private async void Update()
