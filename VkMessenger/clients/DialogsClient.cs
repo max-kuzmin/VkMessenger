@@ -11,24 +11,34 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class DialogsClient
     {
-        private static List<Dialog> FromJsonArray(JArray dialogs, List<Profile> profiles, List<Group> groups)
+        private static IReadOnlyCollection<Dialog> FromJsonArray(
+            JArray dialogs,
+            IReadOnlyCollection<Profile> profiles,
+            IReadOnlyCollection<Group> groups,
+            IReadOnlyCollection<Message> lastMessages)
         {
             var result = new List<Dialog>();
 
             foreach (var item in dialogs)
             {
-                result.Add(FromJson(item as JObject, profiles, groups));
+                result.Add(FromJson(item as JObject, profiles, groups, lastMessages));
             }
 
             return result;
         }
 
-        private static Dialog FromJson(JObject dialog, List<Profile> profiles, List<Group> groups)
+        private static Dialog FromJson(
+            JObject dialog,
+            IReadOnlyCollection<Profile> profiles,
+            IReadOnlyCollection<Group> groups,
+            IReadOnlyCollection<Message> lastMessages)
         {
             var result = new Dialog
             {
                 UnreadCount = dialog["conversation"]["unread_count"]?.Value<uint>() ?? 0u,
-                LastMessage = MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups)
+                LastMessage = dialog.ContainsKey("last_message") ?
+                    MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups) :
+                    lastMessages.First(e => e.Id == dialog["last_message_id"].Value<uint>())
             };
 
             var dialogId = dialog["conversation"]["peer"]["id"].Value<int>();
@@ -80,12 +90,21 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             else return null;
         }
 
-        public async static Task<List<Dialog>> GetDialogs()
+        public async static Task<IReadOnlyCollection<Dialog>> GetDialogs(IReadOnlyCollection<int> dialogIds)
         {
-            var json = JObject.Parse(await GetDialogsJson());
+            var json = JObject.Parse(dialogIds == null ? await GetDialogsJson() : await GetDialogsJson(dialogIds));
             var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
             var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
-            return FromJsonArray(json["response"]["items"] as JArray, profiles, groups);
+
+            var lastMessagesIds = new List<uint>();
+            foreach (JObject item in json["response"]["items"])
+            {
+                if (!item.ContainsKey("last_message"))
+                    lastMessagesIds.Add(item["last_message_id"].Value<uint>());
+            }
+            var lastMessages = lastMessagesIds.Any() ? await MessagesClient.GetMessages(0, lastMessagesIds) : new Message[] { };
+
+            return FromJsonArray(json["response"]["items"] as JArray, profiles, groups, lastMessages);
         }
 
         private async static Task<string> GetDialogsJson()
@@ -113,6 +132,21 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using (var client = new WebClient())
             {
                 await client.DownloadStringTaskAsync(url);
+            }
+        }
+
+        private async static Task<string> GetDialogsJson(IReadOnlyCollection<int> dialogIds)
+        {
+            var url =
+                "https://api.vk.com/method/messages.getConversationsById" +
+                "?v=5.92" +
+                "&extended=1" +
+                "&peer_ids=" + dialogIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
+                "&access_token=" + Models.Authorization.Token;
+
+            using (var client = new WebClient())
+            {
+                return await client.DownloadStringTaskAsync(url);
             }
         }
     }

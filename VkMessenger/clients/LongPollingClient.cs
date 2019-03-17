@@ -4,7 +4,9 @@ using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using Tizen.System;
+using Tizen.Network;
+using Tizen.Network.Connection;
+using Tizen.Wearable.CircularUI.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -19,12 +21,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         public static event EventHandler<UserTypingEventArgs> OnUserTyping;
 
         private static bool isStarted = false;
-
-        static LongPollingClient()
-        {
-            Start();
-            Network.OnConnected += (o, e) => Start();
-        }
 
         private async static Task GetLongPollServer()
         {
@@ -84,19 +80,19 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                             break;
                         case 8:
                             OnUserStatusUpdate?.Invoke(null,
-                                new UserStatusEventArgs { UserId = update[1].Value<uint>(), IsOnline = true });
+                                new UserStatusEventArgs { UserId = (uint)update[1].Value<int>(), IsOnline = true });
                             break;
                         case 9:
                             OnUserStatusUpdate?.Invoke(null,
-                                new UserStatusEventArgs { UserId = update[1].Value<uint>(), IsOnline = false });
+                                new UserStatusEventArgs { UserId = (uint)update[1].Value<int>(), IsOnline = false });
                             break;
                         case 61:
                             OnUserTyping?.Invoke(null,
-                                new UserTypingEventArgs { UserId = update[1].Value<uint>(), DialogId = update[1].Value<int>() });
+                                new UserTypingEventArgs { UserId = (uint)update[1].Value<int>(), DialogId = update[1].Value<int>() });
                             break;
                         case 62:
                             OnUserTyping?.Invoke(null,
-                                new UserTypingEventArgs { UserId = update[1].Value<uint>(), DialogId = update[2].Value<int>() });
+                                new UserTypingEventArgs { UserId = (uint)update[1].Value<int>(), DialogId = update[2].Value<int>() });
                             break;
                         default:
                             break;
@@ -105,32 +101,38 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private async static void Start()
+        public async static void Start()
         {
-            if (isStarted)
+            if (isStarted && Models.Authorization.Token != null)
                 return;
 
             isStarted = true;
 
-            while (isStarted && Models.Authorization.Token != null)
+            while (isStarted)
             {
-                try
+                if (true || ConnectionManager.CurrentConnection.State == ConnectionState.Connected) //TODO: don't work
                 {
-                    if (LongPolling.Key == null)
+                    try
                     {
-                        await GetLongPollServer();
+                        if (LongPolling.Key == null)
+                            await GetLongPollServer();
+                        else
+                            await SendLongRequest();
+                        continue;
                     }
-                    else
-                        await SendLongRequest();
+                    catch (Exception e)
+                    {
+                        Toast.DisplayText(e.Message);
+                    }
+                }
 
-                    Network.ThrowIfDisconnected();
-                }
-                catch (WebException)
-                {
-                    isStarted = false;
-                    Network.StartWaiting();
-                }
+                await Task.Delay(10000);
             }
+        }
+
+        public static void Stop()
+        {
+            isStarted = false;
         }
     }
 }

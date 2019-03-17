@@ -9,6 +9,7 @@
     <Company />
     <PackageId>ru.MaxKuzmin.VkMessenger</PackageId>
     <Version>0.1.0</Version>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

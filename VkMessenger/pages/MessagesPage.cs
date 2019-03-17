@@ -2,9 +2,9 @@
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -41,33 +41,31 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             this.dialogId = dialogId;
             Setup();
-            Update();
-            Network.OnConnected += (s, e) => Update();
+            Update(null);
         }
 
-        private async void Update()
+        private async void Update(IReadOnlyCollection<uint> messagesIds)
         {
             try
             {
-                Network.ThrowIfDisconnected();
-                var newMessages = await MessagesClient.GetMessages(dialogId);
+                var newMessages = await MessagesClient.GetMessages(dialogId, messagesIds);
 
                 foreach (var item in newMessages.AsEnumerable().Reverse())
                 {
-                    var found = messages.FirstOrDefault(d => d.Id == item.Id);
+                    var foundMessage = messages.FirstOrDefault(d => d.Id == item.Id);
 
-                    if (found == null)
+                    if (foundMessage == null)
                         messages.Insert(0, item);
                     else
                     {
-                        found.Text = item.Text;
-                        found.InvokePropertyChanged();
+                        foundMessage.Text = item.Text;
+                        foundMessage.InvokePropertyChanged();
                     }
                 }
             }
-            catch (WebException)
+            catch (Exception e)
             {
-                Network.StartWaiting();
+                Toast.DisplayText(e.Message);
             }
         }
 
@@ -75,33 +73,28 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
             messagesListView.ItemsSource = messages;
-            messagesListView.RefreshCommand = new Command(Update);
             popupEntryView.Completed += OnSend;
 
             verticalLayout.Children.Add(messagesListView);
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
 
-            //TODO: Replace with getting only one message
-            LongPollingClient.OnMessageUpdate += (s, e) => { if (e.DialogId == dialogId) Update(); };
+            LongPollingClient.OnMessageUpdate += (s, e) => { if (e.DialogId == dialogId) Update(new[] { e.MessageId }); };
         }
 
-        private async void OnSend(object sender, EventArgs e)
+        private async void OnSend(object sender, EventArgs args)
         {
             var text = popupEntryView.Text;
             try
             {
-                Network.ThrowIfDisconnected();
                 await MessagesClient.Send(text, dialogId);
                 popupEntryView.Text = string.Empty;
             }
-            catch (WebException)
+            catch (Exception e)
             {
                 popupEntryView.Text = text;
-                Network.StartWaiting();
+                Toast.DisplayText(e.Message);
             }
-
-            popupEntryView.Text = string.Empty;
         }
 
         protected override bool OnBackButtonPressed()

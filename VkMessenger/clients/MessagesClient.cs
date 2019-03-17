@@ -12,15 +12,15 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
     {
         private static readonly Random rnd = new Random((int)DateTime.UtcNow.Ticks);
 
-        public async static Task<List<Message>> GetMessages(int dialogId)
+        public async static Task<IReadOnlyCollection<Message>> GetMessages(int dialogId, IReadOnlyCollection<uint> messagesIds)
         {
-            var json = JObject.Parse(await GetMessagesJson(dialogId));
+            var json = JObject.Parse(messagesIds == null ? await GetMessagesJson(dialogId) : await GetMessagesJson(messagesIds));
             var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
             var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
             return FromJsonArray(json["response"]["items"] as JArray, profiles, groups);
         }
 
-        private static List<Message> FromJsonArray(JArray source, List<Profile> profiles, List<Group> groups)
+        private static List<Message> FromJsonArray(JArray source, IReadOnlyCollection<Profile> profiles, IReadOnlyCollection<Group> groups)
         {
             var result = new List<Message>();
 
@@ -32,7 +32,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             return result;
         }
 
-        public static Message FromJson(JObject source, List<Profile> profiles, List<Group> groups)
+        public static Message FromJson(JObject source, IReadOnlyCollection<Profile> profiles, IReadOnlyCollection<Group> groups)
         {
             var text = source["text"].Value<string>();
             var dialogId = source["from_id"].Value<int>();
@@ -41,8 +41,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 Id = source["id"].Value<uint>(),
                 Text = text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text,
                 Date = new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc),
-                Profile = profiles.FirstOrDefault(p => p.Id == dialogId),
-                Group = groups.FirstOrDefault(p => p.Id == Math.Abs(dialogId))
+                Profile = profiles?.FirstOrDefault(p => p.Id == dialogId),
+                Group = groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId))
             };
         }
 
@@ -74,6 +74,21 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using (var client = new WebClient())
             {
                 await client.DownloadStringTaskAsync(url);
+            }
+        }
+
+        private async static Task<string> GetMessagesJson(IReadOnlyCollection<uint> messagesIds)
+        {
+            var url =
+                "https://api.vk.com/method/messages.getById" +
+                "?v=5.92" +
+                "&extended=1" +
+                "&message_ids=" + messagesIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
+                "&access_token=" + Models.Authorization.Token;
+
+            using (var client = new WebClient())
+            {
+                return await client.DownloadStringTaskAsync(url);
             }
         }
     }

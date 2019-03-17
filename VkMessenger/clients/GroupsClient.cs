@@ -18,7 +18,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             };
         }
 
-        public static List<Group> FromJsonArray(JArray groups)
+        public static IReadOnlyCollection<Group> FromJsonArray(JArray groups)
         {
             var result = new List<Group>();
 

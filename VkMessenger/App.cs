@@ -1,4 +1,5 @@
-﻿using ru.MaxKuzmin.VkMessenger.Pages;
+﻿using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Pages;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger
@@ -12,17 +13,17 @@ namespace ru.MaxKuzmin.VkMessenger
 #endif
 
             MainPage = new NavigationMainPage();
-            Network.Start();
+            LongPollingClient.Start();
         }
 
         protected override void OnSleep()
         {
-            Network.Stop();
+            LongPollingClient.Stop();
         }
 
         protected override void OnResume()
         {
-            Network.Start();
+            LongPollingClient.Start();
         }
     }
 }

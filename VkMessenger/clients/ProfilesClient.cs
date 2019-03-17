@@ -20,7 +20,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             };
         }
 
-        public static List<Profile> FromJsonArray(JArray profiles)
+        public static IReadOnlyCollection<Profile> FromJsonArray(JArray profiles)
         {
             var result = new List<Profile>();
 

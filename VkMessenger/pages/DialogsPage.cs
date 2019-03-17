@@ -2,9 +2,10 @@
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Models;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -22,16 +23,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             NavigationPage.SetHasNavigationBar(this, false);
             Setup();
-            Update();
-            Network.OnConnected += (s, e) => Update();
+            Update(null);
         }
 
-        private async void Update()
+        private async void Update(IReadOnlyCollection<int> dialogIds)
         {
             try
             {
-                Network.ThrowIfDisconnected();
-                var newDialogs = await DialogsClient.GetDialogs();
+                var newDialogs = await DialogsClient.GetDialogs(dialogIds);
 
                 foreach (var newDialog in newDialogs.AsEnumerable().Reverse())
                 {
@@ -52,9 +51,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     }
                 }
             }
-            catch (WebException)
+            catch (Exception e)
             {
-                Network.StartWaiting();
+                Toast.DisplayText(e.Message);
             }
         }
 
@@ -79,12 +78,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
             dialogsListView.ItemSelected += OnDialogSelected;
             dialogsListView.ItemsSource = dialogs;
-            dialogsListView.RefreshCommand = new Command(Update);
             Content = dialogsListView;
 
-            //TODO: Replace with getting only one dialog
-            LongPollingClient.OnMessageUpdate += (s, e) => Update();
-            LongPollingClient.OnDialogUpdate += (s, e) => Update();
+            LongPollingClient.OnMessageUpdate += (s, e) => Update(new[] { e.DialogId });
+            LongPollingClient.OnDialogUpdate += (s, e) => Update(new[] { e });
 
             LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
         }
@@ -93,24 +90,26 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             foreach (var dialog in dialogs)
             {
-                foreach (var profile in dialog.Profiles.Where(p => p.Id == e.UserId))
+                var profile = dialog.Profiles?.FirstOrDefault(p => p.Id == e.UserId);
+                if (profile != null)
+                {
                     profile.IsOnline = e.IsOnline;
-                dialog.InvokePropertyChanged();
+                    dialog.InvokePropertyChanged();
+                }
             }
         }
 
-        private async void OnDialogSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void OnDialogSelected(object sender, SelectedItemChangedEventArgs args)
         {
             try
             {
-                Network.ThrowIfDisconnected();
-                var dialog = e.SelectedItem as Dialog;
+                var dialog = args.SelectedItem as Dialog;
                 await Navigation.PushAsync(new MessagesPage(dialog.Id));
                 await DialogsClient.MarkAsRead(dialog.Id);
             }
-            catch (WebException)
+            catch (Exception e)
             {
-                Network.StartWaiting();
+                Toast.DisplayText(e.Message);
             }
         }
     }
