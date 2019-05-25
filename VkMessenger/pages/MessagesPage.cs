@@ -82,6 +82,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
         }
 
+        protected override void OnAppearing()
+        {
+            Scroll();
+            base.OnAppearing();
+        }
+
         private void Setup()
         {
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });

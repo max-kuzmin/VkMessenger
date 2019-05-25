@@ -15,6 +15,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     public class DialogsPage : CirclePage
     {
         private Dictionary<int, MessagesPage> messagesPages = new Dictionary<int, MessagesPage>();
+        private bool setupScroll = true;
 
         private readonly CircleListView dialogsListView = new CircleListView
         {
@@ -53,11 +54,26 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                         else foundDialog.InvokePropertyChanged();
                     }
                 }
+
+                Scroll();
             }
             catch (Exception e)
             {
                 Log.Error(nameof(VkMessenger), e.ToString());
                 Toast.DisplayText(e.Message);
+            }
+        }
+
+        private void Scroll()
+        {
+            if (setupScroll)
+            {
+                var firstDialog = dialogs.FirstOrDefault();
+                if (firstDialog != null)
+                {
+                    dialogsListView.ScrollTo(firstDialog, ScrollToPosition.Center, false);
+                    setupScroll = false;
+                }
             }
         }
 
@@ -80,7 +96,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private void Setup()
         {
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
-            dialogsListView.ItemSelected += OnDialogSelected;
+            dialogsListView.ItemTapped += OnDialogTapped;
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
 
@@ -103,11 +119,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
         }
 
-        private async void OnDialogSelected(object sender, SelectedItemChangedEventArgs args)
+        private async void OnDialogTapped(object sender, ItemTappedEventArgs args)
         {
             try
             {
-                var dialog = args.SelectedItem as Dialog;
+                var dialog = args.Item as Dialog;
                 MessagesPage messagesPage;
                 if (messagesPages.ContainsKey(dialog.Id))
                 {
