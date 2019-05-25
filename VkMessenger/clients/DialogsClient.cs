@@ -72,7 +72,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 if (chatSettings["photo"] != null)
                 {
-                    result.Chat.Photo = new UriImageSource { Uri = new Uri(chatSettings["photo"]["photo_50"].Value<string>()) };
+                    result.Chat.Photo = new UriImageSource
+                    {
+                        Uri = new Uri(chatSettings["photo"]["photo_50"].Value<string>()),
+                        CachingEnabled = true,
+                        CacheValidity = TimeSpan.FromDays(1)
+                    };
                 }
             }
 

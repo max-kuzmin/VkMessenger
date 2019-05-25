@@ -14,6 +14,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class DialogsPage : CirclePage
     {
+        private Dictionary<int, MessagesPage> messagesPages = new Dictionary<int, MessagesPage>();
+
         private readonly CircleListView dialogsListView = new CircleListView
         {
             ItemTemplate = new DataTemplate(typeof(DialogCell))
@@ -106,7 +108,18 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             try
             {
                 var dialog = args.SelectedItem as Dialog;
-                await Navigation.PushAsync(new MessagesPage(dialog.Id));
+                MessagesPage messagesPage;
+                if (messagesPages.ContainsKey(dialog.Id))
+                {
+                    messagesPage = messagesPages[dialog.Id];
+                }
+                else
+                {
+                    messagesPage = new MessagesPage(dialog.Id);
+                    messagesPages.Add(dialog.Id, messagesPage);
+                }
+
+                await Navigation.PushAsync(messagesPage);
                 await DialogsClient.MarkAsRead(dialog.Id);
             }
             catch (Exception e)

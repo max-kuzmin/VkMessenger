@@ -95,7 +95,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
 
-            LongPollingClient.OnMessageUpdate += (s, e) => { if (e.DialogId == dialogId) Update(new[] { e.MessageId }); };
+            LongPollingClient.OnMessageUpdate += (s, e) =>
+            {
+                if (e.DialogId == dialogId)
+                {
+                    Update(new[] { e.MessageId });
+                }
+            };
         }
 
         private async void OnSend(object sender, EventArgs args)
@@ -117,7 +123,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         protected override bool OnBackButtonPressed()
         {
             Navigation.PopAsync();
-            return true;
+            return base.OnBackButtonPressed();
         }
     }
 }

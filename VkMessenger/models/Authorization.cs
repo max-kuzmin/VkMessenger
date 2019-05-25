@@ -30,7 +30,12 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             {
                 if (photoSource == null && Preference.Contains(UserIdKey))
                 {
-                    photoSource = new UriImageSource { Uri = new Uri(Preference.Get<string>(PhotoKey)) };
+                    photoSource = new UriImageSource
+                    {
+                        Uri = new Uri(Preference.Get<string>(PhotoKey)),
+                        CachingEnabled = true,
+                        CacheValidity = TimeSpan.FromDays(1)
+                    };
                 }
                 return photoSource;
             }
@@ -39,7 +44,12 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public static void SetPhoto(string url)
         {
             Preference.Set(PhotoKey, url);
-            photoSource = new UriImageSource { Uri = new Uri(url) };
+            photoSource = new UriImageSource
+            {
+                Uri = new Uri(url),
+                CachingEnabled = true,
+                CacheValidity = TimeSpan.FromDays(1)
+            };
         }
 
         private static UriImageSource photoSource = null;
