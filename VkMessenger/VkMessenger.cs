@@ -25,8 +25,8 @@ namespace ru.MaxKuzmin.VkMessenger
             }
             catch (Exception e)
             {
-                Log.Fatal(string.Empty, e.ToString());
-                Toast.DisplayText(e.Message, 10);
+                Log.Error(nameof(VkMessenger), e.ToString());
+                Toast.DisplayText(e.Message);
             }
         }
     }

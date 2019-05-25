@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Tizen;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -12,6 +13,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class MessagesPage : CirclePage
     {
+        private bool alreadyScrolled;
+
         private readonly CircleListView messagesListView = new CircleListView
         {
             HorizontalOptions = LayoutOptions.StartAndExpand,
@@ -55,17 +58,30 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     var foundMessage = messages.FirstOrDefault(d => d.Id == item.Id);
 
                     if (foundMessage == null)
-                        messages.Insert(0, item);
+                        messages.Add(item);
                     else
                     {
                         foundMessage.Text = item.Text;
                         foundMessage.InvokePropertyChanged();
                     }
                 }
+
+                OnCreationScroll();
             }
             catch (Exception e)
             {
+                Log.Error(nameof(VkMessenger), e.ToString());
                 Toast.DisplayText(e.Message);
+            }
+        }
+
+        private void OnCreationScroll()
+        {
+            var lastMessage = messages.LastOrDefault();
+            if (!alreadyScrolled && lastMessage != null)
+            {
+                messagesListView.ScrollTo(lastMessage, ScrollToPosition.Center, false);
+                alreadyScrolled = true;
             }
         }
 
@@ -93,6 +109,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             catch (Exception e)
             {
                 popupEntryView.Text = text;
+                Log.Error(nameof(VkMessenger), e.ToString());
                 Toast.DisplayText(e.Message);
             }
         }

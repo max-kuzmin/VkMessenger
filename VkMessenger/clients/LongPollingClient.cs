@@ -4,7 +4,7 @@ using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using Tizen.Network;
+using Tizen;
 using Tizen.Network.Connection;
 using Tizen.Wearable.CircularUI.Forms;
 
@@ -110,7 +110,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             while (isStarted)
             {
-                if (true || ConnectionManager.CurrentConnection.State == ConnectionState.Connected) //TODO: don't work
+                if (ConnectionManager.CurrentConnection.State == ConnectionState.Connected)
                 {
                     try
                     {
@@ -122,6 +122,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     }
                     catch (Exception e)
                     {
+                        Log.Error(nameof(VkMessenger), e.ToString());
                         Toast.DisplayText(e.Message);
                     }
                 }

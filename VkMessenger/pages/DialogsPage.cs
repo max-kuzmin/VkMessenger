@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Tizen;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -53,6 +54,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
             catch (Exception e)
             {
+                Log.Error(nameof(VkMessenger), e.ToString());
                 Toast.DisplayText(e.Message);
             }
         }
@@ -109,6 +111,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
             catch (Exception e)
             {
+                Log.Error(nameof(VkMessenger), e.ToString());
                 Toast.DisplayText(e.Message);
             }
         }
