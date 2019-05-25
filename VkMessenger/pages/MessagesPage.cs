@@ -13,8 +13,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class MessagesPage : CirclePage
     {
-        private bool alreadyScrolled;
-
         private readonly CircleListView messagesListView = new CircleListView
         {
             HorizontalOptions = LayoutOptions.StartAndExpand,
@@ -66,7 +64,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     }
                 }
 
-                OnCreationScroll();
+                Scroll();
             }
             catch (Exception e)
             {
@@ -75,13 +73,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
         }
 
-        private void OnCreationScroll()
+        private void Scroll()
         {
             var lastMessage = messages.LastOrDefault();
-            if (!alreadyScrolled && lastMessage != null)
+            if (lastMessage != null)
             {
                 messagesListView.ScrollTo(lastMessage, ScrollToPosition.Center, false);
-                alreadyScrolled = true;
             }
         }
 
