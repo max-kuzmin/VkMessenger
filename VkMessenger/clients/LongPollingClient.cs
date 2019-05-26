@@ -6,7 +6,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Tizen;
 using Tizen.Network.Connection;
-using Tizen.Wearable.CircularUI.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -123,7 +122,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     catch (Exception e)
                     {
                         Log.Error(nameof(VkMessenger), e.ToString());
-                        Toast.DisplayText(e.Message);
                     }
                 }
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Tizen;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
@@ -41,10 +42,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             this.dialogId = dialogId;
             Setup();
-            Update(null);
+            Update(null).ContinueWith(AfterInitialUpdate);
         }
 
-        private async void Update(IReadOnlyCollection<uint> messagesIds)
+        //TODO: ability to manual refresh
+        /// <summary>
+        /// Update messages from API. Can be used during setup of page or with <see cref="LongPolling"/>
+        /// </summary>
+        /// <param name="messagesIds">Message id collection or null</param>
+        /// <returns>Null means update successfull</returns>
+        private async Task<Exception> Update(IReadOnlyCollection<uint> messagesIds)
         {
             try
             {
@@ -63,15 +70,33 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     }
                 }
 
-                Scroll();
+                return null;
             }
             catch (Exception e)
             {
                 Log.Error(nameof(VkMessenger), e.ToString());
-                Toast.DisplayText(e.Message);
+                return e;
             }
         }
 
+        /// <summary>
+        /// If update successfull scroll to most recent message, otherwise show error popup
+        /// </summary>
+        private void AfterInitialUpdate(Task<Exception> t)
+        {
+            if (t.Result != null)
+            {
+                new RetryInformationPopup(t.Result.Message, async () => await Update(null)).Show();
+            }
+            else
+            {
+                Scroll();
+            }
+        }
+
+        /// <summary>
+        /// Scroll to most recent message
+        /// </summary>
         private void Scroll()
         {
             var lastMessage = messages.LastOrDefault();
@@ -81,12 +106,18 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
         }
 
+        /// <summary>
+        /// Scroll to most recent message
+        /// </summary>
         protected override void OnAppearing()
         {
             Scroll();
             base.OnAppearing();
         }
 
+        /// <summary>
+        /// Initial setup of page
+        /// </summary>
         private void Setup()
         {
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
@@ -97,15 +128,20 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
 
-            LongPollingClient.OnMessageUpdate += (s, e) =>
+            LongPollingClient.OnMessageUpdate += async (s, e) =>
             {
                 if (e.DialogId == dialogId)
                 {
-                    Update(new[] { e.MessageId });
+                    await Update(new[] { e.MessageId });
                 }
             };
         }
 
+        /// <summary>
+        /// Send message
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         private async void OnSend(object sender, EventArgs args)
         {
             var text = popupEntryView.Text;
@@ -118,10 +154,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 popupEntryView.Text = text;
                 Log.Error(nameof(VkMessenger), e.ToString());
-                Toast.DisplayText(e.Message);
+                new RetryInformationPopup(e.Message, () => OnSend(null, null));
             }
         }
 
+        //TODO: press back then tap on dialog again does not work
+        /// <summary>
+        /// Go to previous page
+        /// </summary>
+        /// <returns></returns>
         protected override bool OnBackButtonPressed()
         {
             Navigation.PopAsync();

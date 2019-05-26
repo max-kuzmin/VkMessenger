@@ -6,16 +6,17 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Tizen;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
+    //TODO: disable back button exit
     public class DialogsPage : CirclePage
     {
         private Dictionary<int, MessagesPage> messagesPages = new Dictionary<int, MessagesPage>();
-        private bool setupScroll = true;
         private readonly ObservableCollection<Dialog> dialogs = new ObservableCollection<Dialog>();
 
         private readonly CircleListView dialogsListView = new CircleListView
@@ -27,10 +28,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             NavigationPage.SetHasNavigationBar(this, false);
             Setup();
-            Update(null);
+            Update(null).ContinueWith(AfterInitialUpdate);
         }
 
-        private async void Update(IReadOnlyCollection<int> dialogIds)
+        //TODO: ability to manual refresh
+        /// <summary>
+        /// Update dialogs from API. Can be used during setup of page or with <see cref="LongPolling"/>
+        /// </summary>
+        /// <param name="dialogIds">Dialog id collection or null</param>
+        /// <returns>Null means update successfull</returns>
+        private async Task<Exception> Update(IReadOnlyCollection<int> dialogIds)
         {
             try
             {
@@ -55,28 +62,47 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     }
                 }
 
-                Scroll();
+                return null;
             }
             catch (Exception e)
             {
                 Log.Error(nameof(VkMessenger), e.ToString());
-                Toast.DisplayText(e.Message);
+                return e;
             }
         }
 
+        /// <summary>
+        /// If update successfull scroll to most recent dialog, otherwise show error popup
+        /// </summary>
+        private void AfterInitialUpdate(Task<Exception> t)
+        {
+            if (t.Result != null)
+            {
+                new RetryInformationPopup(t.Result.Message, async () => await Update(null)).Show();
+            }
+            else
+            {
+                Scroll();
+            }
+        }
+
+        /// <summary>
+        /// Scroll to most recent dialog
+        /// </summary>
         private void Scroll()
         {
-            if (setupScroll)
+            var firstDialog = dialogs.FirstOrDefault();
+            if (firstDialog != null)
             {
-                var firstDialog = dialogs.FirstOrDefault();
-                if (firstDialog != null)
-                {
-                    dialogsListView.ScrollTo(firstDialog, ScrollToPosition.Center, false);
-                    setupScroll = false;
-                }
+                dialogsListView.ScrollTo(firstDialog, ScrollToPosition.Center, false);
             }
         }
 
+        /// <summary>
+        /// Update dialog data without recreating it
+        /// </summary>
+        /// <param name="newDialog">New data</param>
+        /// <param name="foundDialog">Dialog to update</param>
         private static void UpdateDialog(Dialog newDialog, Dialog foundDialog)
         {
             foundDialog.LastMessage = newDialog.LastMessage;
@@ -93,6 +119,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
         }
 
+        /// <summary>
+        /// Initial setup of page
+        /// </summary>
         private void Setup()
         {
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
@@ -100,12 +129,17 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
 
-            LongPollingClient.OnMessageUpdate += (s, e) => Update(new[] { e.DialogId });
-            LongPollingClient.OnDialogUpdate += (s, e) => Update(new[] { e });
+            LongPollingClient.OnMessageUpdate += async (s, e) => await Update(new[] { e.DialogId });
+            LongPollingClient.OnDialogUpdate += async (s, e) => await Update(new[] { e });
 
             LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
         }
 
+        /// <summary>
+        /// Callback of <see cref="LongPollingClient.OnUserStatusUpdate"/>. Update users statuses
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnUserStatusUpdate(object sender, UserStatusEventArgs e)
         {
             foreach (var dialog in dialogs)
@@ -119,29 +153,34 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
         }
 
+        /// <summary>
+        /// Callback of <see cref="CircleListView.ItemTapped"/>. Open messages page
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         private async void OnDialogTapped(object sender, ItemTappedEventArgs args)
         {
+            var dialog = args.Item as Dialog;
+            MessagesPage messagesPage;
+            if (messagesPages.ContainsKey(dialog.Id))
+            {
+                messagesPage = messagesPages[dialog.Id];
+            }
+            else
+            {
+                messagesPage = new MessagesPage(dialog.Id);
+                messagesPages.Add(dialog.Id, messagesPage);
+            }
+
+            await Navigation.PushAsync(messagesPage);
+
             try
             {
-                var dialog = args.Item as Dialog;
-                MessagesPage messagesPage;
-                if (messagesPages.ContainsKey(dialog.Id))
-                {
-                    messagesPage = messagesPages[dialog.Id];
-                }
-                else
-                {
-                    messagesPage = new MessagesPage(dialog.Id);
-                    messagesPages.Add(dialog.Id, messagesPage);
-                }
-
-                await Navigation.PushAsync(messagesPage);
                 await DialogsClient.MarkAsRead(dialog.Id);
             }
             catch (Exception e)
             {
                 Log.Error(nameof(VkMessenger), e.ToString());
-                Toast.DisplayText(e.Message);
             }
         }
     }

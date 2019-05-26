@@ -26,7 +26,11 @@ namespace ru.MaxKuzmin.VkMessenger
             catch (Exception e)
             {
                 Log.Error(nameof(VkMessenger), e.ToString());
-                Toast.DisplayText(e.Message);
+                new InformationPopup
+                {
+                    Title = "Unhandled exception",
+                    Text = e.Message,
+                }.Show();
             }
         }
     }

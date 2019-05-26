@@ -13,6 +13,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         private const string EnabledKey = "LongPollingEnabled";
 
+        //TODO: ability to switch it from GUI
         public static bool Enabled
         {
             get => Preference.Contains(EnabledKey) ? Preference.Get<bool>(EnabledKey) : true;
