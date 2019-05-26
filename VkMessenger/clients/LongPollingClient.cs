@@ -127,7 +127,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     }
                 }
 
-                await Task.Delay(10000);
+                await Task.Delay(LongPolling.DelayBetweenRequests);
             }
         }
 

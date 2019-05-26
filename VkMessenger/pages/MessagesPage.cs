@@ -13,6 +13,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class MessagesPage : CirclePage
     {
+        private readonly StackLayout verticalLayout = new StackLayout();
+        private readonly ObservableCollection<Message> messages = new ObservableCollection<Message>();
+        private readonly int dialogId;
+
         private readonly CircleListView messagesListView = new CircleListView
         {
             HorizontalOptions = LayoutOptions.StartAndExpand,
@@ -30,11 +34,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             TextColor = Color.White,
             PlaceholderColor = Color.Gray
         };
-
-        private readonly StackLayout verticalLayout = new StackLayout();
-        private readonly ObservableCollection<Message> messages = new ObservableCollection<Message>();
-
-        private readonly int dialogId;
 
         public MessagesPage(int dialogId)
         {

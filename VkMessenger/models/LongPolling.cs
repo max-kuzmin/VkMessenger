@@ -1,4 +1,5 @@
-﻿using Tizen.Applications;
+﻿using System;
+using Tizen.Applications;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
 {
@@ -8,6 +9,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public static string Server { get; set; }
         public static uint Ts { get; set; }
         public const uint WaitTime = 25;
+        public static TimeSpan DelayBetweenRequests { get; } = TimeSpan.FromSeconds(10);
 
         private const string EnabledKey = "LongPollingEnabled";
 

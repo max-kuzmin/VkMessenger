@@ -16,12 +16,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     {
         private Dictionary<int, MessagesPage> messagesPages = new Dictionary<int, MessagesPage>();
         private bool setupScroll = true;
+        private readonly ObservableCollection<Dialog> dialogs = new ObservableCollection<Dialog>();
 
         private readonly CircleListView dialogsListView = new CircleListView
         {
             ItemTemplate = new DataTemplate(typeof(DialogCell))
         };
-        private readonly ObservableCollection<Dialog> dialogs = new ObservableCollection<Dialog>();
 
         public DialogsPage()
         {
