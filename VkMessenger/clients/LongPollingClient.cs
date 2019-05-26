@@ -100,6 +100,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
+        /// <summary>
+        /// <see cref="LongPolling"/> main loop
+        /// </summary>
         public async static void Start()
         {
             if ((isStarted && Models.Authorization.Token != null) || !LongPolling.Enabled)

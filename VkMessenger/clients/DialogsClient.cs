@@ -33,16 +33,18 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             IReadOnlyCollection<Group> groups,
             IReadOnlyCollection<Message> lastMessages)
         {
+            var conversation = dialog["conversation"] ?? dialog;
+
             var result = new Dialog
             {
-                UnreadCount = dialog["conversation"]["unread_count"]?.Value<uint>() ?? 0u,
+                UnreadCount = conversation["unread_count"]?.Value<uint>() ?? 0u,
                 LastMessage = dialog.ContainsKey("last_message") ?
                     MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups) :
                     lastMessages.First(e => e.Id == dialog["last_message_id"].Value<uint>())
             };
 
-            var dialogId = dialog["conversation"]["peer"]["id"].Value<int>();
-            var peerType = dialog["conversation"]["peer"]["type"].Value<string>();
+            var dialogId = conversation["peer"]["id"].Value<int>();
+            var peerType = conversation["peer"]["type"].Value<string>();
             if (peerType == "user")
             {
                 result.Type = DialogType.User;
@@ -55,7 +57,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
             else if (peerType == "chat")
             {
-                var chatSettings = dialog["conversation"]["chat_settings"];
+                var chatSettings = conversation["chat_settings"];
                 result.Type = DialogType.Chat;
                 result.Chat = new Chat
                 {
@@ -86,7 +88,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         private static Profile GetFriend(JObject dialog, JArray profiles)
         {
-            var dialogId = dialog["conversation"]["peer"]["id"].Value<int>();
+            var conversation = dialog["conversation"] ?? dialog;
+
+            var dialogId = conversation["peer"]["id"].Value<int>();
             var profile = profiles.Where(o => o["id"].Value<uint>() == dialogId).FirstOrDefault();
             if (profile != null)
             {
@@ -105,7 +109,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             foreach (JObject item in json["response"]["items"])
             {
                 if (!item.ContainsKey("last_message"))
+                {
                     lastMessagesIds.Add(item["last_message_id"].Value<uint>());
+                }
             }
             var lastMessages = lastMessagesIds.Any() ? await MessagesClient.GetMessages(0, lastMessagesIds) : new Message[] { };
 

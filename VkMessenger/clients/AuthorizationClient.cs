@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -26,13 +27,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 Models.Authorization.Token = token;
                 Models.Authorization.UserId = userId;
-                GetPhoto();
+                GetPhoto().Start();
                 return true;
             }
             else return false;
         }
 
-        private async static void GetPhoto()
+        private async static Task GetPhoto()
         {
             var url =
                 "https://api.vk.com/method/users.get" +

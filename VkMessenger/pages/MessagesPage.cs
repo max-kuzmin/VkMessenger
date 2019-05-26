@@ -1,5 +1,6 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Cells;
 using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
@@ -86,7 +87,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             if (t.Result != null)
             {
-                new RetryInformationPopup(t.Result.Message, async () => await Update(null)).Show();
+                new RetryInformationPopup(
+                    t.Result.Message,
+                    async () => await Update(null).ContinueWith(AfterInitialUpdate))
+                    .Show();
             }
             else
             {
@@ -127,14 +131,26 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             verticalLayout.Children.Add(messagesListView);
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
+            LongPollingClient.OnMessageUpdate += OnMessageUpdate;
+        }
 
-            LongPollingClient.OnMessageUpdate += async (s, e) =>
+        /// <summary>
+        /// <see cref="LongPollingClient.OnMessageUpdate"/> callback. Update or add message
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private async void OnMessageUpdate(object sender, MessageEventArgs args)
+        {
+            if (args.DialogId == dialogId)
             {
-                if (e.DialogId == dialogId)
+                await Update(new[] { args.MessageId }).ContinueWith(t =>
                 {
-                    await Update(new[] { e.MessageId });
-                }
-            };
+                    if (t.Result == null)
+                    {
+                        Scroll();
+                    }
+                });
+            }
         }
 
         /// <summary>
@@ -158,7 +174,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
         }
 
-        //TODO: press back then tap on dialog again does not work
         /// <summary>
         /// Go to previous page
         /// </summary>

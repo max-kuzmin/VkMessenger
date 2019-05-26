@@ -13,7 +13,6 @@ using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    //TODO: disable back button exit
     public class DialogsPage : CirclePage
     {
         private Dictionary<int, MessagesPage> messagesPages = new Dictionary<int, MessagesPage>();
@@ -78,7 +77,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             if (t.Result != null)
             {
-                new RetryInformationPopup(t.Result.Message, async () => await Update(null)).Show();
+                new RetryInformationPopup(
+                    t.Result.Message,
+                    async () => await Update(null).ContinueWith(AfterInitialUpdate))
+                    .Show();
             }
             else
             {
