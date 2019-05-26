@@ -127,7 +127,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private void Setup()
         {
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
-            dialogsListView.ItemTapped += OnDialogTapped;
+            dialogsListView.ItemSelected += OnDialogSelected;
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
 
@@ -160,9 +160,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        private async void OnDialogTapped(object sender, ItemTappedEventArgs args)
+        private async void OnDialogSelected(object sender, SelectedItemChangedEventArgs args)
         {
-            var dialog = args.Item as Dialog;
+            var dialog = args.SelectedItem as Dialog;
             MessagesPage messagesPage;
             if (messagesPages.ContainsKey(dialog.Id))
             {

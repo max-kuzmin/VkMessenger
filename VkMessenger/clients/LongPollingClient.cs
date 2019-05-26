@@ -28,7 +28,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&lp_version=3" +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new ProxyWebClient())
+            using (var client = new ProxiedWebClient())
             {
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
 
@@ -47,7 +47,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&wait=" + LongPolling.WaitTime +
                 "&version=3";
 
-            using (var client = new ProxyWebClient())
+            using (var client = new ProxiedWebClient())
             {
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
 

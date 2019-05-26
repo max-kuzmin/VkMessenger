@@ -14,12 +14,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 Id = group["id"].Value<uint>(),
                 Name = group["name"].Value<string>(),
-                Photo = new UriImageSource
-                {
-                    Uri = new Uri(group["photo_50"].Value<string>()),
-                    CachingEnabled = true,
-                    CacheValidity = TimeSpan.FromDays(1)
-                }
+                Photo = new ProxiedCachedImageSource(
+                    new Uri(group["photo_50"].Value<string>()))
             };
         }
 

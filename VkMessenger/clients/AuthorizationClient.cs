@@ -41,7 +41,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&fields=photo_50" +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new ProxyWebClient())
+            using (var client = new ProxiedWebClient())
             {
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
                 Models.Authorization.SetPhoto(json["response"][0]["photo_50"].Value<string>());

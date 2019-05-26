@@ -3,9 +3,9 @@ using Tizen.Network.Connection;
 
 namespace ru.MaxKuzmin.VkMessenger
 {
-    public class ProxyWebClient : WebClient
+    public class ProxiedWebClient : WebClient
     {
-        public ProxyWebClient()
+        public ProxiedWebClient()
         {
             if (ConnectionManager.CurrentConnection.Type == ConnectionType.Ethernet)
             {

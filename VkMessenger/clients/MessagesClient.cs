@@ -56,7 +56,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&peer_id=" + dialogId +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new ProxyWebClient())
+            using (var client = new ProxiedWebClient())
             {
                 return await client.DownloadStringTaskAsync(url);
             }
@@ -72,7 +72,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&message=" + text +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new ProxyWebClient())
+            using (var client = new ProxiedWebClient())
             {
                 await client.DownloadStringTaskAsync(url);
             }
@@ -87,7 +87,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&message_ids=" + messagesIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new ProxyWebClient())
+            using (var client = new ProxiedWebClient())
             {
                 return await client.DownloadStringTaskAsync(url);
             }

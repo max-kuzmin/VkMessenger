@@ -73,12 +73,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 if (chatSettings["photo"] != null)
                 {
-                    result.Chat.Photo = new UriImageSource
-                    {
-                        Uri = new Uri(chatSettings["photo"]["photo_50"].Value<string>()),
-                        CachingEnabled = true,
-                        CacheValidity = TimeSpan.FromDays(1)
-                    };
+                    result.Chat.Photo = new ProxiedCachedImageSource(
+                        new Uri(chatSettings["photo"]["photo_50"].Value<string>()));
                 }
             }
 
@@ -125,7 +121,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&extended=1" +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new ProxyWebClient())
+            using (var client = new ProxiedWebClient())
             {
                 return await client.DownloadStringTaskAsync(url);
             }
@@ -139,7 +135,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&peer_id=" + dialogId +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new ProxyWebClient())
+            using (var client = new ProxiedWebClient())
             {
                 await client.DownloadStringTaskAsync(url);
             }
@@ -154,7 +150,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&peer_ids=" + dialogIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new ProxyWebClient())
+            using (var client = new ProxiedWebClient())
             {
                 return await client.DownloadStringTaskAsync(url);
             }
