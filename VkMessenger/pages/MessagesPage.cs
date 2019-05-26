@@ -161,6 +161,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OnSend(object sender, EventArgs args)
         {
             var text = popupEntryView.Text;
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
+
             try
             {
                 await MessagesClient.Send(text, dialogId);

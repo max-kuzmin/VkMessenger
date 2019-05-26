@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Linq;
-using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -42,7 +41,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&fields=photo_50" +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new WebClient())
+            using (var client = new ProxyWebClient())
             {
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
                 Models.Authorization.SetPhoto(json["response"][0]["photo_50"].Value<string>());

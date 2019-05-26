@@ -3,7 +3,6 @@ using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
@@ -126,7 +125,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&extended=1" +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new WebClient())
+            using (var client = new ProxyWebClient())
             {
                 return await client.DownloadStringTaskAsync(url);
             }
@@ -140,7 +139,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&peer_id=" + dialogId +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new WebClient())
+            using (var client = new ProxyWebClient())
             {
                 await client.DownloadStringTaskAsync(url);
             }
@@ -155,7 +154,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&peer_ids=" + dialogIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new WebClient())
+            using (var client = new ProxyWebClient())
             {
                 return await client.DownloadStringTaskAsync(url);
             }

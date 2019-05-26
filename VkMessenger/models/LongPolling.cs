@@ -9,7 +9,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public static string Server { get; set; }
         public static uint Ts { get; set; }
         public const uint WaitTime = 25;
-        public static TimeSpan DelayBetweenRequests { get; } = TimeSpan.FromSeconds(10);
+        public static TimeSpan DelayAfterError { get; } = TimeSpan.FromSeconds(25);
 
         private const string EnabledKey = "LongPollingEnabled";
 

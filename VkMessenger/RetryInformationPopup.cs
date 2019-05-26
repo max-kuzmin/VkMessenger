@@ -2,7 +2,7 @@
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
-namespace ru.MaxKuzmin.VkMessenger.Pages
+namespace ru.MaxKuzmin.VkMessenger
 {
     public class RetryInformationPopup : InformationPopup
     {

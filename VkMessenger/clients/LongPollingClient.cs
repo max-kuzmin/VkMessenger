@@ -2,7 +2,6 @@
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
-using System.Net;
 using System.Threading.Tasks;
 using Tizen;
 using Tizen.Network.Connection;
@@ -29,7 +28,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&lp_version=3" +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new WebClient())
+            using (var client = new ProxyWebClient())
             {
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
 
@@ -48,7 +47,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&wait=" + LongPolling.WaitTime +
                 "&version=3";
 
-            using (var client = new WebClient())
+            using (var client = new ProxyWebClient())
             {
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
 
@@ -112,23 +111,20 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             while (isStarted)
             {
-                if (ConnectionManager.CurrentConnection.State == ConnectionState.Connected)
+                try
                 {
-                    try
-                    {
-                        if (LongPolling.Key == null)
-                            await GetLongPollServer();
-                        else
-                            await SendLongRequest();
-                        continue;
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(nameof(VkMessenger), e.ToString());
-                    }
+                    if (LongPolling.Key == null)
+                        await GetLongPollServer();
+                    else
+                        await SendLongRequest();
+                    continue;
+                }
+                catch (Exception e)
+                {
+                    Log.Error(nameof(VkMessenger), e.ToString());
                 }
 
-                await Task.Delay(LongPolling.DelayBetweenRequests);
+                await Task.Delay(LongPolling.DelayAfterError);
             }
         }
 

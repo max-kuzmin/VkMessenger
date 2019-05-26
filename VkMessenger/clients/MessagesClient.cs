@@ -3,14 +3,15 @@ using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class MessagesClient
     {
-        private static readonly Random rnd = new Random((int)DateTime.UtcNow.Ticks);
+        private static readonly MD5 md5Hasher = MD5.Create();
 
         public async static Task<IReadOnlyCollection<Message>> GetMessages(int dialogId, IReadOnlyCollection<uint> messagesIds)
         {
@@ -55,7 +56,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&peer_id=" + dialogId +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new WebClient())
+            using (var client = new ProxyWebClient())
             {
                 return await client.DownloadStringTaskAsync(url);
             }
@@ -66,12 +67,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var url =
                 "https://api.vk.com/method/messages.send" +
                 "?v=5.92" +
-                "&random_id=" + rnd.Next() +
+                "&random_id=" + BitConverter.ToInt32(md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(text)), 0) +
                 "&peer_id=" + dialogId +
                 "&message=" + text +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new WebClient())
+            using (var client = new ProxyWebClient())
             {
                 await client.DownloadStringTaskAsync(url);
             }
@@ -86,7 +87,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&message_ids=" + messagesIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
                 "&access_token=" + Models.Authorization.Token;
 
-            using (var client = new WebClient())
+            using (var client = new ProxyWebClient())
             {
                 return await client.DownloadStringTaskAsync(url);
             }
