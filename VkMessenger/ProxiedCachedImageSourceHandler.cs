@@ -11,11 +11,10 @@ namespace ru.MaxKuzmin.VkMessenger
         {
             if (imageSource is ProxiedCachedImageSource source)
             {
-                var fileName = await source.GetFileAsync();
-                if (!string.IsNullOrEmpty(fileName))
+                var stream = await source.GetFileStreamAsync();
+                if (stream != null)
                 {
-                    await image.LoadAsync(fileName, cancelationToken);
-                    return true;
+                    return await image.LoadAsync(stream, cancelationToken);
                 }
             }
 
