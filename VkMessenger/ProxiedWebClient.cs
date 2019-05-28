@@ -7,9 +7,9 @@ namespace ru.MaxKuzmin.VkMessenger
     {
         public ProxiedWebClient()
         {
-            if (ConnectionManager.CurrentConnection.Type == ConnectionType.Bluetooth)
+            string proxyAddress = ConnectionManager.GetProxy(AddressFamily.IPv4);
+            if (!string.IsNullOrEmpty(proxyAddress))
             {
-                string proxyAddress = ConnectionManager.GetProxy(AddressFamily.IPv4);
                 Proxy = new WebProxy(proxyAddress, true);
             }
         }

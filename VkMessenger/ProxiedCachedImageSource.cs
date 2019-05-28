@@ -34,31 +34,29 @@ namespace ru.MaxKuzmin.VkMessenger
             }
         }
 
-        public async Task<Stream> GetFileStreamAsync()
+        public async Task<Stream> GetFileStreamAsync(CancellationToken cancel)
         {
             if (!await storage.GetFileExistsAsync(fileName))
             {
+                var mutex = mutexes.GetOrAdd(fileName, f => new Mutex());
                 try
                 {
                     using (var client = new ProxiedWebClient())
                     {
+                        cancel.ThrowIfCancellationRequested();
                         var data = client.DownloadData(uri);
 
-                        var mutex = mutexes.GetOrAdd(fileName, f => new Mutex());
+                        cancel.ThrowIfCancellationRequested();
                         mutex.WaitOne();
-
                         using (var stream = await storage.OpenFileAsync(fileName, FileMode.Create, FileAccess.Write))
                         {
-                            await stream.WriteAsync(data, 0, data.Length);
+                            stream.Write(data, 0, data.Length);
                         }
-
-                        mutex.ReleaseMutex();
                     }
                 }
-                catch (Exception e)
+                finally
                 {
-                    Tizen.Log.Error(nameof(VkMessenger), e.ToString());
-                    return null;
+                    mutex.ReleaseMutex();
                 }
             }
 
