@@ -1,6 +1,7 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Cells;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Events;
+using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
@@ -22,51 +23,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             ItemTemplate = new DataTemplate(typeof(DialogCell))
         };
 
+        //TODO: ability to manual refresh
         public DialogsPage()
         {
             NavigationPage.SetHasNavigationBar(this, false);
             Setup();
-            Update(null).ContinueWith(AfterInitialUpdate);
-        }
-
-        //TODO: ability to manual refresh
-        /// <summary>
-        /// Update dialogs from API. Can be used during setup of page or with <see cref="LongPolling"/>
-        /// </summary>
-        /// <param name="dialogIds">Dialog id collection or null</param>
-        /// <returns>Null means update successfull</returns>
-        private async Task<Exception> Update(IReadOnlyCollection<int> dialogIds)
-        {
-            try
-            {
-                var newDialogs = await DialogsClient.GetDialogs(dialogIds);
-
-                foreach (var newDialog in newDialogs.AsEnumerable().Reverse())
-                {
-                    var foundDialog = dialogs.FirstOrDefault(d => d.Id == newDialog.Id);
-
-                    if (foundDialog == null)
-                        dialogs.Insert(0, newDialog);
-                    else
-                    {
-                        UpdateDialog(newDialog, foundDialog);
-
-                        if (dialogs.Last() != foundDialog)
-                        {
-                            dialogs.Remove(foundDialog);
-                            dialogs.Insert(0, foundDialog);
-                        }
-                        else foundDialog.ApplyChanges();
-                    }
-                }
-
-                return null;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                return e;
-            }
+            dialogs.Update(null).ContinueWith(AfterInitialUpdate);
         }
 
         /// <summary>
@@ -78,7 +40,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 new RetryInformationPopup(
                     t.Result.Message,
-                    async () => await Update(null).ContinueWith(AfterInitialUpdate))
+                    async () => await dialogs.Update(null).ContinueWith(AfterInitialUpdate))
                     .Show();
             }
             else
@@ -100,27 +62,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         }
 
         /// <summary>
-        /// Update dialog data without recreating it
-        /// </summary>
-        /// <param name="newDialog">New data</param>
-        /// <param name="foundDialog">Dialog to update</param>
-        private static void UpdateDialog(Dialog newDialog, Dialog foundDialog)
-        {
-            foundDialog.LastMessage = newDialog.LastMessage;
-            foundDialog.UnreadCount = newDialog.UnreadCount;
-
-            if (newDialog.Profiles != null)
-            {
-                foreach (var newProfile in newDialog.Profiles)
-                {
-                    var foundProfile = foundDialog.Profiles.FirstOrDefault(p => p.Id == newProfile.Id);
-                    if (foundProfile != null)
-                        foundProfile.IsOnline = newDialog.IsOnline;
-                }
-            }
-        }
-
-        /// <summary>
         /// Initial setup of page
         /// </summary>
         private void Setup()
@@ -130,8 +71,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
 
-            LongPollingClient.OnMessageUpdate += async (s, e) => await Update(new[] { e.DialogId });
-            LongPollingClient.OnDialogUpdate += async (s, e) => await Update(new[] { e });
+            LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(new[] { e.DialogId });
+            LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(new[] { e });
 
             LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
         }

@@ -1,9 +1,9 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Cells;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Events;
+using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,47 +36,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             PlaceholderColor = Color.Gray
         };
 
+        //TODO: ability to manual refresh
         public MessagesPage(Dialog dialog)
         {
             NavigationPage.SetHasNavigationBar(this, false);
 
             this.dialog = dialog;
             Setup();
-            Update(null).ContinueWith(AfterInitialUpdate);
-        }
-
-        //TODO: ability to manual refresh
-        /// <summary>
-        /// Update messages from API. Can be used during setup of page or with <see cref="LongPolling"/>
-        /// </summary>
-        /// <param name="messagesIds">Message id collection or null</param>
-        /// <returns>Null means update successfull</returns>
-        private async Task<Exception> Update(IReadOnlyCollection<uint> messagesIds)
-        {
-            try
-            {
-                var newMessages = await MessagesClient.GetMessages(dialog.Id, messagesIds);
-
-                foreach (var item in newMessages.AsEnumerable().Reverse())
-                {
-                    var foundMessage = messages.FirstOrDefault(d => d.Id == item.Id);
-
-                    if (foundMessage == null)
-                        messages.Add(item);
-                    else
-                    {
-                        foundMessage.Text = item.Text;
-                        foundMessage.ApplyChanges();
-                    }
-                }
-
-                return null;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                return e;
-            }
+            messages.Update(dialog.Id, null).ContinueWith(AfterInitialUpdate);
         }
 
         /// <summary>
@@ -88,7 +55,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 new RetryInformationPopup(
                     t.Result.Message,
-                    async () => await Update(null).ContinueWith(AfterInitialUpdate))
+                    async () => await messages.Update(dialog.Id, null).ContinueWith(AfterInitialUpdate))
                     .Show();
             }
             else
@@ -154,7 +121,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             if (args.DialogId == dialog.Id)
             {
-                await Update(new[] { args.MessageId }).ContinueWith(t =>
+                await messages.Update(dialog.Id, new[] { args.MessageId }).ContinueWith(t =>
                 {
                     if (t.Result == null)
                     {
