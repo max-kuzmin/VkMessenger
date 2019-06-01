@@ -6,6 +6,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     {
         public uint Id { get; set; }
         public string Name { get; set; }
-        public ProxiedCachedImageSource Photo { get; set; }
+        public ImageSource Photo { get; set; }
     }
 }

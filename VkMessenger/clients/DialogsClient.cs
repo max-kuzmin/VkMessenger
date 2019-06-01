@@ -74,8 +74,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 if (chatSettings["photo"] != null)
                 {
-                    result.Chat.Photo = new ProxiedCachedImageSource(
-                        new Uri(chatSettings["photo"]["photo_50"].Value<string>()));
+                    result.Chat.Photo = ImageSource.FromUri(new Uri(chatSettings["photo"]["photo_50"].Value<string>()));
                 }
             }
 

@@ -26,7 +26,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                     return (int)Authorization.UserId;
             }
         }
-        public ProxiedCachedImageSource Photo =>
+        public ImageSource Photo =>
             Profile?.Photo ??
             Group?.Photo ??
             Authorization.Photo;

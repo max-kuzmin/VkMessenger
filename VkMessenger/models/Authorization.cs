@@ -24,14 +24,13 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             set => Preference.Set(UserIdKey, (int)value);
         }
 
-        public static ProxiedCachedImageSource Photo
+        public static ImageSource Photo
         {
             get
             {
                 if (photoSource == null && Preference.Contains(UserIdKey))
                 {
-                    photoSource = new ProxiedCachedImageSource(
-                        new Uri(Preference.Get<string>(PhotoKey)));
+                    photoSource = ImageSource.FromUri(new Uri(Preference.Get<string>(PhotoKey)));
                 }
                 return photoSource;
             }
@@ -40,9 +39,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public static void SetPhoto(string url)
         {
             Preference.Set(PhotoKey, url);
-            photoSource = new ProxiedCachedImageSource(new Uri(url));
+            photoSource = ImageSource.FromUri(new Uri(url));
         }
 
-        private static ProxiedCachedImageSource photoSource = null;
+        private static ImageSource photoSource = null;
     }
 }

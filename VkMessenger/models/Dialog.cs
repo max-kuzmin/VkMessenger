@@ -54,7 +54,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
-        public ProxiedCachedImageSource Photo
+        public ImageSource Photo
         {
             get
             {

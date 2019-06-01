@@ -1,11 +1,12 @@
-﻿using ru.MaxKuzmin.VkMessenger.Models;
+﻿using FFImageLoading.Forms;
+using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Cells
 {
     public class DialogCell : ViewCell
     {
-        private Image photo = new Image
+        private CachedImage photo = new CachedImage
         {
             HorizontalOptions = LayoutOptions.Start,
             Aspect = Aspect.AspectFit,
@@ -73,7 +74,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         public DialogCell()
         {
-            photo.SetBinding(Image.SourceProperty, nameof(Dialog.Photo));
+            photo.SetBinding(CachedImage.SourceProperty, nameof(Dialog.Photo));
             title.SetBinding(Label.TextProperty, nameof(Dialog.Title));
             text.SetBinding(Label.TextProperty, nameof(Dialog.Text));
             this.SetBinding(UnreadCountProperty, nameof(Dialog.UnreadCount));

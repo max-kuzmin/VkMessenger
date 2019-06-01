@@ -15,8 +15,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 Id = profile["id"].Value<uint>(),
                 Name = profile["first_name"].Value<string>(),
                 Surname = profile["last_name"].Value<string>(),
-                Photo = new ProxiedCachedImageSource(
-                    new Uri(profile["photo_50"].Value<string>())),
+                Photo = ImageSource.FromUri(new Uri(profile["photo_50"].Value<string>())),
                 IsOnline = profile["online"].Value<uint>() != 0
             };
         }
