@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
@@ -96,6 +97,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public async static Task<IReadOnlyCollection<Dialog>> GetDialogs(IReadOnlyCollection<int> dialogIds)
         {
+            Logger.Info($"Updating dialogs {JsonConvert.SerializeObject(dialogIds)}");
+
             var json = JObject.Parse(dialogIds == null ? await GetDialogsJson() : await GetDialogsJson(dialogIds));
             var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
             var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
@@ -119,7 +122,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "https://api.vk.com/method/messages.getConversations" +
                 "?v=5.92" +
                 "&extended=1" +
-                "&access_token=" + Models.Authorization.Token;
+                "&access_token=" + Authorization.Token;
 
             using (var client = new ProxiedWebClient())
             {

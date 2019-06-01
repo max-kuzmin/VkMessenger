@@ -1,37 +1,19 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.IO;
-using System.Net;
+﻿using System;
+using System.Runtime.CompilerServices;
 using Tizen;
 
 namespace ru.MaxKuzmin.VkMessenger
 {
     public class Logger
     {
-        private const string LogFile = "/opt/usr/home/owner/media/Documents/VkMessenger.log";
-
-        public static void Error(Exception e)
+        public static void Info(string text, [CallerMemberName] string caller = null)
         {
-            Log.Error(nameof(VkMessenger), e.ToString());
+            Log.Info(nameof(VkMessenger), $"{caller}: {text}");
+        }
 
-            try
-            {
-                using (var file = File.OpenWrite(LogFile))
-                using (var writer = new StreamWriter(file))
-                {
-                    writer.WriteLine("\n\nException: " + e.ToString() + JsonConvert.SerializeObject(e));
-
-                    if (e is WebException webEx)
-                    {
-                        using (var resp = new StreamReader(webEx.Response.GetResponseStream()))
-                        {
-                            resp.ReadToEnd();
-                            writer.WriteLine(resp);
-                        }
-                    }
-                }
-            }
-            catch { }
+        public static void Error(Exception e, [CallerMemberName] string caller = null)
+        {
+            Log.Error(nameof(VkMessenger), $"{caller}: {e.ToString()}");
         }
     }
 }

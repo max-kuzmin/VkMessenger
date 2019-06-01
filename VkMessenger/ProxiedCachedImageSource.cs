@@ -41,6 +41,7 @@ namespace ru.MaxKuzmin.VkMessenger
                 var mutex = mutexes.GetOrAdd(fileName, f => new Mutex());
                 try
                 {
+                    Logger.Info($"Loading image from uri: {fileName}");
                     using (var client = new ProxiedWebClient())
                     {
                         cancel.ThrowIfCancellationRequested();
@@ -48,6 +49,7 @@ namespace ru.MaxKuzmin.VkMessenger
 
                         cancel.ThrowIfCancellationRequested();
                         mutex.WaitOne();
+                        Logger.Info($"Saving image to file: {fileName}");
                         using (var stream = await storage.OpenFileAsync(fileName, FileMode.Create, FileAccess.Write))
                         {
                             stream.Write(data, 0, data.Length);
@@ -60,6 +62,7 @@ namespace ru.MaxKuzmin.VkMessenger
                 }
             }
 
+            Logger.Info($"Loading image from file: {fileName}");
             return await storage.OpenFileAsync(fileName, FileMode.Open, FileAccess.Read);
         }
     }

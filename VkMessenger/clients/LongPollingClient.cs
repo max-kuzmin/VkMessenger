@@ -105,6 +105,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             if ((isStarted && Authorization.Token != null) || !LongPolling.Enabled)
                 return;
 
+            Logger.Info("Long polling started");
             isStarted = true;
 
             while (isStarted)
@@ -128,6 +129,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static void Stop()
         {
+            Logger.Info("Long polling stopped");
+
             isStarted = false;
         }
     }

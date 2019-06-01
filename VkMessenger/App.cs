@@ -19,7 +19,6 @@ namespace ru.MaxKuzmin.VkMessenger
 #endif
 
             MainPage = new NavigationMainPage();
-            LongPollingClient.Start();
         }
 
         protected override void OnSleep()

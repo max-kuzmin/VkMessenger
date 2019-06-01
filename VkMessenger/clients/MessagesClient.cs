@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public async static Task<IReadOnlyCollection<Message>> GetMessages(int dialogId, IReadOnlyCollection<uint> messagesIds)
         {
+            Logger.Info($"Updating messages {JsonConvert.SerializeObject(messagesIds)} in dialog {dialogId}");
+
             var json = JObject.Parse(messagesIds == null ? await GetMessagesJson(dialogId) : await GetMessagesJson(messagesIds));
             var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
             var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
