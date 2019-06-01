@@ -17,9 +17,7 @@ namespace ru.MaxKuzmin.VkMessenger
             var config = new Configuration()
             {
                 ExecuteCallbacksOnUIThread = true,
-                DiskCacheDuration = TimeSpan.MaxValue,
-                MaxMemoryCacheSize = 1024 * 1024,
-
+                DataResolverFactory = new ProxiedDataResolverFactory(),
 #if DEBUG
                 VerboseLogging = true,
                 VerboseLoadingCancelledLogging = true,
