@@ -70,6 +70,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public void InvokePropertyChanged() => PropertyChanged(this, new PropertyChangedEventArgs(null));
+        public void ApplyChanges() => PropertyChanged(this, new PropertyChangedEventArgs(null));
     }
 }

@@ -56,7 +56,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                             dialogs.Remove(foundDialog);
                             dialogs.Insert(0, foundDialog);
                         }
-                        else foundDialog.InvokePropertyChanged();
+                        else foundDialog.ApplyChanges();
                     }
                 }
 
@@ -149,7 +149,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 if (profile != null)
                 {
                     profile.IsOnline = e.IsOnline;
-                    dialog.InvokePropertyChanged();
+                    dialog.ApplyChanges();
                 }
             }
         }
@@ -169,7 +169,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
             else
             {
-                messagesPage = new MessagesPage(dialog.Id);
+                messagesPage = new MessagesPage(dialog);
                 messagesPages.Add(dialog.Id, messagesPage);
             }
 
@@ -177,7 +177,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             try
             {
-                await DialogsClient.MarkAsRead(dialog.Id);
+                if (await DialogsClient.MarkAsRead(dialog.Id))
+                {
+                    dialog.UnreadCount = 0;
+                    dialog.ApplyChanges();
+                }
             }
             catch (Exception e)
             {

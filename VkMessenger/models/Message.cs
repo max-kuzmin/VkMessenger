@@ -10,6 +10,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public uint Id { get; set; }
         public string Text { get; set; }
+        public bool IsUnread { get; set; }
         public DateTime Date { get; set; }
         public Profile Profile { get; set; }
         public Group Group { get; set; }
@@ -33,6 +34,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public void InvokePropertyChanged() => PropertyChanged(this, new PropertyChangedEventArgs(null));
+        public void ApplyChanges() => PropertyChanged(this, new PropertyChangedEventArgs(null));
     }
 }

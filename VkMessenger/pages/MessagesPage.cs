@@ -16,7 +16,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     {
         private readonly StackLayout verticalLayout = new StackLayout();
         private readonly ObservableCollection<Message> messages = new ObservableCollection<Message>();
-        private readonly int dialogId;
+        private readonly Dialog dialog;
 
         private readonly CircleListView messagesListView = new CircleListView
         {
@@ -36,11 +36,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             PlaceholderColor = Color.Gray
         };
 
-        public MessagesPage(int dialogId)
+        public MessagesPage(Dialog dialog)
         {
             NavigationPage.SetHasNavigationBar(this, false);
 
-            this.dialogId = dialogId;
+            this.dialog = dialog;
             Setup();
             Update(null).ContinueWith(AfterInitialUpdate);
         }
@@ -55,7 +55,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             try
             {
-                var newMessages = await MessagesClient.GetMessages(dialogId, messagesIds);
+                var newMessages = await MessagesClient.GetMessages(dialog.Id, messagesIds);
 
                 foreach (var item in newMessages.AsEnumerable().Reverse())
                 {
@@ -66,7 +66,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     else
                     {
                         foundMessage.Text = item.Text;
-                        foundMessage.InvokePropertyChanged();
+                        foundMessage.ApplyChanges();
                     }
                 }
 
@@ -126,11 +126,23 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
             messagesListView.ItemsSource = messages;
             popupEntryView.Completed += OnSend;
+            popupEntryView.Focused += OnFocused;
 
             verticalLayout.Children.Add(messagesListView);
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
             LongPollingClient.OnMessageUpdate += OnMessageUpdate;
+        }
+
+        /// <summary>
+        /// Set all messages as read when text field is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnFocused(object sender, FocusEventArgs e)
+        {
+            dialog.UnreadCount = 0;
+            dialog.ApplyChanges();
         }
 
         /// <summary>
@@ -140,7 +152,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <param name="args"></param>
         private async void OnMessageUpdate(object sender, MessageEventArgs args)
         {
-            if (args.DialogId == dialogId)
+            if (args.DialogId == dialog.Id)
             {
                 await Update(new[] { args.MessageId }).ContinueWith(t =>
                 {
@@ -167,7 +179,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             try
             {
-                await MessagesClient.Send(text, dialogId);
+                await MessagesClient.Send(text, dialog.Id);
                 popupEntryView.Text = string.Empty;
             }
             catch (Exception e)

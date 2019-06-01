@@ -21,7 +21,8 @@ namespace ru.MaxKuzmin.VkMessenger
 #if DEBUG
                 VerboseLogging = true,
                 VerboseLoadingCancelledLogging = true,
-                VerboseMemoryCacheLogging = true
+                VerboseMemoryCacheLogging = true,
+                Logger = new CustomLogger()
 #endif
             };
             ImageService.Instance.Initialize(config);

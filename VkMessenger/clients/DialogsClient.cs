@@ -129,17 +129,18 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        public async static Task MarkAsRead(int dialogId)
+        public async static Task<bool> MarkAsRead(int dialogId)
         {
             var url =
                 "https://api.vk.com/method/messages.markAsRead" +
                 "?v=5.92" +
                 "&peer_id=" + dialogId +
-                "&access_token=" + Models.Authorization.Token;
+                "&access_token=" + Authorization.Token;
 
             using (var client = new ProxiedWebClient())
             {
-                await client.DownloadStringTaskAsync(url);
+                var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
+                return json["response"].Value<int>() == 1;
             }
         }
 

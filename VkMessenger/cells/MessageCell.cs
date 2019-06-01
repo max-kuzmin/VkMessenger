@@ -1,4 +1,5 @@
-﻿using FFImageLoading.Forms;
+﻿using System;
+using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
 
@@ -32,6 +33,14 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 default(int),
                 propertyChanged: OnSenderIdPropertyChanged);
 
+        private static readonly BindableProperty IsUnreadProperty =
+            BindableProperty.Create(
+                nameof(Message.IsUnread),
+                typeof(bool),
+                typeof(MessageCell),
+                default(bool),
+                propertyChanged: OnIsUnreadPropertyChanged);
+
         public MessageCell()
         {
             photo.SetBinding(CachedImage.SourceProperty, nameof(Message.Photo));
@@ -59,6 +68,22 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                     cell.wrapperLayout.RaiseChild(cell.photo);
                     cell.photo.HorizontalOptions = LayoutOptions.Start;
                     cell.text.HorizontalOptions = LayoutOptions.EndAndExpand;
+                }
+            }
+        }
+
+        private static void OnIsUnreadPropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is MessageCell cell)
+            {
+                var unread = (bool)newValue;
+                if (unread)
+                {
+                    cell.View.BackgroundColor = Color.FromHex("00354A");
+                }
+                else
+                {
+                    cell.View.BackgroundColor = Color.Black;
                 }
             }
         }
