@@ -10,7 +10,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public uint Id { get; set; }
         public string Text { get; set; }
-        public bool IsUnread { get; set; }
+        public bool Unread { get; set; }
         public DateTime Date { get; set; }
         public Profile Profile { get; set; }
         public Group Group { get; set; }

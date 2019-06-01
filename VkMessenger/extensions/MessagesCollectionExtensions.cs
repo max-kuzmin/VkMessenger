@@ -42,5 +42,32 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                 return e;
             }
         }
+
+        public static void UpdateUnreadProperty(this ObservableCollection<Message> messages, uint unreadCount)
+        {
+            if (unreadCount > 0)
+            {
+                var orderedMessages = messages.OrderByDescending(m => m.Date);
+                var unreadMessages = orderedMessages.Take((int)unreadCount);
+                foreach (var message in unreadMessages)
+                {
+                    if (!message.Unread)
+                    {
+                        message.Unread = true;
+                        message.ApplyChanges();
+                    }
+                }
+
+                var readMessages = orderedMessages.Skip((int)unreadCount);
+                foreach (var message in unreadMessages)
+                {
+                    if (message.Unread)
+                    {
+                        message.Unread = false;
+                        message.ApplyChanges();
+                    }
+                }
+            }
+        }
     }
 }

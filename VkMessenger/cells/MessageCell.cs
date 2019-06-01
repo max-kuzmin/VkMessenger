@@ -1,5 +1,4 @@
-﻿using System;
-using FFImageLoading.Forms;
+﻿using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
 
@@ -33,19 +32,20 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 default(int),
                 propertyChanged: OnSenderIdPropertyChanged);
 
-        private static readonly BindableProperty IsUnreadProperty =
+        private static readonly BindableProperty UnreadProperty =
             BindableProperty.Create(
-                nameof(Message.IsUnread),
+                nameof(Message.Unread),
                 typeof(bool),
                 typeof(MessageCell),
                 default(bool),
-                propertyChanged: OnIsUnreadPropertyChanged);
+                propertyChanged: OnUnreadPropertyChanged);
 
         public MessageCell()
         {
             photo.SetBinding(CachedImage.SourceProperty, nameof(Message.Photo));
             text.SetBinding(Label.TextProperty, nameof(Message.Text));
             this.SetBinding(SenderIdProperty, nameof(Message.SenderId));
+            this.SetBinding(UnreadProperty, nameof(Message.Unread));
 
             wrapperLayout.Children.Add(photo);
             wrapperLayout.Children.Add(text);
@@ -72,7 +72,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             }
         }
 
-        private static void OnIsUnreadPropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        private static void OnUnreadPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             if (bindable is MessageCell cell)
             {

@@ -121,13 +121,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             if (args.DialogId == dialog.Id)
             {
-                await messages.Update(dialog.Id, new[] { args.MessageId }).ContinueWith(t =>
+                if (await messages.Update(dialog.Id, new[] { args.MessageId }) == null)
                 {
-                    if (t.Result == null)
-                    {
-                        Scroll();
-                    }
-                });
+                    messages.UpdateUnreadProperty(dialog.UnreadCount);
+                    Scroll();
+
+                    dialog.LastMessage = messages.Last();
+                    dialog.ApplyChanges();
+                }
             }
         }
 

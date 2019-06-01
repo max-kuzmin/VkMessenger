@@ -151,7 +151,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "?v=5.92" +
                 "&extended=1" +
                 "&peer_ids=" + dialogIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
-                "&access_token=" + Models.Authorization.Token;
+                "&access_token=" + Authorization.Token;
 
             using (var client = new ProxiedWebClient())
             {
