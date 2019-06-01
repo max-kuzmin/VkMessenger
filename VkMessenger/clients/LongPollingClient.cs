@@ -3,8 +3,6 @@ using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Threading.Tasks;
-using Tizen;
-using Tizen.Network.Connection;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -104,7 +102,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         /// </summary>
         public async static void Start()
         {
-            if ((isStarted && Models.Authorization.Token != null) || !LongPolling.Enabled)
+            if ((isStarted && Authorization.Token != null) || !LongPolling.Enabled)
                 return;
 
             isStarted = true;
@@ -121,7 +119,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 }
                 catch (Exception e)
                 {
-                    Log.Error(nameof(VkMessenger), e.ToString());
+                    Logger.Error(e);
                 }
 
                 await Task.Delay(LongPolling.DelayAfterError);

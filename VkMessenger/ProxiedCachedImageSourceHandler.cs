@@ -25,7 +25,7 @@ namespace ru.MaxKuzmin.VkMessenger
                 catch (TaskCanceledException) { }
                 catch (Exception e)
                 {
-                    Tizen.Log.Error(nameof(VkMessenger), e.ToString());
+                    Logger.Error(e);
                 }
             }
 

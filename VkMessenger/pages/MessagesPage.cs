@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Tizen;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -75,7 +74,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
             catch (Exception e)
             {
-                Log.Error(nameof(VkMessenger), e.ToString());
+                Logger.Error(e);
                 return e;
             }
         }
@@ -174,7 +173,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             catch (Exception e)
             {
                 popupEntryView.Text = text;
-                Log.Error(nameof(VkMessenger), e.ToString());
+                Logger.Error(e);
                 new RetryInformationPopup(e.Message, () => OnSend(null, null));
             }
         }
