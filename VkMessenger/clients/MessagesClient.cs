@@ -18,31 +18,29 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             Logger.Info($"Updating messages {JsonConvert.SerializeObject(messagesIds)} in dialog {dialogId}");
 
-            bool getByIds = messagesIds != null;
-
-            var json = JObject.Parse(getByIds ?
+            var json = JObject.Parse(messagesIds != null ?
                 await GetMessagesJson(messagesIds) :
                 await GetMessagesJson(dialogId));
             var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
             var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
-            return FromJsonArray(json["response"]["items"] as JArray, profiles, groups, !getByIds);
+            return FromJsonArray(json["response"]["items"] as JArray, profiles, groups);
         }
 
         private static List<Message> FromJsonArray(JArray source, IReadOnlyCollection<Profile> profiles,
-            IReadOnlyCollection<Group> groups, bool setAsRead)
+            IReadOnlyCollection<Group> groups)
         {
             var result = new List<Message>();
 
             foreach (var item in source)
             {
-                result.Add(FromJson(item as JObject, profiles, groups, setAsRead));
+                result.Add(FromJson(item as JObject, profiles, groups));
             }
 
             return result;
         }
 
         public static Message FromJson(JObject source, IReadOnlyCollection<Profile> profiles,
-            IReadOnlyCollection<Group> groups, bool setAsRead)
+            IReadOnlyCollection<Group> groups)
         {
             var text = source["text"].Value<string>();
             var dialogId = source["from_id"].Value<int>();
@@ -52,8 +50,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text,
                 new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc),
                 profiles?.FirstOrDefault(p => p.Id == dialogId),
-                groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)),
-                setAsRead);
+                groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)));
 
             return result;
         }

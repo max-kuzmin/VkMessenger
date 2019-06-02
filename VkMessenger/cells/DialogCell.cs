@@ -35,7 +35,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
             FontAttributes = FontAttributes.Bold
         };
-        private Label OnlineIndicator = new Label
+        private Label onlineIndicator = new Label
         {
             VerticalOptions = LayoutOptions.Fill,
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
@@ -91,7 +91,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
             titleLayout.Children.Add(title);
             titleLayout.Children.Add(unreadCount);
-            titleLayout.Children.Add(OnlineIndicator);
+            titleLayout.Children.Add(onlineIndicator);
             titleAndtextLayout.Children.Add(titleLayout);
             titleAndtextLayout.Children.Add(text);
             wrapperLayout.Children.Add(photo);
@@ -121,7 +121,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         {
             if (bindable is DialogCell cell)
             {
-                cell.OnlineIndicator.Text = (bool)newValue ? "•" : string.Empty;
+                cell.onlineIndicator.Text = (bool)newValue ? "•" : string.Empty;
             }
         }
 

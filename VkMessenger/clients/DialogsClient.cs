@@ -39,7 +39,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var unreadCount = conversation["unread_count"]?.Value<uint>() ?? 0u;
 
             var lastMessage = new[] { dialog.ContainsKey("last_message") ?
-                MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups, false) :
+                MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups) :
                 lastMessages.First(e => e.Id == dialog["last_message_id"].Value<uint>()) };
 
             Dialog result = null;
