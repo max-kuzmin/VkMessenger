@@ -44,9 +44,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Profile = profile;
         }
 
-        public void SetRead(bool read)
+        public void SetRead()
         {
-            Read = read;
+            Read = true;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Read)));
         }
 

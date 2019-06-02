@@ -92,7 +92,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         {
             foreach (var message in Messages)
             {
-                message.SetRead(true);
+                message.SetRead();
             }
 
             SetUnreadCount(0);

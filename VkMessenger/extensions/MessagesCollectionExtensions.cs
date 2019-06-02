@@ -64,7 +64,6 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         private static void UpdateMessage(Message newMessage, Message foundMessage)
         {
             foundMessage.SetText(newMessage.Text);
-            foundMessage.SetRead(newMessage.Read);
         }
     }
 }
