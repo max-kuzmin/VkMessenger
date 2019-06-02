@@ -115,11 +115,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async void OnTextCompleted(object sender, EventArgs args)
         {
-            dialog.MarkReadWithMessages();
+            dialog.SetReadWithMessages();
 
             try
             {
-                await DialogsClient.MarkRead(dialog.Id);
+                await DialogsClient.MarkAsRead(dialog.Id);
             }
             catch (Exception ex)
             {

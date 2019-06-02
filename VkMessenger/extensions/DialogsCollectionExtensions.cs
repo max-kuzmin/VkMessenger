@@ -51,6 +51,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     else
                     {
                         collection.Insert(0, newDialog);
+                        newDialog.Notify();
                     }
                 }
             }

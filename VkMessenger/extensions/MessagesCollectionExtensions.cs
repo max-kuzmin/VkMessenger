@@ -15,7 +15,8 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// </summary>
         /// <param name="messagesIds">Message id collection or null</param>
         /// <returns>Null means update successfull</returns>
-        public static async Task<Exception> Update(this ObservableCollection<Message> collection, int dialogId, IReadOnlyCollection<uint> messagesIds)
+        public static async Task<Exception> Update(this ObservableCollection<Message> collection, int dialogId,
+            IReadOnlyCollection<uint> messagesIds)
         {
             try
             {
@@ -52,6 +53,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     else
                     {
                         collection.Add(newMessage);
+                        newMessage.Notify();
                     }
                 }
             }
@@ -63,7 +65,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         private static void UpdateMessage(Message newMessage, Message foundMessage)
         {
             foundMessage.SetText(newMessage.Text);
-            foundMessage.MarkRead(newMessage.Read);
+            foundMessage.SetRead(newMessage.Read);
         }
     }
 }

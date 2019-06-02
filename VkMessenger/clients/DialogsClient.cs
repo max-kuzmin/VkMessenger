@@ -129,7 +129,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        public async static Task<bool> MarkRead(int dialogId)
+        public async static Task<bool> MarkAsRead(int dialogId)
         {
             var url =
                 "https://api.vk.com/method/messages.markAsRead" +

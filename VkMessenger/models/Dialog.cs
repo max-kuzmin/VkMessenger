@@ -82,20 +82,17 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Messages = new ObservableCollection<Message>(messages ?? Array.Empty<Message>());
             Messages.CollectionChanged += (s, e) =>
             {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Messages)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
             };
 
             Profiles = new ObservableCollection<Profile>(profiles ?? Array.Empty<Profile>());
-            Profiles.CollectionChanged += (s, e) =>
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Profiles)));
         }
 
-        public void MarkReadWithMessages()
+        public void SetReadWithMessages()
         {
             foreach (var message in Messages)
             {
-                message.MarkRead(true);
+                message.SetRead(true);
             }
 
             SetUnreadCount(0);
@@ -103,21 +100,23 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public void SetUnreadCount(uint unreadCount)
         {
-            if (UnreadCount != unreadCount)
-            {
-                UnreadCount = unreadCount;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UnreadCount)));
-            }
+            UnreadCount = unreadCount;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UnreadCount)));
         }
 
         public void SetOnline(uint userId, bool online)
         {
             var profile = Profiles?.FirstOrDefault(p => p.Id == userId);
-            if (profile != null && profile.Online != online)
+            if (profile != null)
             {
                 profile.Online = online;
-                new PropertyChangedEventArgs(nameof(Online));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Online)));
             }
+        }
+
+        public void Notify()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         }
     }
 }

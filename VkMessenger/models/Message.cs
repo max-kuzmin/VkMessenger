@@ -45,19 +45,21 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Read = read;
         }
 
-        public void MarkRead(bool read)
+        public void SetRead(bool read)
         {
-            if (Read != read)
-            {
-                Read = read;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Read)));
-            }
+            Read = read;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Read)));
         }
 
         public void SetText(string text)
         {
             Text = text;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
+        }
+
+        public void Notify()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         }
     }
 }

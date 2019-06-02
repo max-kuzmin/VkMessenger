@@ -105,11 +105,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             await Navigation.PushAsync(messagesPage);
 
-            dialog.MarkReadWithMessages();
+            dialog.SetReadWithMessages();
 
             try
             {
-                await DialogsClient.MarkRead(dialog.Id);
+                await DialogsClient.MarkAsRead(dialog.Id);
             }
             catch (Exception ex)
             {
