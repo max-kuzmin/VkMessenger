@@ -27,7 +27,6 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
 
                     if (foundMessage == null)
                     {
-                        if (messagesIds != null) item.MarkRead(false);
                         messages.Add(item);
                     }
                     else

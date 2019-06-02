@@ -35,14 +35,14 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Message(uint id, string text, DateTime date, Profile profile, Group group)
+        public Message(uint id, string text, DateTime date, Profile profile, Group group, bool read)
         {
             Id = id;
             Text = text;
             Date = date;
             Group = group;
             Profile = profile;
-            Read = true;
+            Read = read;
         }
 
         public void MarkRead(bool read)

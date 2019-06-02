@@ -18,27 +18,31 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             Logger.Info($"Updating messages {JsonConvert.SerializeObject(messagesIds)} in dialog {dialogId}");
 
-            var json = JObject.Parse(messagesIds == null ?
-                await GetMessagesJson(dialogId) :
-                await GetMessagesJson(messagesIds));
+            bool getByIds = messagesIds != null;
+
+            var json = JObject.Parse(getByIds ?
+                await GetMessagesJson(messagesIds) :
+                await GetMessagesJson(dialogId));
             var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
             var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
-            return FromJsonArray(json["response"]["items"] as JArray, profiles, groups);
+            return FromJsonArray(json["response"]["items"] as JArray, profiles, groups, !getByIds);
         }
 
-        private static List<Message> FromJsonArray(JArray source, IReadOnlyCollection<Profile> profiles, IReadOnlyCollection<Group> groups)
+        private static List<Message> FromJsonArray(JArray source, IReadOnlyCollection<Profile> profiles,
+            IReadOnlyCollection<Group> groups, bool setAsRead)
         {
             var result = new List<Message>();
 
             foreach (var item in source)
             {
-                result.Add(FromJson(item as JObject, profiles, groups));
+                result.Add(FromJson(item as JObject, profiles, groups, setAsRead));
             }
 
             return result;
         }
 
-        public static Message FromJson(JObject source, IReadOnlyCollection<Profile> profiles, IReadOnlyCollection<Group> groups)
+        public static Message FromJson(JObject source, IReadOnlyCollection<Profile> profiles,
+            IReadOnlyCollection<Group> groups, bool setAsRead)
         {
             var text = source["text"].Value<string>();
             var dialogId = source["from_id"].Value<int>();
@@ -48,7 +52,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text,
                 new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc),
                 profiles?.FirstOrDefault(p => p.Id == dialogId),
-                groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)));
+                groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)),
+                setAsRead);
 
             return result;
         }

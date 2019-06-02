@@ -39,7 +39,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var unreadCount = conversation["unread_count"]?.Value<uint>() ?? 0u;
 
             var lastMessage = new[] { dialog.ContainsKey("last_message") ?
-                MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups) :
+                MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups, false) :
                 lastMessages.First(e => e.Id == dialog["last_message_id"].Value<uint>()) };
 
             Dialog result = null;
@@ -129,7 +129,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        public async static Task<bool> MarkAsRead(int dialogId)
+        public async static Task<bool> MarkRead(int dialogId)
         {
             var url =
                 "https://api.vk.com/method/messages.markAsRead" +

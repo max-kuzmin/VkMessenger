@@ -119,7 +119,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             try
             {
-                await DialogsClient.MarkAsRead(dialog.Id);
+                await DialogsClient.MarkRead(dialog.Id);
             }
             catch (Exception ex)
             {

@@ -24,7 +24,6 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                 foreach (var newDialog in newDialogs.AsEnumerable().Reverse())
                 {
                     var foundDialog = dialogs.FirstOrDefault(d => d.Id == newDialog.Id);
-
                     if (foundDialog == null)
                     {
                         dialogs.Insert(0, newDialog);
@@ -57,10 +56,10 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         {
             foreach (var newProfile in newDialog.Profiles)
             {
-                var foundProfile = foundDialog.Profiles.FirstOrDefault(p => p.Id == newProfile.Id);
-                if (foundProfile != null)
-                    foundProfile.Online = newDialog.Online;
+                foundDialog.SetOnline(newProfile.Id, newDialog.Online);
             }
+            foundDialog.AddMessages(newDialog.Messages);
+            foundDialog.SetUnreadCount(newDialog.UnreadCount);
         }
     }
 }

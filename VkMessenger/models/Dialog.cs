@@ -107,13 +107,16 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
-        public void AddMessage(Message message)
+        public void AddMessages(IReadOnlyCollection<Message> messages)
         {
-            if (Messages.All(m => m.Id != message.Id))
+            foreach (var message in messages)
             {
-                Messages.Add(message);
-                Messages.OrderBy(m => m.Date);
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
+                if (Messages.All(m => m.Id != message.Id))
+                {
+                    Messages.Add(message);
+                    Messages.OrderBy(m => m.Date);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
+                }
             }
         }
 
