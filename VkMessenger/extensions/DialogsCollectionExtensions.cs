@@ -20,33 +20,41 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             try
             {
                 var newDialogs = await DialogsClient.GetDialogs(dialogIds);
-                lock (collection)
-                {
-                    foreach (var newDialog in newDialogs.AsEnumerable().Reverse())
-                    {
-                        var foundDialog = collection.FirstOrDefault(d => d.Id == newDialog.Id);
-                        if (foundDialog == null)
-                        {
-                            collection.Insert(0, newDialog);
-                        }
-                        else
-                        {
-                            UpdateDialog(newDialog, foundDialog);
-
-                            if (collection.Last() != foundDialog)
-                            {
-                                collection.Remove(foundDialog);
-                                collection.Insert(0, foundDialog);
-                            }
-                        }
-                    }
-                }
+                collection.AddUpdate(newDialogs);
                 return null;
             }
             catch (Exception e)
             {
                 Logger.Error(e);
                 return e;
+            }
+        }
+
+        public static void AddUpdate(this ObservableCollection<Dialog> collection,
+            IReadOnlyCollection<Dialog> newDialogs)
+        {
+            lock (collection)
+            {
+                foreach (var newDialog in newDialogs.AsEnumerable().Reverse())
+                {
+                    var foundDialog = collection.FirstOrDefault(m => m.Id == newDialog.Id);
+                    if (foundDialog != null)
+                    {
+                        if (collection.IndexOf(foundDialog) != collection.Count - 1)
+                        {
+                            collection.Remove(foundDialog);
+                            collection.Insert(0, foundDialog);
+                        }
+                        else
+                        {
+                            UpdateDialog(newDialog, foundDialog);
+                        }
+                    }
+                    else
+                    {
+                        collection.Insert(0, newDialog);
+                    }
+                }
             }
         }
 
