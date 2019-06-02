@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using Xamarin.Forms;
@@ -7,11 +9,11 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 {
     public class Dialog : INotifyPropertyChanged
     {
-        public ObservableCollection<Profile> Profiles { get; private set; }
-        public Group Group { get; private set; }
-        public Chat Chat { get; private set; }
-        public ObservableCollection<Message> Messages { get; private set; }
-        public DialogType Type { get; private set; }
+        public ObservableCollection<Profile> Profiles { get; }
+        public Group Group { get; }
+        public Chat Chat { get; }
+        public ObservableCollection<Message> Messages { get; }
+        public DialogType Type { get; }
         public uint UnreadCount { get; private set; }
         public string Text => Messages.Last()?.Text ?? string.Empty;
         public bool Online => Type == DialogType.User ? Profiles.First().Online : false;
@@ -69,13 +71,19 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Dialog()
+        public Dialog(DialogType type, Group group, Chat chat, uint unreadCount,
+            IReadOnlyCollection<Profile> profiles, IReadOnlyCollection<Message> messages)
         {
-            Messages = new ObservableCollection<Message>();
+            Type = type;
+            Group = group;
+            Chat = chat;
+            UnreadCount = unreadCount;
+
+            Messages = new ObservableCollection<Message>(messages ?? Array.Empty<Message>());
             Messages.CollectionChanged += (s, e) =>
                 PropertyChanged(this, new PropertyChangedEventArgs(nameof(Messages)));
 
-            Profiles = new ObservableCollection<Profile>();
+            Profiles = new ObservableCollection<Profile>(profiles ?? Array.Empty<Profile>());
             Profiles.CollectionChanged += (s, e) =>
                 PropertyChanged(this, new PropertyChangedEventArgs(nameof(Profiles)));
         }
@@ -117,24 +125,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 profile.Online = online;
                 new PropertyChangedEventArgs(nameof(Online));
             }
-        }
-
-        public void SetGroup(Group group)
-        {
-            Group = group;
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Group)));
-        }
-
-        public void SetChat(Chat chat)
-        {
-            Chat = chat;
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Chat)));
-        }
-
-        public void SetType(DialogType type)
-        {
-            Type = type;
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Type)));
         }
     }
 }

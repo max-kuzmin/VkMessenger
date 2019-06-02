@@ -34,45 +34,44 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             IReadOnlyCollection<Message> lastMessages)
         {
             var conversation = dialog["conversation"] ?? dialog;
-
-            var result = new Dialog();
-            result.SetUnreadCount(conversation["unread_count"]?.Value<uint>() ?? 0u);
-            result.AddMessage(dialog.ContainsKey("last_message") ?
-                MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups) :
-                lastMessages.First(e => e.Id == dialog["last_message_id"].Value<uint>()));
-
             var dialogId = conversation["peer"]["id"].Value<int>();
-            var peerType = conversation["peer"]["type"].Value<string>();
-            if (peerType == "user")
+            var dialogType = Enum.Parse<DialogType>(conversation["peer"]["type"].Value<string>());
+            var unreadCount = conversation["unread_count"]?.Value<uint>() ?? 0u;
+
+            var lastMessage = new[] { dialog.ContainsKey("last_message") ?
+                MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups) :
+                lastMessages.First(e => e.Id == dialog["last_message_id"].Value<uint>()) };
+
+            Dialog result = null;
+
+            if (dialogType == DialogType.User)
             {
-                result.SetType(DialogType.User);
-                result.Profiles.Add(profiles.First(p => p.Id == dialogId));
+                var dialogProfiles = new[] { profiles.First(p => p.Id == dialogId) };
+                result = new Dialog(dialogType, null, null, unreadCount, dialogProfiles, lastMessage);
             }
-            else if (peerType == "group")
+            else if (dialogType == DialogType.Group)
             {
-                result.SetType(DialogType.Group);
-                result.SetGroup(groups.First(g => g.Id == Math.Abs(dialogId)));
+                var group = groups.First(g => g.Id == Math.Abs(dialogId));
+                result = new Dialog(dialogType, group, null, unreadCount, null, lastMessage);
             }
-            else if (peerType == "chat")
+            else if (dialogType == DialogType.Chat)
             {
                 var chatSettings = conversation["chat_settings"];
-                result.SetType(DialogType.Chat);
-                result.SetChat(new Chat
+                var chat = new Chat
                 {
                     Title = chatSettings["title"].Value<string>(),
-                    Id = (uint)dialogId
-                });
+                    Id = (uint)dialogId,
+                    Photo = chatSettings["photo"] != null ?
+                        ImageSource.FromUri(new Uri(chatSettings["photo"]["photo_50"].Value<string>())) : null
+                };
 
-                var ids = chatSettings["active_ids"] as JArray;
-                foreach (var id in ids)
+                var dialogProfiles = new List<Profile>();
+                foreach (var id in chatSettings["active_ids"] as JArray)
                 {
-                    result.Profiles.Add(profiles.First(p => p.Id == id.Value<uint>()));
+                    dialogProfiles.Add(profiles.First(p => p.Id == id.Value<uint>()));
                 }
 
-                if (chatSettings["photo"] != null)
-                {
-                    result.Chat.Photo = ImageSource.FromUri(new Uri(chatSettings["photo"]["photo_50"].Value<string>()));
-                }
+                result = new Dialog(dialogType, null, chat, unreadCount, dialogProfiles, lastMessage);
             }
 
             return result;
@@ -111,7 +110,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
             var lastMessages = lastMessagesIds.Any() ?
                 await MessagesClient.GetMessages(0, lastMessagesIds) :
-                new Message[] { };
+                Array.Empty<Message>();
 
             return FromJsonArray(json["response"]["items"] as JArray, profiles, groups, lastMessages);
         }

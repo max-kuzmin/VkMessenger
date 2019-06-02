@@ -43,12 +43,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var text = source["text"].Value<string>();
             var dialogId = source["from_id"].Value<int>();
 
-            var result = new Message();
-            result.SetId(source["id"].Value<uint>());
-            result.SetText(text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text);
-            result.SetDate(new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc));
-            result.SetProfile(profiles?.FirstOrDefault(p => p.Id == dialogId));
-            result.SetGroup(groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)));
+            var result = new Message(
+                source["id"].Value<uint>(),
+                text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text,
+                new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc),
+                profiles?.FirstOrDefault(p => p.Id == dialogId),
+                groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)));
 
             return result;
         }

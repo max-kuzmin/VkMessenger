@@ -8,12 +8,12 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     {
         public const int MaxLength = 200;
 
-        public uint Id { get; private set; }
+        public uint Id { get; }
         public string Text { get; private set; }
         public bool Read { get; private set; }
-        public DateTime Date { get; private set; }
-        public Profile Profile { get; private set; }
-        public Group Group { get; private set; }
+        public DateTime Date { get; }
+        public Profile Profile { get; }
+        public Group Group { get; }
 
         public int SenderId
         {
@@ -35,6 +35,16 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public Message(uint id, string text, DateTime date, Profile profile, Group group)
+        {
+            Id = id;
+            Text = text;
+            Date = date;
+            Group = group;
+            Profile = profile;
+            Read = true;
+        }
+
         public void MarkRead(bool read)
         {
             if (Read != read)
@@ -44,34 +54,10 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
-        public void SetId(uint id)
-        {
-            Id = id;
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Id)));
-        }
-
-        public void SetDate(DateTime date)
-        {
-            Date = date;
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Date)));
-        }
-
-        public void SetProfile(Profile profile)
-        {
-            Profile = profile;
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Profile)));
-        }
-
         public void SetText(string text)
         {
             Text = text;
             PropertyChanged(this, new PropertyChangedEventArgs(nameof(Text)));
-        }
-
-        public void SetGroup(Group group)
-        {
-            Group = group;
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Group)));
         }
     }
 }
