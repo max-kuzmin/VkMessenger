@@ -53,7 +53,6 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     else
                     {
                         collection.Add(newMessage);
-                        newMessage.Notify();
                     }
                 }
             }

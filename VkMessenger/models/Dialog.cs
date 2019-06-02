@@ -113,10 +113,5 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Online)));
             }
         }
-
-        public void Notify()
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
-        }
     }
 }

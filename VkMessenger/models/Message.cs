@@ -56,10 +56,5 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Text = text;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
         }
-
-        public void Notify()
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
-        }
     }
 }
