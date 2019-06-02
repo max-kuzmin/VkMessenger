@@ -102,7 +102,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         /// </summary>
         public async static void Start()
         {
-            if ((isStarted && Authorization.Token != null) || !LongPolling.Enabled)
+            if (isStarted && Authorization.Token != null)
                 return;
 
             Logger.Info("Long polling started");

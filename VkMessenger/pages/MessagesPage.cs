@@ -34,11 +34,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             PlaceholderColor = Color.Gray
         };
 
-        //TODO: ability to manual refresh
         public MessagesPage(Dialog dialog)
         {
-            NavigationPage.SetHasNavigationBar(this, false);
-
             this.dialog = dialog;
             Setup();
             dialog.Messages.Update(dialog.Id, null).ContinueWith(AfterInitialUpdate);
@@ -75,7 +72,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         }
 
         /// <summary>
-        /// Scroll to most recent message
+        /// Scroll to most recent message when page appeared
         /// </summary>
         protected override void OnAppearing()
         {
@@ -88,9 +85,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private void Setup()
         {
+            NavigationPage.SetHasNavigationBar(this, false);
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
             messagesListView.ItemsSource = dialog.Messages;
-            popupEntryView.Completed += OnSend;
+            popupEntryView.Completed += OnTextCompleted;
 
             verticalLayout.Children.Add(messagesListView);
             verticalLayout.Children.Add(popupEntryView);
@@ -113,9 +111,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         }
 
         /// <summary>
-        /// Send message
+        /// Send message, mark all as read
         /// </summary>
-        private async void OnSend(object sender, EventArgs args)
+        private async void OnTextCompleted(object sender, EventArgs args)
         {
             dialog.MarkReadWithMessages();
 
@@ -129,21 +127,19 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
 
             var text = popupEntryView.Text;
-            if (string.IsNullOrEmpty(text))
+            if (!string.IsNullOrEmpty(text))
             {
-                return;
-            }
-
-            try
-            {
-                await MessagesClient.Send(text, dialog.Id);
-                popupEntryView.Text = string.Empty;
-            }
-            catch (Exception e)
-            {
-                popupEntryView.Text = text;
-                Logger.Error(e);
-                new RetryInformationPopup(e.Message, () => OnSend(null, null));
+                try
+                {
+                    await MessagesClient.Send(text, dialog.Id);
+                    popupEntryView.Text = string.Empty;
+                }
+                catch (Exception e)
+                {
+                    popupEntryView.Text = text;
+                    Logger.Error(e);
+                    new RetryInformationPopup(e.Message, () => OnTextCompleted(null, null));
+                }
             }
         }
 

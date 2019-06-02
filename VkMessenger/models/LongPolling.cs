@@ -10,14 +10,5 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public static uint Ts { get; set; }
         public const uint WaitTime = 25;
         public static TimeSpan DelayAfterError { get; } = TimeSpan.FromSeconds(25);
-
-        private const string EnabledKey = "LongPollingEnabled";
-
-        //TODO: ability to switch it from GUI
-        public static bool Enabled
-        {
-            get => Preference.Contains(EnabledKey) ? Preference.Get<bool>(EnabledKey) : true;
-            set => Preference.Set(EnabledKey, value);
-        }
     }
 }

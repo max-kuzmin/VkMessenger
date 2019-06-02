@@ -23,10 +23,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             ItemTemplate = new DataTemplate(typeof(DialogCell))
         };
 
-        //TODO: ability to manual refresh
         public DialogsPage()
         {
-            NavigationPage.SetHasNavigationBar(this, false);
             Setup();
             dialogs.Update(null).ContinueWith(AfterInitialUpdate);
         }
@@ -66,6 +64,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private void Setup()
         {
+            NavigationPage.SetHasNavigationBar(this, false);
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
             dialogsListView.ItemSelected += OnDialogSelected;
             dialogsListView.ItemsSource = dialogs;
@@ -73,12 +72,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(new[] { e.DialogId });
             LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(new[] { e });
-
             LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
         }
 
         /// <summary>
-        /// Callback of <see cref="LongPollingClient.OnUserStatusUpdate"/>. Update users statuses
+        /// Update user status in every dialog
         /// </summary>
         private void OnUserStatusUpdate(object sender, UserStatusEventArgs e)
         {
@@ -89,7 +87,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         }
 
         /// <summary>
-        /// Callback of <see cref="CircleListView.ItemTapped"/>. Open messages page
+        /// Open messages page, mark dialog as read
         /// </summary>
         private async void OnDialogSelected(object sender, SelectedItemChangedEventArgs args)
         {
