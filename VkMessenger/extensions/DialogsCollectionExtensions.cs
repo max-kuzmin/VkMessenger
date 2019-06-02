@@ -38,7 +38,6 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                             dialogs.Remove(foundDialog);
                             dialogs.Insert(0, foundDialog);
                         }
-                        else foundDialog.ApplyChanges();
                     }
                 }
 
@@ -54,21 +53,13 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// <summary>
         /// Update dialog data without recreating it
         /// </summary>
-        /// <param name="newDialog">New data</param>
-        /// <param name="foundDialog">Dialog to update</param>
         private static void UpdateDialog(Dialog newDialog, Dialog foundDialog)
         {
-            foundDialog.LastMessage = newDialog.LastMessage;
-            foundDialog.UnreadCount = newDialog.UnreadCount;
-
-            if (newDialog.Profiles != null)
+            foreach (var newProfile in newDialog.Profiles)
             {
-                foreach (var newProfile in newDialog.Profiles)
-                {
-                    var foundProfile = foundDialog.Profiles.FirstOrDefault(p => p.Id == newProfile.Id);
-                    if (foundProfile != null)
-                        foundProfile.IsOnline = newDialog.IsOnline;
-                }
+                var foundProfile = foundDialog.Profiles.FirstOrDefault(p => p.Id == newProfile.Id);
+                if (foundProfile != null)
+                    foundProfile.IsOnline = newDialog.IsOnline;
             }
         }
     }

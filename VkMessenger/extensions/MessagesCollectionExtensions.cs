@@ -27,13 +27,12 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
 
                     if (foundMessage == null)
                     {
-                        if (messagesIds != null) item.Unread = true;
+                        if (messagesIds != null) item.MarkRead(false);
                         messages.Add(item);
                     }
                     else
                     {
-                        foundMessage.Text = item.Text;
-                        foundMessage.ApplyChanges();
+                        foundMessage.SetText(item.Text);
                     }
                 }
 
@@ -43,18 +42,6 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             {
                 Logger.Error(e);
                 return e;
-            }
-        }
-
-        public static void MarkAllRead(this ObservableCollection<Message> messages)
-        {
-            foreach (var message in messages)
-            {
-                if (message.Unread)
-                {
-                    message.Unread = false;
-                    message.ApplyChanges();
-                }
             }
         }
     }

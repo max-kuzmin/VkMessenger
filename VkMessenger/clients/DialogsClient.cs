@@ -35,37 +35,34 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var conversation = dialog["conversation"] ?? dialog;
 
-            var result = new Dialog
-            {
-                UnreadCount = conversation["unread_count"]?.Value<uint>() ?? 0u,
-                LastMessage = dialog.ContainsKey("last_message") ?
-                    MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups) :
-                    lastMessages.First(e => e.Id == dialog["last_message_id"].Value<uint>())
-            };
+            var result = new Dialog();
+            result.SetUnreadCount(conversation["unread_count"]?.Value<uint>() ?? 0u);
+            result.AddMessage(dialog.ContainsKey("last_message") ?
+                MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups) :
+                lastMessages.First(e => e.Id == dialog["last_message_id"].Value<uint>()));
 
             var dialogId = conversation["peer"]["id"].Value<int>();
             var peerType = conversation["peer"]["type"].Value<string>();
             if (peerType == "user")
             {
-                result.Type = DialogType.User;
-                result.Profiles = new List<Profile> { profiles.First(p => p.Id == dialogId) };
+                result.SetType(DialogType.User);
+                result.Profiles.Add(profiles.First(p => p.Id == dialogId));
             }
             else if (peerType == "group")
             {
-                result.Type = DialogType.Group;
-                result.Group = groups.First(g => g.Id == Math.Abs(dialogId));
+                result.SetType(DialogType.Group);
+                result.SetGroup(groups.First(g => g.Id == Math.Abs(dialogId)));
             }
             else if (peerType == "chat")
             {
                 var chatSettings = conversation["chat_settings"];
-                result.Type = DialogType.Chat;
-                result.Chat = new Chat
+                result.SetType(DialogType.Chat);
+                result.SetChat(new Chat
                 {
                     Title = chatSettings["title"].Value<string>(),
                     Id = (uint)dialogId
-                };
+                });
 
-                result.Profiles = new List<Profile>();
                 var ids = chatSettings["active_ids"] as JArray;
                 foreach (var id in ids)
                 {

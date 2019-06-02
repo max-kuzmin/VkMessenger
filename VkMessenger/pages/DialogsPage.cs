@@ -86,12 +86,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             foreach (var dialog in dialogs)
             {
-                var profile = dialog.Profiles?.FirstOrDefault(p => p.Id == e.UserId);
-                if (profile != null)
-                {
-                    profile.IsOnline = e.IsOnline;
-                    dialog.ApplyChanges();
-                }
+                dialog.SetOnline(e.UserId, e.IsOnline);
             }
         }
 
@@ -116,8 +111,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             await Navigation.PushAsync(messagesPage);
 
-            dialog.UnreadCount = 0;
-            dialog.ApplyChanges();
+            dialog.SetUnreadCount(0);
 
             try
             {

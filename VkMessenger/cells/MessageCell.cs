@@ -32,9 +32,9 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 default(int),
                 propertyChanged: OnSenderIdPropertyChanged);
 
-        private static readonly BindableProperty UnreadProperty =
+        private static readonly BindableProperty ReadProperty =
             BindableProperty.Create(
-                nameof(Message.Unread),
+                nameof(Message.Read),
                 typeof(bool),
                 typeof(MessageCell),
                 default(bool),
@@ -45,7 +45,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             photo.SetBinding(CachedImage.SourceProperty, nameof(Message.Photo));
             text.SetBinding(Label.TextProperty, nameof(Message.Text));
             this.SetBinding(SenderIdProperty, nameof(Message.SenderId));
-            this.SetBinding(UnreadProperty, nameof(Message.Unread));
+            this.SetBinding(ReadProperty, nameof(Message.Read));
 
             wrapperLayout.Children.Add(photo);
             wrapperLayout.Children.Add(text);

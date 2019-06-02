@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using Xamarin.Forms;
@@ -8,14 +7,13 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 {
     public class Dialog : INotifyPropertyChanged
     {
-        public List<Profile> Profiles { get; set; }
-        public Group Group { get; set; }
-        public Chat Chat { get; set; }
-
-        public Message LastMessage { get; set; }
-        public DialogType Type { get; set; }
-        public uint UnreadCount { get; set; }
-        public string Text => LastMessage.Text;
+        public ObservableCollection<Profile> Profiles { get; private set; }
+        public Group Group { get; private set; }
+        public Chat Chat { get; private set; }
+        public ObservableCollection<Message> Messages { get; private set; }
+        public DialogType Type { get; private set; }
+        public uint UnreadCount { get; private set; }
+        public string Text => Messages.Last()?.Text ?? string.Empty;
         public bool IsOnline => Type == DialogType.User ? Profiles.First().IsOnline : false;
 
         public string Title
@@ -70,6 +68,76 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public void ApplyChanges() => PropertyChanged(this, new PropertyChangedEventArgs(null));
+
+        public Dialog()
+        {
+            Messages = new ObservableCollection<Message>();
+            Messages.CollectionChanged += (s, e) =>
+                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Messages)));
+
+            Profiles = new ObservableCollection<Profile>();
+            Profiles.CollectionChanged += (s, e) =>
+                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Profiles)));
+        }
+
+        public void MarkReadWithMessages()
+        {
+            foreach (var message in Messages)
+            {
+                message.MarkRead(true);
+            }
+
+            if (UnreadCount != 0)
+            {
+                UnreadCount = 0;
+                PropertyChanged(this, new PropertyChangedEventArgs(nameof(UnreadCount)));
+            }
+        }
+
+        public void SetUnreadCount(uint unreadCount)
+        {
+            if (UnreadCount != unreadCount)
+            {
+                UnreadCount = unreadCount;
+                PropertyChanged(this, new PropertyChangedEventArgs(nameof(UnreadCount)));
+            }
+        }
+
+        public void AddMessage(Message message)
+        {
+            if (Messages.All(m => m.Id != message.Id))
+            {
+                Messages.Add(message);
+                Messages.OrderBy(m => m.Date);
+            }
+        }
+
+        public void SetOnline(uint userId, bool online)
+        {
+            var profile = Profiles?.FirstOrDefault(p => p.Id == userId);
+            if (profile != null && profile.IsOnline != online)
+            {
+                profile.IsOnline = online;
+                new PropertyChangedEventArgs(nameof(Profiles));
+            }
+        }
+
+        public void SetGroup(Group group)
+        {
+            Group = group;
+            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Group)));
+        }
+
+        public void SetChat(Chat chat)
+        {
+            Chat = chat;
+            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Chat)));
+        }
+
+        public void SetType(DialogType type)
+        {
+            Type = type;
+            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Type)));
+        }
     }
 }

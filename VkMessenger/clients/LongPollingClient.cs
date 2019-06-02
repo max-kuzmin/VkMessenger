@@ -24,7 +24,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "https://api.vk.com/method/messages.getLongPollServer" +
                 "?v=5.92" +
                 "&lp_version=3" +
-                "&access_token=" + Models.Authorization.Token;
+                "&access_token=" + Authorization.Token;
 
             using (var client = new ProxiedWebClient())
             {

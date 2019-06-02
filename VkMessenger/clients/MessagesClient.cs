@@ -42,14 +42,15 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var text = source["text"].Value<string>();
             var dialogId = source["from_id"].Value<int>();
-            return new Message
-            {
-                Id = source["id"].Value<uint>(),
-                Text = text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text,
-                Date = new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc),
-                Profile = profiles?.FirstOrDefault(p => p.Id == dialogId),
-                Group = groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId))
-            };
+
+            var result = new Message();
+            result.SetId(source["id"].Value<uint>());
+            result.SetText(text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text);
+            result.SetDate(new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc));
+            result.SetProfile(profiles?.FirstOrDefault(p => p.Id == dialogId));
+            result.SetGroup(groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)));
+
+            return result;
         }
 
         private async static Task<string> GetMessagesJson(int dialogId)
@@ -59,7 +60,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "?v=5.92" +
                 "&extended=1" +
                 "&peer_id=" + dialogId +
-                "&access_token=" + Models.Authorization.Token;
+                "&access_token=" + Authorization.Token;
 
             using (var client = new ProxiedWebClient())
             {
@@ -75,7 +76,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&random_id=" + BitConverter.ToInt32(md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(text)), 0) +
                 "&peer_id=" + dialogId +
                 "&message=" + text +
-                "&access_token=" + Models.Authorization.Token;
+                "&access_token=" + Authorization.Token;
 
             using (var client = new ProxiedWebClient())
             {
@@ -90,7 +91,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "?v=5.92" +
                 "&extended=1" +
                 "&message_ids=" + messagesIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
-                "&access_token=" + Models.Authorization.Token;
+                "&access_token=" + Authorization.Token;
 
             using (var client = new ProxiedWebClient())
             {

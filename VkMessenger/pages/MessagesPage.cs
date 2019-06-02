@@ -15,7 +15,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     public class MessagesPage : CirclePage
     {
         private readonly StackLayout verticalLayout = new StackLayout();
-        private readonly ObservableCollection<Message> messages = new ObservableCollection<Message>();
         private readonly Dialog dialog;
 
         private readonly CircleListView messagesListView = new CircleListView
@@ -43,7 +42,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             this.dialog = dialog;
             Setup();
-            messages.Update(dialog.Id, null).ContinueWith(AfterInitialUpdate);
+            dialog.Messages.Update(dialog.Id, null).ContinueWith(AfterInitialUpdate);
         }
 
         /// <summary>
@@ -55,7 +54,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 new RetryInformationPopup(
                     t.Result.Message,
-                    async () => await messages.Update(dialog.Id, null).ContinueWith(AfterInitialUpdate))
+                    async () => await dialog.Messages.Update(dialog.Id, null).ContinueWith(AfterInitialUpdate))
                     .Show();
             }
             else
@@ -69,7 +68,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private void Scroll()
         {
-            var lastMessage = messages.LastOrDefault();
+            var lastMessage = dialog.Messages.LastOrDefault();
             if (lastMessage != null)
             {
                 messagesListView.ScrollTo(lastMessage, ScrollToPosition.Center, false);
@@ -91,7 +90,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private void Setup()
         {
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
-            messagesListView.ItemsSource = messages;
+            messagesListView.ItemsSource = dialog.Messages;
             popupEntryView.Completed += OnSend;
 
             verticalLayout.Children.Add(messagesListView);
@@ -107,12 +106,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             if (args.DialogId == dialog.Id)
             {
-                if (await messages.Update(dialog.Id, new[] { args.MessageId }) == null)
+                if (await dialog.Messages.Update(dialog.Id, new[] { args.MessageId }) == null)
                 {
                     Scroll();
-
-                    dialog.LastMessage = messages.Last();
-                    dialog.ApplyChanges();
                 }
             }
         }
@@ -122,9 +118,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async void OnSend(object sender, EventArgs args)
         {
-            dialog.UnreadCount = 0;
-            dialog.ApplyChanges();
-            messages.MarkAllRead();
+            dialog.MarkReadWithMessages();
 
             try
             {
