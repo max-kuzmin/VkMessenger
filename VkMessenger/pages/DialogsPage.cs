@@ -116,13 +116,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             await Navigation.PushAsync(messagesPage);
 
+            dialog.UnreadCount = 0;
+            dialog.ApplyChanges();
+
             try
             {
-                if (await DialogsClient.MarkAsRead(dialog.Id))
-                {
-                    dialog.UnreadCount = 0;
-                    dialog.ApplyChanges();
-                }
+                await DialogsClient.MarkAsRead(dialog.Id);
             }
             catch (Exception e)
             {

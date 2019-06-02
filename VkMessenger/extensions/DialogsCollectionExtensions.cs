@@ -26,7 +26,9 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     var foundDialog = dialogs.FirstOrDefault(d => d.Id == newDialog.Id);
 
                     if (foundDialog == null)
+                    {
                         dialogs.Insert(0, newDialog);
+                    }
                     else
                     {
                         UpdateDialog(newDialog, foundDialog);

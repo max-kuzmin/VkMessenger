@@ -93,7 +93,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
             messagesListView.ItemsSource = messages;
             popupEntryView.Completed += OnSend;
-            popupEntryView.Focused += OnFocused;
 
             verticalLayout.Children.Add(messagesListView);
             verticalLayout.Children.Add(popupEntryView);
@@ -102,28 +101,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         }
 
         /// <summary>
-        /// Set all messages as read when text field is clicked
+        /// Update messages collection
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnFocused(object sender, FocusEventArgs e)
-        {
-            dialog.UnreadCount = 0;
-            dialog.ApplyChanges();
-        }
-
-        /// <summary>
-        /// <see cref="LongPollingClient.OnMessageUpdate"/> callback. Update or add message
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
         private async void OnMessageUpdate(object sender, MessageEventArgs args)
         {
             if (args.DialogId == dialog.Id)
             {
                 if (await messages.Update(dialog.Id, new[] { args.MessageId }) == null)
                 {
-                    messages.UpdateUnreadProperty(dialog.UnreadCount);
                     Scroll();
 
                     dialog.LastMessage = messages.Last();
@@ -135,10 +120,21 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Send message
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
         private async void OnSend(object sender, EventArgs args)
         {
+            dialog.UnreadCount = 0;
+            dialog.ApplyChanges();
+            messages.MarkAllRead();
+
+            try
+            {
+                await DialogsClient.MarkAsRead(dialog.Id);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
             var text = popupEntryView.Text;
             if (string.IsNullOrEmpty(text))
             {
@@ -161,7 +157,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Go to previous page
         /// </summary>
-        /// <returns></returns>
         protected override bool OnBackButtonPressed()
         {
             Navigation.PopAsync();

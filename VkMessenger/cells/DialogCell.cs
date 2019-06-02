@@ -1,4 +1,5 @@
-﻿using FFImageLoading.Forms;
+﻿using System;
+using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
 
@@ -72,6 +73,14 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 default(bool),
                 propertyChanged: OnIsOnlinePropertyChanged);
 
+        private static readonly BindableProperty LastMessageProperty =
+            BindableProperty.Create(
+                nameof(Dialog.UnreadCount),
+                typeof(uint),
+                typeof(DialogCell),
+                default(uint),
+                propertyChanged: OnLastMessagePropertyChanged);
+
         public DialogCell()
         {
             photo.SetBinding(CachedImage.SourceProperty, nameof(Dialog.Photo));
@@ -79,6 +88,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             text.SetBinding(Label.TextProperty, nameof(Dialog.Text));
             this.SetBinding(UnreadCountProperty, nameof(Dialog.UnreadCount));
             this.SetBinding(IsOnlineProperty, nameof(Dialog.IsOnline));
+            this.SetBinding(LastMessageProperty, nameof(Dialog.Text));
 
             titleLayout.Children.Add(title);
             titleLayout.Children.Add(unreadCount);
@@ -92,7 +102,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static void OnUnreadCountPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is DialogCell cell)
+            if (bindable is DialogCell cell && oldValue != newValue)
             {
                 var unreadCount = (uint)newValue;
                 if (unreadCount > 0)
@@ -110,8 +120,18 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static void OnIsOnlinePropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is DialogCell cell)
+            if (bindable is DialogCell cell && oldValue != newValue)
+            {
                 cell.isOnlineIndicator.Text = (bool)newValue ? "•" : string.Empty;
+            }
+        }
+
+        private static void OnLastMessagePropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is DialogCell cell && oldValue != newValue)
+            {
+                cell.text.Text = (string)newValue;
+            }
         }
     }
 }

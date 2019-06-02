@@ -98,7 +98,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             Logger.Info($"Updating dialogs {JsonConvert.SerializeObject(dialogIds)}");
 
-            var json = JObject.Parse(dialogIds == null ? await GetDialogsJson() : await GetDialogsJson(dialogIds));
+            var json = JObject.Parse(dialogIds == null ?
+                await GetDialogsJson() :
+                await GetDialogsJson(dialogIds));
             var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
             var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
 
@@ -110,7 +112,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     lastMessagesIds.Add(item["last_message_id"].Value<uint>());
                 }
             }
-            var lastMessages = lastMessagesIds.Any() ? await MessagesClient.GetMessages(0, lastMessagesIds) : new Message[] { };
+            var lastMessages = lastMessagesIds.Any() ?
+                await MessagesClient.GetMessages(0, lastMessagesIds) :
+                new Message[] { };
 
             return FromJsonArray(json["response"]["items"] as JArray, profiles, groups, lastMessages);
         }

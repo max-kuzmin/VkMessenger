@@ -26,7 +26,10 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     var foundMessage = messages.FirstOrDefault(d => d.Id == item.Id);
 
                     if (foundMessage == null)
+                    {
+                        if (messagesIds != null) item.Unread = true;
                         messages.Add(item);
+                    }
                     else
                     {
                         foundMessage.Text = item.Text;
@@ -43,29 +46,14 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             }
         }
 
-        public static void UpdateUnreadProperty(this ObservableCollection<Message> messages, uint unreadCount)
+        public static void MarkAllRead(this ObservableCollection<Message> messages)
         {
-            if (unreadCount > 0)
+            foreach (var message in messages)
             {
-                var orderedMessages = messages.OrderByDescending(m => m.Date);
-                var unreadMessages = orderedMessages.Take((int)unreadCount);
-                foreach (var message in unreadMessages)
+                if (message.Unread)
                 {
-                    if (!message.Unread)
-                    {
-                        message.Unread = true;
-                        message.ApplyChanges();
-                    }
-                }
-
-                var readMessages = orderedMessages.Skip((int)unreadCount);
-                foreach (var message in unreadMessages)
-                {
-                    if (message.Unread)
-                    {
-                        message.Unread = false;
-                        message.ApplyChanges();
-                    }
+                    message.Unread = false;
+                    message.ApplyChanges();
                 }
             }
         }
