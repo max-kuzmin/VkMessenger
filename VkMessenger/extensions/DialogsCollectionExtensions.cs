@@ -45,10 +45,8 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                             collection.Remove(foundDialog);
                             collection.Insert(0, foundDialog);
                         }
-                        else
-                        {
-                            UpdateDialog(newDialog, foundDialog);
-                        }
+
+                        UpdateDialog(newDialog, foundDialog);
                     }
                     else
                     {

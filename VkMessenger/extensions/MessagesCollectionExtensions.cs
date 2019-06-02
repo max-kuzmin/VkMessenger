@@ -44,12 +44,10 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                         if (collection.IndexOf(foundMessage) != collection.Count - 1)
                         {
                             collection.Remove(foundMessage);
-                            collection.Add(newMessage);
+                            collection.Add(foundMessage);
                         }
-                        else
-                        {
-                            foundMessage.SetText(newMessage.Text);
-                        }
+
+                        UpdateMessage(newMessage, foundMessage);
                     }
                     else
                     {
@@ -57,6 +55,15 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Update message data without recreating it
+        /// </summary>
+        private static void UpdateMessage(Message newMessage, Message foundMessage)
+        {
+            foundMessage.SetText(newMessage.Text);
+            foundMessage.MarkRead(newMessage.Read);
         }
     }
 }

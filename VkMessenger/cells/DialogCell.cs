@@ -101,7 +101,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static void OnUnreadCountPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is DialogCell cell && oldValue != newValue)
+            if (bindable is DialogCell cell)
             {
                 var unreadCount = (uint)newValue;
                 if (unreadCount > 0)
@@ -119,7 +119,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static void OnOnlinePropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is DialogCell cell && oldValue != newValue)
+            if (bindable is DialogCell cell)
             {
                 cell.OnlineIndicator.Text = (bool)newValue ? "•" : string.Empty;
             }
@@ -127,7 +127,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static void OnTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is DialogCell cell && oldValue != newValue)
+            if (bindable is DialogCell cell)
             {
                 cell.text.Text = newValue.ToString();
             }

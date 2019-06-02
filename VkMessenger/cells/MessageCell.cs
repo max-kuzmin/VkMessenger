@@ -54,7 +54,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static void OnSenderIdPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is MessageCell cell && oldValue != newValue)
+            if (bindable is MessageCell cell)
             {
                 var dialogId = (int)newValue;
                 if (dialogId != Authorization.UserId)
@@ -74,7 +74,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static void OnReadPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is MessageCell cell && oldValue != newValue)
+            if (bindable is MessageCell cell)
             {
                 if ((bool)newValue)
                 {

@@ -66,7 +66,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             NavigationPage.SetHasNavigationBar(this, false);
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
-            dialogsListView.ItemSelected += OnDialogSelected;
+            dialogsListView.ItemTapped += OnDialogTapped;
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
 
@@ -89,9 +89,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Open messages page, mark dialog as read
         /// </summary>
-        private async void OnDialogSelected(object sender, SelectedItemChangedEventArgs args)
+        private async void OnDialogTapped(object sender, ItemTappedEventArgs e)
         {
-            var dialog = args.SelectedItem as Dialog;
+            var dialog = e.Item as Dialog;
             MessagesPage messagesPage;
             if (messagesPages.ContainsKey(dialog.Id))
             {
@@ -111,9 +111,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 await DialogsClient.MarkRead(dialog.Id);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Logger.Error(e);
+                Logger.Error(ex);
             }
         }
     }
