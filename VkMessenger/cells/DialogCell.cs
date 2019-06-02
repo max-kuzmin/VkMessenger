@@ -74,7 +74,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static readonly BindableProperty TextProperty =
             BindableProperty.Create(
-                nameof(Dialog.UnreadCount),
+                nameof(Dialog.Text),
                 typeof(uint),
                 typeof(DialogCell),
                 default(uint),
@@ -129,7 +129,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         {
             if (bindable is DialogCell cell && oldValue != newValue)
             {
-                cell.text.Text = (string)newValue;
+                cell.text.Text = newValue.ToString();
             }
         }
     }

@@ -15,31 +15,32 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// </summary>
         /// <param name="dialogIds">Dialog id collection or null</param>
         /// <returns>Null means update successfull</returns>
-        public static async Task<Exception> Update(this ObservableCollection<Dialog> dialogs, IReadOnlyCollection<int> dialogIds)
+        public static async Task<Exception> Update(this ObservableCollection<Dialog> collection, IReadOnlyCollection<int> dialogIds)
         {
             try
             {
                 var newDialogs = await DialogsClient.GetDialogs(dialogIds);
-
-                foreach (var newDialog in newDialogs.AsEnumerable().Reverse())
+                lock (collection)
                 {
-                    var foundDialog = dialogs.FirstOrDefault(d => d.Id == newDialog.Id);
-                    if (foundDialog == null)
+                    foreach (var newDialog in newDialogs.AsEnumerable().Reverse())
                     {
-                        dialogs.Insert(0, newDialog);
-                    }
-                    else
-                    {
-                        UpdateDialog(newDialog, foundDialog);
-
-                        if (dialogs.Last() != foundDialog)
+                        var foundDialog = collection.FirstOrDefault(d => d.Id == newDialog.Id);
+                        if (foundDialog == null)
                         {
-                            dialogs.Remove(foundDialog);
-                            dialogs.Insert(0, foundDialog);
+                            collection.Insert(0, newDialog);
+                        }
+                        else
+                        {
+                            UpdateDialog(newDialog, foundDialog);
+
+                            if (collection.Last() != foundDialog)
+                            {
+                                collection.Remove(foundDialog);
+                                collection.Insert(0, foundDialog);
+                            }
                         }
                     }
                 }
-
                 return null;
             }
             catch (Exception e)
@@ -58,7 +59,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             {
                 foundDialog.SetOnline(newProfile.Id, newDialog.Online);
             }
-            foundDialog.AddMessages(newDialog.Messages);
+            foundDialog.Messages.AddUpdate(newDialog.Messages);
             foundDialog.SetUnreadCount(newDialog.UnreadCount);
         }
     }

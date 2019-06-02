@@ -81,7 +81,10 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
             Messages = new ObservableCollection<Message>(messages ?? Array.Empty<Message>());
             Messages.CollectionChanged += (s, e) =>
+            {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Messages)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
+            };
 
             Profiles = new ObservableCollection<Profile>(profiles ?? Array.Empty<Profile>());
             Profiles.CollectionChanged += (s, e) =>
@@ -104,19 +107,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             {
                 UnreadCount = unreadCount;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UnreadCount)));
-            }
-        }
-
-        public void AddMessages(IReadOnlyCollection<Message> messages)
-        {
-            foreach (var message in messages)
-            {
-                if (Messages.All(m => m.Id != message.Id))
-                {
-                    Messages.Add(message);
-                    Messages.OrderBy(m => m.Date);
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
-                }
             }
         }
 

@@ -15,25 +15,12 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// </summary>
         /// <param name="messagesIds">Message id collection or null</param>
         /// <returns>Null means update successfull</returns>
-        public static async Task<Exception> Update(this ObservableCollection<Message> messages, int dialogId, IReadOnlyCollection<uint> messagesIds)
+        public static async Task<Exception> Update(this ObservableCollection<Message> collection, int dialogId, IReadOnlyCollection<uint> messagesIds)
         {
             try
             {
                 var newMessages = await MessagesClient.GetMessages(dialogId, messagesIds);
-
-                foreach (var item in newMessages.AsEnumerable().Reverse())
-                {
-                    var foundMessage = messages.FirstOrDefault(d => d.Id == item.Id);
-
-                    if (foundMessage == null)
-                    {
-                        messages.Add(item);
-                    }
-                    else
-                    {
-                        foundMessage.SetText(item.Text);
-                    }
-                }
+                collection.AddUpdate(newMessages);
 
                 return null;
             }
@@ -41,6 +28,34 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             {
                 Logger.Error(e);
                 return e;
+            }
+        }
+
+        public static void AddUpdate(this ObservableCollection<Message> collection,
+            IReadOnlyCollection<Message> newMessages)
+        {
+            lock (collection)
+            {
+                foreach (var message in newMessages.AsEnumerable().Reverse())
+                {
+                    var foundMessage = collection.FirstOrDefault(m => m.Id == message.Id);
+                    if (foundMessage != null)
+                    {
+                        if (collection.IndexOf(foundMessage) != collection.Count - 1)
+                        {
+                            collection.Remove(foundMessage);
+                            collection.Add(message);
+                        }
+                        else
+                        {
+                            foundMessage.SetText(message.Text);
+                        }
+                    }
+                    else
+                    {
+                        collection.Add(message);
+                    }
+                }
             }
         }
     }
