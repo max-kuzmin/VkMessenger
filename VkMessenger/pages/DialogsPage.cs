@@ -80,21 +80,17 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Callback of <see cref="LongPollingClient.OnUserStatusUpdate"/>. Update users statuses
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void OnUserStatusUpdate(object sender, UserStatusEventArgs e)
         {
             foreach (var dialog in dialogs)
             {
-                dialog.SetOnline(e.UserId, e.IsOnline);
+                dialog.SetOnline(e.UserId, e.Online);
             }
         }
 
         /// <summary>
         /// Callback of <see cref="CircleListView.ItemTapped"/>. Open messages page
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
         private async void OnDialogSelected(object sender, SelectedItemChangedEventArgs args)
         {
             var dialog = args.SelectedItem as Dialog;

@@ -14,7 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public DialogType Type { get; private set; }
         public uint UnreadCount { get; private set; }
         public string Text => Messages.Last()?.Text ?? string.Empty;
-        public bool IsOnline => Type == DialogType.User ? Profiles.First().IsOnline : false;
+        public bool Online => Type == DialogType.User ? Profiles.First().Online : false;
 
         public string Title
         {
@@ -87,11 +87,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 message.MarkRead(true);
             }
 
-            if (UnreadCount != 0)
-            {
-                UnreadCount = 0;
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(UnreadCount)));
-            }
+            SetUnreadCount(0);
         }
 
         public void SetUnreadCount(uint unreadCount)
@@ -109,16 +105,17 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             {
                 Messages.Add(message);
                 Messages.OrderBy(m => m.Date);
+                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Text)));
             }
         }
 
         public void SetOnline(uint userId, bool online)
         {
             var profile = Profiles?.FirstOrDefault(p => p.Id == userId);
-            if (profile != null && profile.IsOnline != online)
+            if (profile != null && profile.Online != online)
             {
-                profile.IsOnline = online;
-                new PropertyChangedEventArgs(nameof(Profiles));
+                profile.Online = online;
+                new PropertyChangedEventArgs(nameof(Online));
             }
         }
 

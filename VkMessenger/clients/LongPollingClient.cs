@@ -76,11 +76,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                             break;
                         case 8:
                             OnUserStatusUpdate?.Invoke(null,
-                                new UserStatusEventArgs { UserId = (uint)update[1].Value<int>(), IsOnline = true });
+                                new UserStatusEventArgs { UserId = (uint)update[1].Value<int>(), Online = true });
                             break;
                         case 9:
                             OnUserStatusUpdate?.Invoke(null,
-                                new UserStatusEventArgs { UserId = (uint)update[1].Value<int>(), IsOnline = false });
+                                new UserStatusEventArgs { UserId = (uint)update[1].Value<int>(), Online = false });
                             break;
                         case 61:
                             OnUserTyping?.Invoke(null,

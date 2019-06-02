@@ -59,7 +59,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             {
                 var foundProfile = foundDialog.Profiles.FirstOrDefault(p => p.Id == newProfile.Id);
                 if (foundProfile != null)
-                    foundProfile.IsOnline = newDialog.IsOnline;
+                    foundProfile.Online = newDialog.Online;
             }
         }
     }

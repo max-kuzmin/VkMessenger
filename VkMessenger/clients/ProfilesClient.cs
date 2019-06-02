@@ -16,7 +16,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 Name = profile["first_name"].Value<string>(),
                 Surname = profile["last_name"].Value<string>(),
                 Photo = ImageSource.FromUri(new Uri(profile["photo_50"].Value<string>())),
-                IsOnline = profile["online"].Value<uint>() != 0
+                Online = profile["online"].Value<uint>() != 0
             };
         }
 

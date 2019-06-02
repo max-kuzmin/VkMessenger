@@ -38,7 +38,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 typeof(bool),
                 typeof(MessageCell),
                 default(bool),
-                propertyChanged: OnUnreadPropertyChanged);
+                propertyChanged: OnReadPropertyChanged);
 
         public MessageCell()
         {
@@ -72,18 +72,17 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             }
         }
 
-        private static void OnUnreadPropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        private static void OnReadPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             if (bindable is MessageCell cell && oldValue != newValue)
             {
-                var unread = (bool)newValue;
-                if (unread)
+                if ((bool)newValue)
                 {
-                    cell.View.BackgroundColor = Color.FromHex("00354A");
+                    cell.View.BackgroundColor = Color.Black;
                 }
                 else
                 {
-                    cell.View.BackgroundColor = Color.Black;
+                    cell.View.BackgroundColor = Color.FromHex("00354A");
                 }
             }
         }

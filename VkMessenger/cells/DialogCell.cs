@@ -1,5 +1,4 @@
-﻿using System;
-using FFImageLoading.Forms;
+﻿using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
 
@@ -36,7 +35,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
             FontAttributes = FontAttributes.Bold
         };
-        private Label isOnlineIndicator = new Label
+        private Label OnlineIndicator = new Label
         {
             VerticalOptions = LayoutOptions.Fill,
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
@@ -65,34 +64,33 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 default(uint),
                 propertyChanged: OnUnreadCountPropertyChanged);
 
-        private static readonly BindableProperty IsOnlineProperty =
+        private static readonly BindableProperty OnlineProperty =
             BindableProperty.Create(
-                nameof(Dialog.IsOnline),
+                nameof(Dialog.Online),
                 typeof(bool),
                 typeof(DialogCell),
                 default(bool),
-                propertyChanged: OnIsOnlinePropertyChanged);
+                propertyChanged: OnOnlinePropertyChanged);
 
-        private static readonly BindableProperty LastMessageProperty =
+        private static readonly BindableProperty TextProperty =
             BindableProperty.Create(
                 nameof(Dialog.UnreadCount),
                 typeof(uint),
                 typeof(DialogCell),
                 default(uint),
-                propertyChanged: OnLastMessagePropertyChanged);
+                propertyChanged: OnTextPropertyChanged);
 
         public DialogCell()
         {
             photo.SetBinding(CachedImage.SourceProperty, nameof(Dialog.Photo));
             title.SetBinding(Label.TextProperty, nameof(Dialog.Title));
-            text.SetBinding(Label.TextProperty, nameof(Dialog.Text));
             this.SetBinding(UnreadCountProperty, nameof(Dialog.UnreadCount));
-            this.SetBinding(IsOnlineProperty, nameof(Dialog.IsOnline));
-            this.SetBinding(LastMessageProperty, nameof(Dialog.Text));
+            this.SetBinding(OnlineProperty, nameof(Dialog.Online));
+            this.SetBinding(TextProperty, nameof(Dialog.Text));
 
             titleLayout.Children.Add(title);
             titleLayout.Children.Add(unreadCount);
-            titleLayout.Children.Add(isOnlineIndicator);
+            titleLayout.Children.Add(OnlineIndicator);
             titleAndtextLayout.Children.Add(titleLayout);
             titleAndtextLayout.Children.Add(text);
             wrapperLayout.Children.Add(photo);
@@ -118,15 +116,15 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             }
         }
 
-        private static void OnIsOnlinePropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        private static void OnOnlinePropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             if (bindable is DialogCell cell && oldValue != newValue)
             {
-                cell.isOnlineIndicator.Text = (bool)newValue ? "•" : string.Empty;
+                cell.OnlineIndicator.Text = (bool)newValue ? "•" : string.Empty;
             }
         }
 
-        private static void OnLastMessagePropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        private static void OnTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             if (bindable is DialogCell cell && oldValue != newValue)
             {

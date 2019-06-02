@@ -8,6 +8,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public string Name { get; set; }
         public string Surname { get; set; }
         public ImageSource Photo { get; set; }
-        public bool IsOnline { get; set; }
+        public bool Online { get; set; }
     }
 }
