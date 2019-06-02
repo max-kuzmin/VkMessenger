@@ -35,7 +35,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var conversation = dialog["conversation"] ?? dialog;
             var dialogId = conversation["peer"]["id"].Value<int>();
-            var dialogType = Enum.Parse<DialogType>(conversation["peer"]["type"].Value<string>());
+            var dialogType = Enum.Parse<DialogType>(conversation["peer"]["type"].Value<string>(), true);
             var unreadCount = conversation["unread_count"]?.Value<uint>() ?? 0u;
 
             var lastMessage = new[] { dialog.ContainsKey("last_message") ?

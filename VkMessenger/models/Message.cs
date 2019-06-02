@@ -50,14 +50,14 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             if (Read != read)
             {
                 Read = read;
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(Read)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Read)));
             }
         }
 
         public void SetText(string text)
         {
             Text = text;
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Text)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
         }
     }
 }

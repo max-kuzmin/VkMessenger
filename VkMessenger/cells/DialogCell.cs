@@ -84,6 +84,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         {
             photo.SetBinding(CachedImage.SourceProperty, nameof(Dialog.Photo));
             title.SetBinding(Label.TextProperty, nameof(Dialog.Title));
+            text.SetBinding(Label.TextProperty, nameof(Dialog.Text));
             this.SetBinding(UnreadCountProperty, nameof(Dialog.UnreadCount));
             this.SetBinding(OnlineProperty, nameof(Dialog.Online));
             this.SetBinding(TextProperty, nameof(Dialog.Text));
