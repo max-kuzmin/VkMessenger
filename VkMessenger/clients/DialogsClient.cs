@@ -97,6 +97,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var json = JObject.Parse(dialogIds == null ?
                 await GetDialogsJson() :
                 await GetDialogsJson(dialogIds));
+            Logger.Verbose(json.ToString());
             var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
             var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
 

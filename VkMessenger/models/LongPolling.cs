@@ -1,5 +1,4 @@
 ﻿using System;
-using Tizen.Applications;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
 {
@@ -9,6 +8,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public static string Server { get; set; }
         public static uint Ts { get; set; }
         public const uint WaitTime = 25;
-        public static TimeSpan DelayAfterError { get; } = TimeSpan.FromSeconds(25);
+        public static readonly TimeSpan RequestInterval = TimeSpan.FromSeconds(2);
+        public static readonly TimeSpan DelayAfterError = TimeSpan.FromSeconds(25);
     }
 }

@@ -71,7 +71,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             Content = dialogsListView;
 
             LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(new[] { e.DialogId });
-            LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(new[] { e });
+            LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(new[] { e.DialogId });
             LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
         }
 
@@ -80,6 +80,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private void OnUserStatusUpdate(object sender, UserStatusEventArgs e)
         {
+            Logger.Info($"User id {e.UserId} online set to {e.Online}");
+
             foreach (var dialog in dialogs)
             {
                 dialog.SetOnline(e.UserId, e.Online);

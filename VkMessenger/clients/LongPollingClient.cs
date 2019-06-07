@@ -2,6 +2,8 @@
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
@@ -10,7 +12,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
     {
         public static event EventHandler<MessageEventArgs> OnMessageUpdate;
 
-        public static event EventHandler<int> OnDialogUpdate;
+        public static event EventHandler<DialogEventArgs> OnDialogUpdate;
 
         public static event EventHandler<UserStatusEventArgs> OnUserStatusUpdate;
 
@@ -48,6 +50,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using (var client = new ProxiedWebClient())
             {
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
+                Logger.Verbose(json.ToString());
+                var updatedMessages = new List<uint>();
+                var updatedDialogs = new List<int>();
 
                 LongPolling.Ts = json["ts"].Value<uint>();
 
@@ -60,9 +65,15 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         case 3:
                         case 4:
                         case 5:
-                            OnMessageUpdate?.Invoke(null,
-                                new MessageEventArgs { MessageId = update[1].Value<uint>(), DialogId = update[3].Value<int>() });
-                            break;
+                            {
+                                var eventArgs = new MessageEventArgs { MessageId = update[1].Value<uint>(), DialogId = update[3].Value<int>() };
+                                if (!updatedMessages.Contains(eventArgs.MessageId))
+                                {
+                                    updatedMessages.Add(eventArgs.MessageId);
+                                    OnMessageUpdate?.Invoke(null, eventArgs);
+                                }
+                                break;
+                            }
                         case 6:
                         case 7:
                         case 10:
@@ -72,24 +83,39 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         case 14:
                         case 51:
                         case 52:
-                            OnDialogUpdate?.Invoke(null, update[1].Value<int>());
-                            break;
+                            {
+                                var eventArgs = new DialogEventArgs { DialogId = update[1].Value<int>() };
+                                if (!updatedDialogs.Contains(eventArgs.DialogId))
+                                {
+                                    updatedDialogs.Add(eventArgs.DialogId);
+                                    OnDialogUpdate?.Invoke(null, eventArgs);
+                                }
+                                break;
+                            }
                         case 8:
-                            OnUserStatusUpdate?.Invoke(null,
-                                new UserStatusEventArgs { UserId = (uint)update[1].Value<int>(), Online = true });
-                            break;
+                            {
+                                OnUserStatusUpdate?.Invoke(null,
+                                    new UserStatusEventArgs { UserId = (uint)update[1].Value<int>(), Online = true });
+                                break;
+                            }
                         case 9:
-                            OnUserStatusUpdate?.Invoke(null,
-                                new UserStatusEventArgs { UserId = (uint)update[1].Value<int>(), Online = false });
-                            break;
+                            {
+                                OnUserStatusUpdate?.Invoke(null,
+                                    new UserStatusEventArgs { UserId = (uint)update[1].Value<int>(), Online = false });
+                                break;
+                            }
                         case 61:
-                            OnUserTyping?.Invoke(null,
-                                new UserTypingEventArgs { UserId = (uint)update[1].Value<int>(), DialogId = update[1].Value<int>() });
-                            break;
+                            {
+                                OnUserTyping?.Invoke(null,
+                                    new UserTypingEventArgs { UserId = (uint)update[1].Value<int>(), DialogId = update[1].Value<int>() });
+                                break;
+                            }
                         case 62:
-                            OnUserTyping?.Invoke(null,
-                                new UserTypingEventArgs { UserId = (uint)update[1].Value<int>(), DialogId = update[2].Value<int>() });
-                            break;
+                            {
+                                OnUserTyping?.Invoke(null,
+                                    new UserTypingEventArgs { UserId = (uint)update[1].Value<int>(), DialogId = update[2].Value<int>() });
+                                break;
+                            }
                         default:
                             break;
                     }
@@ -116,11 +142,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         await GetLongPollServer();
                     else
                         await SendLongRequest();
+
+                    await Task.Delay(LongPolling.RequestInterval);
                     continue;
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(e);
+                    Logger.Error(e, true);
                 }
 
                 await Task.Delay(LongPolling.DelayAfterError);
