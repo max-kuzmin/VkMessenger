@@ -46,6 +46,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var text = source["text"].Value<string>();
             var dialogId = source["from_id"].Value<int>();
 
+            var firstAttachmentType = (source["attachments"] as JArray)?.FirstOrDefault()?["type"];
+            if (firstAttachmentType != null)
+            {
+                if (text != string.Empty) text += "\n";
+                text += $"<{firstAttachmentType}>";
+            }
+
             var result = new Message(
                 source["id"].Value<uint>(),
                 text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text,
