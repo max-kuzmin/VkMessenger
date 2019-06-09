@@ -37,22 +37,24 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         {
             lock (collection)
             {
-                foreach (var newMessage in newMessages.AsEnumerable().Reverse())
+                var toAppend = newMessages.AsEnumerable();
+                var smallestToAppendId = toAppend.Last().Id;
+                var biggestExistingId = collection.Last().Id;
+                bool isOldMessages = biggestExistingId >= smallestToAppendId;
+
+                foreach (var newMessage in toAppend)
                 {
                     var foundMessage = collection.FirstOrDefault(m => m.Id == newMessage.Id);
                     if (foundMessage != null)
                     {
-                        if (collection.IndexOf(foundMessage) != collection.Count - 1)
-                        {
-                            collection.Remove(foundMessage);
-                            collection.Add(foundMessage);
-                        }
-
                         UpdateMessage(newMessage, foundMessage);
                     }
                     else
                     {
-                        collection.Add(newMessage);
+                        if (isOldMessages)
+                            collection.Add(newMessage);
+                        else
+                            collection.Insert(0, newMessage);
                     }
                 }
             }

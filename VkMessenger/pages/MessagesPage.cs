@@ -65,10 +65,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private void Scroll()
         {
-            var lastMessage = dialog.Messages.LastOrDefault();
-            if (lastMessage != null)
+            var message = dialog.Messages.FirstOrDefault();
+            if (message != null)
             {
-                messagesListView.ScrollTo(lastMessage, ScrollToPosition.Center, false);
+                messagesListView.ScrollTo(message, ScrollToPosition.Center, false);
             }
         }
 
@@ -101,7 +101,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             if (dialog.Messages.All(i => i.Id >= (e.Item as Message).Id))
             {
-                await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count + 20, null);
+                messagesListView.ItemAppearing -= LoadMoreMessages;
+                await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count, null);
+                messagesListView.ItemAppearing += LoadMoreMessages;
             }
         }
 
