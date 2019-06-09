@@ -14,6 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public DateTime Date { get; }
         public Profile Profile { get; }
         public Group Group { get; }
+        public ImageSource AttachmentImage { get; }
 
         public int SenderId
         {
@@ -35,13 +36,14 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Message(uint id, string text, DateTime date, Profile profile, Group group)
+        public Message(uint id, string text, DateTime date, Profile profile, Group group, Uri attachmentImage)
         {
             Id = id;
             Text = text;
             Date = date;
             Group = group;
             Profile = profile;
+            AttachmentImage = attachmentImage;
         }
 
         public void SetRead()

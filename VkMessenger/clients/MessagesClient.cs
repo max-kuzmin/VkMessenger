@@ -42,24 +42,50 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         public static Message FromJson(JObject source, IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups)
         {
-            var text = source["text"].Value<string>();
             var dialogId = source["from_id"].Value<int>();
 
-            var firstAttachmentType = (source["attachments"] as JArray)?.FirstOrDefault()?["type"];
-            if (firstAttachmentType != null)
-            {
-                if (text != string.Empty) text += "\n";
-                text += $"<{firstAttachmentType}>";
-            }
+            ParseAttachments(source, out string text, out Uri attachmentImage);
 
             var result = new Message(
                 source["id"].Value<uint>(),
                 text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text,
                 new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc),
                 profiles?.FirstOrDefault(p => p.Id == dialogId),
-                groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)));
+                groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)),
+                attachmentImage);
 
             return result;
+        }
+
+        private static void ParseAttachments(JObject source, out string text, out Uri attachmentImage)
+        {
+            text = source["text"].Value<string>();
+            attachmentImage = null;
+
+            var firstAttachment = (source["attachments"] as JArray)?.FirstOrDefault();
+            if (firstAttachment != null)
+            {
+                if (firstAttachment["type"].Value<string>() == "photo")
+                {
+                    attachmentImage = new Uri(firstAttachment["photo"]["sizes"]
+                        .Single(i => i["type"].Value<string>() == "s")["url"].Value<string>());
+                }
+                else
+                {
+                    if (text != string.Empty) text += "\n";
+                    text += $"<{firstAttachment["type"].Value<string>()}>";
+                }
+            }
+
+            var forwardMessages = (source["fwd_messages"] as JArray)?.Select(i => i["text"])?.ToArray();
+            if (forwardMessages != null)
+            {
+                foreach (var item in forwardMessages)
+                {
+                    if (text != string.Empty) text += "\n";
+                    text += $"\"{item.Value<string>()}\"";
+                }
+            }
         }
 
         private async static Task<string> GetMessagesJson(int dialogId, uint offset)
