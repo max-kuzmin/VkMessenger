@@ -11,9 +11,9 @@ namespace ru.MaxKuzmin.VkMessenger
             Log.Info(nameof(VkMessenger), text, func: caller);
         }
 
-        public static void Verbose(string text, [CallerMemberName] string caller = null)
+        public static void Debug(string text, [CallerMemberName] string caller = null)
         {
-            Log.Verbose(nameof(VkMessenger), text, func: caller);
+            Log.Debug(nameof(VkMessenger), text, func: caller);
         }
 
         public static void Error(Exception e, bool onlyMessage = false, [CallerMemberName] string caller = null)

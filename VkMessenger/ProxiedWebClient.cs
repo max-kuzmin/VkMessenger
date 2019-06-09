@@ -13,5 +13,11 @@ namespace ru.MaxKuzmin.VkMessenger
                 Proxy = new WebProxy(proxyAddress, true);
             }
         }
+
+        protected override void OnDownloadStringCompleted(DownloadStringCompletedEventArgs e)
+        {
+            Logger.Debug(e.Result);
+            base.OnDownloadStringCompleted(e);
+        }
     }
 }

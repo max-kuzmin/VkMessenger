@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Events;
+using ru.MaxKuzmin.VkMessenger.exceptions;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
@@ -16,9 +17,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static event EventHandler<UserStatusEventArgs> OnUserStatusUpdate;
 
-        public static event EventHandler<UserTypingEventArgs> OnUserTyping;
-
         private static bool isStarted = false;
+        private static readonly Mutex mutex = new Mutex();
 
         private async static Task GetLongPollServer()
         {
@@ -34,7 +34,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 LongPolling.Key = json["response"]["key"].Value<string>();
                 LongPolling.Server = json["response"]["server"].Value<string>();
-                LongPolling.Ts = json["response"]["ts"].Value<uint>();
+                LongPolling.Ts = LongPolling.Ts ?? json["response"]["ts"].Value<uint>();
             }
         }
 
@@ -50,11 +50,16 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using (var client = new ProxiedWebClient())
             {
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
-                Logger.Verbose(json.ToString());
-                var updatedMessages = new List<uint>();
-                var updatedDialogs = new List<int>();
+
+                if (json == null)
+                {
+                    throw new LongPollingServerException();
+                }
 
                 LongPolling.Ts = json["ts"].Value<uint>();
+                var messageEventArgs = new MessageEventArgs();
+                var dialogEventArgs = new DialogEventArgs();
+                var userStatusEventArgs = new UserStatusEventArgs();
 
                 foreach (JArray update in json["updates"] as JArray)
                 {
@@ -66,12 +71,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         case 4:
                         case 5:
                             {
-                                var eventArgs = new MessageEventArgs { MessageId = update[1].Value<uint>(), DialogId = update[3].Value<int>() };
-                                if (!updatedMessages.Contains(eventArgs.MessageId))
-                                {
-                                    updatedMessages.Add(eventArgs.MessageId);
-                                    OnMessageUpdate?.Invoke(null, eventArgs);
-                                }
+                                messageEventArgs.Data.Add((update[1].Value<uint>(), update[3].Value<int>()));
                                 break;
                             }
                         case 6:
@@ -84,42 +84,27 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         case 51:
                         case 52:
                             {
-                                var eventArgs = new DialogEventArgs { DialogId = update[1].Value<int>() };
-                                if (!updatedDialogs.Contains(eventArgs.DialogId))
-                                {
-                                    updatedDialogs.Add(eventArgs.DialogId);
-                                    OnDialogUpdate?.Invoke(null, eventArgs);
-                                }
+                                dialogEventArgs.DialogIds.Add(update[1].Value<int>());
                                 break;
                             }
                         case 8:
                             {
-                                OnUserStatusUpdate?.Invoke(null,
-                                    new UserStatusEventArgs { UserId = (uint)update[1].Value<int>(), Online = true });
+                                userStatusEventArgs.Data.Add(((uint)update[1].Value<int>(), true));
                                 break;
                             }
                         case 9:
                             {
-                                OnUserStatusUpdate?.Invoke(null,
-                                    new UserStatusEventArgs { UserId = (uint)update[1].Value<int>(), Online = false });
-                                break;
-                            }
-                        case 61:
-                            {
-                                OnUserTyping?.Invoke(null,
-                                    new UserTypingEventArgs { UserId = (uint)update[1].Value<int>(), DialogId = update[1].Value<int>() });
-                                break;
-                            }
-                        case 62:
-                            {
-                                OnUserTyping?.Invoke(null,
-                                    new UserTypingEventArgs { UserId = (uint)update[1].Value<int>(), DialogId = update[2].Value<int>() });
+                                userStatusEventArgs.Data.Add(((uint)update[1].Value<int>(), false));
                                 break;
                             }
                         default:
                             break;
                     }
                 }
+
+                if (messageEventArgs.Data.Any()) OnMessageUpdate?.Invoke(null, messageEventArgs);
+                if (dialogEventArgs.DialogIds.Any()) OnDialogUpdate?.Invoke(null, dialogEventArgs);
+                if (userStatusEventArgs.Data.Any()) OnUserStatusUpdate?.Invoke(null, userStatusEventArgs);
             }
         }
 
@@ -128,11 +113,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         /// </summary>
         public async static void Start()
         {
-            if (isStarted && Authorization.Token != null)
+            if (isStarted || Authorization.Token == null)
                 return;
+            else isStarted = true;
 
+            mutex.WaitOne();
             Logger.Info("Long polling started");
-            isStarted = true;
 
             while (isStarted)
             {
@@ -142,23 +128,26 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         await GetLongPollServer();
                     else
                         await SendLongRequest();
-
-                    await Task.Delay(LongPolling.RequestInterval);
-                    continue;
+                }
+                catch (LongPollingServerException e)
+                {
+                    LongPolling.Key = null;
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(e, true);
+                    Logger.Error(e);
                 }
 
-                await Task.Delay(LongPolling.DelayAfterError);
+                await Task.Delay(LongPolling.RequestInterval);
             }
+
+            mutex.ReleaseMutex();
+            Logger.Info("Long polling stopped");
         }
 
         public static void Stop()
         {
-            Logger.Info("Long polling stopped");
-
+            Logger.Info("Requested long polling stop");
             isStarted = false;
         }
     }

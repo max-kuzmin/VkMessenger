@@ -1,7 +1,9 @@
-﻿namespace ru.MaxKuzmin.VkMessenger.Events
+﻿using System.Collections.Generic;
+
+namespace ru.MaxKuzmin.VkMessenger.Events
 {
     public class DialogEventArgs
     {
-        public int DialogId { get; set; }
+        public HashSet<int> DialogIds { get; set; } = new HashSet<int>();
     }
 }

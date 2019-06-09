@@ -101,12 +101,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async void OnMessageUpdate(object sender, MessageEventArgs args)
         {
-            if (args.DialogId == dialog.Id)
+            var items = args.Data.Where(e => e.DialogId == dialog.Id);
+
+            if (items.Any())
             {
-                if (await dialog.Messages.Update(dialog.Id, new[] { args.MessageId }) == null)
-                {
-                    Scroll();
-                }
+                await dialog.Messages.Update(dialog.Id, items.Select(e => e.MessageId).ToArray());
+                Scroll();
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using ru.MaxKuzmin.VkMessenger.Cells;
+﻿using Newtonsoft.Json;
+using ru.MaxKuzmin.VkMessenger.Cells;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Extensions;
@@ -70,8 +71,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
 
-            LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(new[] { e.DialogId });
-            LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(new[] { e.DialogId });
+            LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds);
             LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
         }
 
@@ -80,11 +80,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private void OnUserStatusUpdate(object sender, UserStatusEventArgs e)
         {
-            Logger.Info($"User id {e.UserId} online set to {e.Online}");
+            Logger.Info("Online status changed for users " +
+                JsonConvert.SerializeObject(e.Data.Select(i => i.UserId)));
 
             foreach (var dialog in dialogs)
             {
-                dialog.SetOnline(e.UserId, e.Online);
+                foreach (var (UserId, Status) in e.Data)
+                {
+                    dialog.SetOnline(UserId, Status);
+                }
             }
         }
 

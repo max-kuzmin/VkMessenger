@@ -1,9 +1,9 @@
-﻿namespace ru.MaxKuzmin.VkMessenger.Events
+﻿using System.Collections.Generic;
+
+namespace ru.MaxKuzmin.VkMessenger.Events
 {
     public class UserStatusEventArgs
     {
-        public uint UserId { get; set; }
-
-        public bool Online { get; set; }
+        public HashSet<(uint UserId, bool Status)> Data { get; set; } = new HashSet<(uint, bool)>();
     }
 }
