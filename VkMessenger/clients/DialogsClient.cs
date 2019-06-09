@@ -109,7 +109,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 }
             }
             var lastMessages = lastMessagesIds.Any() ?
-                await MessagesClient.GetMessages(0, lastMessagesIds) :
+                await MessagesClient.GetMessages(0, 0, lastMessagesIds) :
                 Array.Empty<Message>();
 
             return FromJsonArray(json["response"]["items"] as JArray, profiles, groups, lastMessages);

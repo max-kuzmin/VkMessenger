@@ -38,7 +38,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             this.dialog = dialog;
             Setup();
-            dialog.Messages.Update(dialog.Id, null).ContinueWith(AfterInitialUpdate);
+            dialog.Messages.Update(dialog.Id, 0, null).ContinueWith(AfterInitialUpdate);
         }
 
         /// <summary>
@@ -50,12 +50,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 new RetryInformationPopup(
                     t.Result.Message,
-                    async () => await dialog.Messages.Update(dialog.Id, null).ContinueWith(AfterInitialUpdate))
+                    async () => await dialog.Messages.Update(dialog.Id, 0, null).ContinueWith(AfterInitialUpdate))
                     .Show();
             }
             else
             {
                 Scroll();
+                messagesListView.ItemAppearing += LoadMoreMessages;
             }
         }
 
@@ -96,6 +97,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             LongPollingClient.OnMessageUpdate += OnMessageUpdate;
         }
 
+        private async void LoadMoreMessages(object sender, ItemVisibilityEventArgs e)
+        {
+            if (dialog.Messages.All(i => i.Id >= (e.Item as Message).Id))
+            {
+                await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count + 20, null);
+            }
+        }
+
         /// <summary>
         /// Update messages collection
         /// </summary>
@@ -105,7 +114,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             if (items.Any())
             {
-                await dialog.Messages.Update(dialog.Id, items.Select(e => e.MessageId).ToArray());
+                await dialog.Messages.Update(0, 0, items.Select(e => e.MessageId).ToArray());
                 Scroll();
             }
         }

@@ -16,11 +16,11 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// <param name="messagesIds">Message id collection or null</param>
         /// <returns>Null means update successfull</returns>
         public static async Task<Exception> Update(this ObservableCollection<Message> collection, int dialogId,
-            IReadOnlyCollection<uint> messagesIds)
+            uint offset, IReadOnlyCollection<uint> messagesIds)
         {
             try
             {
-                var newMessages = await MessagesClient.GetMessages(dialogId, messagesIds);
+                var newMessages = await MessagesClient.GetMessages(dialogId, offset, messagesIds);
                 collection.AddUpdate(newMessages);
 
                 return null;

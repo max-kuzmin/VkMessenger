@@ -71,6 +71,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
 
+            LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
             LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds);
             LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
         }

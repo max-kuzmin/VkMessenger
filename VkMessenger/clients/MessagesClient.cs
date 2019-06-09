@@ -14,13 +14,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
     {
         private static readonly MD5 md5Hasher = MD5.Create();
 
-        public async static Task<IReadOnlyCollection<Message>> GetMessages(int dialogId, IReadOnlyCollection<uint> messagesIds)
+        public async static Task<IReadOnlyCollection<Message>> GetMessages(int dialogId, uint offset, IReadOnlyCollection<uint> messagesIds)
         {
             Logger.Info($"Updating messages {JsonConvert.SerializeObject(messagesIds)} in dialog {dialogId}");
 
             var json = JObject.Parse(messagesIds != null ?
                 await GetMessagesJson(messagesIds) :
-                await GetMessagesJson(dialogId));
+                await GetMessagesJson(dialogId, offset));
             var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
             var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
             return FromJsonArray(json["response"]["items"] as JArray, profiles, groups);
@@ -62,12 +62,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             return result;
         }
 
-        private async static Task<string> GetMessagesJson(int dialogId)
+        private async static Task<string> GetMessagesJson(int dialogId, uint offset)
         {
             var url =
                 "https://api.vk.com/method/messages.getHistory" +
                 "?v=5.92" +
                 "&extended=1" +
+                "&offset=" + offset +
                 "&peer_id=" + dialogId +
                 "&access_token=" + Authorization.Token;
 

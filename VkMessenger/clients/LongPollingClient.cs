@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Events;
-using ru.MaxKuzmin.VkMessenger.exceptions;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Linq;
@@ -38,8 +37,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private async static Task SendLongRequest()
+        private async static Task<bool> SendLongRequest()
         {
+            if (LongPolling.Server == null || LongPolling.Key == null || LongPolling.Ts == null)
+            {
+                return false;
+            }
+
             var url = "https://" + LongPolling.Server +
                 "?act=a_check" +
                 "&key=" + LongPolling.Key +
@@ -53,7 +57,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 if (json == null)
                 {
-                    throw new LongPollingServerException();
+                    return false;
                 }
 
                 LongPolling.Ts = json["ts"].Value<uint>();
@@ -106,12 +110,14 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 if (dialogEventArgs.DialogIds.Any()) OnDialogUpdate?.Invoke(null, dialogEventArgs);
                 if (userStatusEventArgs.Data.Any()) OnUserStatusUpdate?.Invoke(null, userStatusEventArgs);
             }
+
+            return true;
         }
 
         /// <summary>
         /// <see cref="LongPolling"/> main loop
         /// </summary>
-        public async static Task Start()
+        public async static void Start()
         {
             if (isStarted || Authorization.Token == null)
                 return;
@@ -124,14 +130,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 try
                 {
-                    if (LongPolling.Key == null)
+                    if (!await SendLongRequest())
+                    {
                         await GetLongPollServer();
-                    else
-                        await SendLongRequest();
-                }
-                catch (LongPollingServerException)
-                {
-                    LongPolling.Key = null;
+                    }
                 }
                 catch (Exception e)
                 {

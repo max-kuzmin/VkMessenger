@@ -18,7 +18,7 @@ namespace ru.MaxKuzmin.VkMessenger
 
         protected override void OnResume()
         {
-            LongPollingClient.Start().Start();
+            LongPollingClient.Start();
         }
     }
 }
