@@ -55,30 +55,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
             else
             {
-                Scroll();
                 messagesListView.ItemAppearing += LoadMoreMessages;
             }
-        }
-
-        /// <summary>
-        /// Scroll to most recent message
-        /// </summary>
-        private void Scroll()
-        {
-            var message = dialog.Messages.FirstOrDefault();
-            if (message != null)
-            {
-                messagesListView.ScrollTo(message, ScrollToPosition.Center, false);
-            }
-        }
-
-        /// <summary>
-        /// Scroll to most recent message when page appeared
-        /// </summary>
-        protected override void OnAppearing()
-        {
-            Scroll();
-            base.OnAppearing();
         }
 
         /// <summary>
@@ -117,7 +95,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (items.Any())
             {
                 await dialog.Messages.Update(0, 0, items.Select(e => e.MessageId).ToArray());
-                Scroll();
             }
         }
 
