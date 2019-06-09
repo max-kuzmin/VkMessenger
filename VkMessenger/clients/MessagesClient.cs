@@ -73,7 +73,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 else
                 {
                     if (text != string.Empty) text += "\n";
-                    text += $"<{firstAttachment["type"].Value<string>()}>";
+
+                    if (firstAttachment["type"].Value<string>() == "link")
+                        text += $"<{firstAttachment["link"]["url"].Value<string>()}>";
+                    else
+                        text += $"<{firstAttachment["type"].Value<string>()}>";
                 }
             }
 

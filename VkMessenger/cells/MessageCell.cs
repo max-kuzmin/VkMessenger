@@ -15,7 +15,8 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         private Label text = new Label
         {
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
-            LineBreakMode = LineBreakMode.WordWrap
+            LineBreakMode = LineBreakMode.WordWrap,
+            VerticalTextAlignment = TextAlignment.Center
         };
         private CachedImage attachmentImage = new CachedImage();
         private StackLayout wrapperLayout = new StackLayout
