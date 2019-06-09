@@ -111,7 +111,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         /// <summary>
         /// <see cref="LongPolling"/> main loop
         /// </summary>
-        public async static void Start()
+        public async static Task Start()
         {
             if (isStarted || Authorization.Token == null)
                 return;
@@ -129,7 +129,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     else
                         await SendLongRequest();
                 }
-                catch (LongPollingServerException e)
+                catch (LongPollingServerException)
                 {
                     LongPolling.Key = null;
                 }
