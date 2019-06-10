@@ -44,18 +44,18 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 return false;
             }
 
-            var url = "https://" + LongPolling.Server +
-                "?act=a_check" +
-                "&key=" + LongPolling.Key +
-                "&ts=" + LongPolling.Ts +
-                "&wait=" + LongPolling.WaitTime +
-                "&version=3";
-
             using (var client = new ProxiedWebClient())
             {
+                var url = "https://" + LongPolling.Server +
+                    "?act=a_check" +
+                    "&key=" + LongPolling.Key +
+                    "&ts=" + LongPolling.Ts +
+                    "&wait=" + LongPolling.WaitTime +
+                    "&version=3";
+
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
 
-                if (json == null)
+                if (json == null || json.ContainsKey("failed"))
                 {
                     return false;
                 }
