@@ -10,6 +10,11 @@ namespace ru.MaxKuzmin.VkMessenger
 {
     class Program : FormsApplication
     {
+        static Program()
+        {
+            AppDomain.CurrentDomain.UnhandledException += (s, e) => Logger.Error(e.ExceptionObject as Exception);
+        }
+
         protected override void OnCreate()
         {
             base.OnCreate();

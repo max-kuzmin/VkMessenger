@@ -17,10 +17,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static event EventHandler<UserStatusEventArgs> OnUserStatusUpdate;
 
+        private static TimeSpan currentRequestInterval = LongPolling.RequestInterval;
         private static Timer timer = new Timer(new TimerCallback(
             async (obj) => await MainLoop()),
             null,
-            LongPolling.RequestInterval,
+            TimeSpan.FromMilliseconds(-1),
             TimeSpan.FromMilliseconds(-1));
 
         private async static Task GetLongPollServer()
@@ -44,11 +45,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         private async static Task<bool> SendLongRequest()
         {
-            if (LongPolling.Server == null || LongPolling.Key == null || LongPolling.Ts == null)
-            {
-                return false;
-            }
-
             using (var client = new ProxiedWebClient())
             {
                 var url = "https://" + LongPolling.Server +
@@ -61,8 +57,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
                 Logger.Debug(json.ToString());
 
-                if (json == null || json.ContainsKey("failed"))
+                if (json.ContainsKey("failed"))
                 {
+                    if (json["failed"].Value<int>() == 1)
+                    {
+                        //TODO: run event to refresh dialogs list and opened messages
+                        LongPolling.Ts = json["ts"].Value<uint>();
+                    }
                     return false;
                 }
 
@@ -138,13 +139,14 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         public static void Start()
         {
             Logger.Info("Long polling started");
-            timer.Change(TimeSpan.FromMilliseconds(0), TimeSpan.FromMilliseconds(-1));
+            currentRequestInterval = LongPolling.RequestInterval;
+            timer.Change(LongPolling.RequestInterval, TimeSpan.FromMilliseconds(-1));
         }
 
         public static void Stop()
         {
             Logger.Info("Long polling stopped");
-            timer.Change(TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
+            currentRequestInterval = TimeSpan.FromMilliseconds(-1);
         }
 
         /// <summary>
@@ -156,7 +158,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 try
                 {
-                    if (!await SendLongRequest())
+                    if (LongPolling.Ts == null || !await SendLongRequest())
                     {
                         await GetLongPollServer();
                     }
@@ -167,7 +169,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 }
             }
 
-            timer.Change(LongPolling.RequestInterval, TimeSpan.FromMilliseconds(-1));
+            timer.Change(currentRequestInterval, TimeSpan.FromMilliseconds(-1));
         }
     }
 }
