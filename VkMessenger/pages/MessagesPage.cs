@@ -44,12 +44,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// If update successfull scroll to most recent message, otherwise show error popup
         /// </summary>
-        private void AfterInitialUpdate(Task<Exception> t)
+        private void AfterInitialUpdate(Task<bool> t)
         {
-            if (t.Result != null)
+            if (!t.Result)
             {
                 new RetryInformationPopup(
-                    t.Result.Message,
+                    "Can't load messages",
                     async () => await dialog.Messages.Update(dialog.Id, 0, null).ContinueWith(AfterInitialUpdate))
                     .Show();
             }
@@ -105,28 +105,22 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             dialog.SetReadWithMessages();
 
-            try
-            {
-                await DialogsClient.MarkAsRead(dialog.Id);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-            }
+            await DialogsClient.MarkAsRead(dialog.Id);
 
             var text = popupEntryView.Text;
             if (!string.IsNullOrEmpty(text))
             {
-                try
+                if (await MessagesClient.Send(text, dialog.Id))
                 {
-                    await MessagesClient.Send(text, dialog.Id);
                     popupEntryView.Text = string.Empty;
                 }
-                catch (Exception e)
+                else
                 {
                     popupEntryView.Text = text;
-                    Logger.Error(e);
-                    new RetryInformationPopup(e.Message, () => OnTextCompleted(null, null));
+                    new RetryInformationPopup(
+                        "Message wasn't send",
+                        () => OnTextCompleted(null, null))
+                        .Show();
                 }
             }
         }

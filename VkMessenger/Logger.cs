@@ -8,17 +8,19 @@ namespace ru.MaxKuzmin.VkMessenger
     {
         public static void Info(string text, [CallerMemberName] string caller = null)
         {
-            Log.Info(nameof(VkMessenger), text, func: caller);
+            Log.Info("VK", text, func: caller);
         }
 
         public static void Debug(string text, [CallerMemberName] string caller = null)
         {
-            Log.Debug(nameof(VkMessenger), text, func: caller);
+#if DEBUG
+            Log.Debug("VK", text, func: caller);
+#endif
         }
 
-        public static void Error(Exception e, bool onlyMessage = false, [CallerMemberName] string caller = null)
+        public static void Error(Exception e, [CallerMemberName] string caller = null)
         {
-            Log.Error(nameof(VkMessenger), onlyMessage ? e.Message : e.ToString(), func: caller);
+            Log.Error("VK", e.ToString(), func: caller);
         }
     }
 }

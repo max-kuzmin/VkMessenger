@@ -44,6 +44,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using (var client = new ProxiedWebClient())
             {
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
+                Logger.Debug(json.ToString());
+
                 Models.Authorization.SetPhoto(json["response"][0]["photo_50"].Value<string>());
             }
         }

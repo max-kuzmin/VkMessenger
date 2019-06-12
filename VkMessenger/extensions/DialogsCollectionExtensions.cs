@@ -1,6 +1,5 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Models;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -14,20 +13,15 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// Update dialogs from API. Can be used during setup of page or with <see cref="LongPolling"/>
         /// </summary>
         /// <param name="dialogIds">Dialog id collection or null</param>
-        /// <returns>Null means update successfull</returns>
-        public static async Task<Exception> Update(this ObservableCollection<Dialog> collection, IReadOnlyCollection<int> dialogIds)
+        public static async Task<bool> Update(this ObservableCollection<Dialog> collection, IReadOnlyCollection<int> dialogIds)
         {
-            try
+            var newDialogs = await DialogsClient.GetDialogs(dialogIds);
+            if (newDialogs == null)
             {
-                var newDialogs = await DialogsClient.GetDialogs(dialogIds);
-                collection.AddUpdate(newDialogs);
-                return null;
+                return false;
             }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                return e;
-            }
+            collection.AddUpdate(newDialogs);
+            return true;
         }
 
         public static void AddUpdate(this ObservableCollection<Dialog> collection,

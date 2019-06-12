@@ -1,10 +1,8 @@
-﻿using Newtonsoft.Json;
-using ru.MaxKuzmin.VkMessenger.Cells;
+﻿using ru.MaxKuzmin.VkMessenger.Cells;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Models;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -33,12 +31,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// If update successfull scroll to most recent dialog, otherwise show error popup
         /// </summary>
-        private void AfterInitialUpdate(Task<Exception> t)
+        private void AfterInitialUpdate(Task<bool> t)
         {
-            if (t.Result != null)
+            if (!t.Result)
             {
                 new RetryInformationPopup(
-                    t.Result.Message,
+                    "Can't load dialogs",
                     async () => await dialogs.Update(null).ContinueWith(AfterInitialUpdate))
                     .Show();
             }
@@ -81,9 +79,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private void OnUserStatusUpdate(object sender, UserStatusEventArgs e)
         {
-            Logger.Info("Online status changed for users " +
-                JsonConvert.SerializeObject(e.Data.Select(i => i.UserId)));
-
             foreach (var dialog in dialogs)
             {
                 foreach (var (UserId, Status) in e.Data)
@@ -114,14 +109,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             dialog.SetReadWithMessages();
 
-            try
-            {
-                await DialogsClient.MarkAsRead(dialog.Id);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-            }
+            await DialogsClient.MarkAsRead(dialog.Id);
         }
     }
 }

@@ -18,11 +18,11 @@ namespace ru.MaxKuzmin.VkMessenger
             {
                 ExecuteCallbacksOnUIThread = true,
                 DataResolverFactory = new ProxiedDataResolverFactory(),
+                MaxMemoryCacheSize = 1024 * 1024,
+                DiskCacheDuration = TimeSpan.FromDays(30),
 #if DEBUG
-                VerboseLogging = true,
-                VerboseLoadingCancelledLogging = true,
-                VerboseMemoryCacheLogging = true,
-                Logger = new CustomLogger()
+                Logger = new FFImageLoadingLogger(),
+                VerboseLogging = true
 #endif
             };
             ImageService.Instance.Initialize(config);
@@ -40,14 +40,7 @@ namespace ru.MaxKuzmin.VkMessenger
             CachedImageRenderer.Init(app);
             Forms.Init(app);
             FormsCircularUI.Init();
-            try
-            {
-                app.Run(args);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-            }
+            app.Run(args);
         }
 
         protected override void OnLowMemory(LowMemoryEventArgs e)

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
@@ -16,8 +17,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static event EventHandler<UserStatusEventArgs> OnUserStatusUpdate;
 
-        private static bool isStarted = false;
-        private static readonly Mutex mutex = new Mutex();
+        private static Timer timer = new Timer(new TimerCallback(
+            async (obj) => await MainLoop()),
+            null,
+            LongPolling.RequestInterval,
+            TimeSpan.FromMilliseconds(-1));
 
         private async static Task GetLongPollServer()
         {
@@ -30,6 +34,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using (var client = new ProxiedWebClient())
             {
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
+                Logger.Debug(json.ToString());
 
                 LongPolling.Key = json["response"]["key"].Value<string>();
                 LongPolling.Server = json["response"]["server"].Value<string>();
@@ -54,6 +59,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     "&version=3";
 
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
+                Logger.Debug(json.ToString());
 
                 if (json == null || json.ContainsKey("failed"))
                 {
@@ -106,27 +112,47 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     }
                 }
 
-                if (messageEventArgs.Data.Any()) OnMessageUpdate?.Invoke(null, messageEventArgs);
-                if (dialogEventArgs.DialogIds.Any()) OnDialogUpdate?.Invoke(null, dialogEventArgs);
-                if (userStatusEventArgs.Data.Any()) OnUserStatusUpdate?.Invoke(null, userStatusEventArgs);
+                if (messageEventArgs.Data.Any())
+                {
+                    Logger.Info("Messages update: " +
+                        JsonConvert.SerializeObject(messageEventArgs.Data.Select(i => i.MessageId)));
+                    OnMessageUpdate?.Invoke(null, messageEventArgs);
+                }
+                if (dialogEventArgs.DialogIds.Any())
+                {
+                    Logger.Info("Dialogs update: " +
+                        JsonConvert.SerializeObject(dialogEventArgs.DialogIds));
+                    OnDialogUpdate?.Invoke(null, dialogEventArgs);
+                }
+                if (userStatusEventArgs.Data.Any())
+                {
+                    Logger.Info("Online status changed for users: " +
+                        JsonConvert.SerializeObject(userStatusEventArgs.Data.Select(i => i.UserId)));
+                    OnUserStatusUpdate?.Invoke(null, userStatusEventArgs);
+                }
             }
 
             return true;
         }
 
+        public static void Start()
+        {
+            Logger.Info("Long polling started");
+            timer.Change(TimeSpan.FromMilliseconds(0), TimeSpan.FromMilliseconds(-1));
+        }
+
+        public static void Stop()
+        {
+            Logger.Info("Long polling stopped");
+            timer.Change(TimeSpan.FromMilliseconds(-1), TimeSpan.FromMilliseconds(-1));
+        }
+
         /// <summary>
         /// <see cref="LongPolling"/> main loop
         /// </summary>
-        public async static void Start()
+        private static async Task MainLoop()
         {
-            if (isStarted || Authorization.Token == null)
-                return;
-            else isStarted = true;
-
-            mutex.WaitOne();
-            Logger.Info("Long polling started");
-
-            while (isStarted)
+            if (Authorization.Token != null)
             {
                 try
                 {
@@ -139,18 +165,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 {
                     Logger.Error(e);
                 }
-
-                await Task.Delay(LongPolling.RequestInterval);
             }
 
-            mutex.ReleaseMutex();
-            Logger.Info("Long polling stopped");
-        }
-
-        public static void Stop()
-        {
-            Logger.Info("Requested long polling stop");
-            isStarted = false;
+            timer.Change(LongPolling.RequestInterval, TimeSpan.FromMilliseconds(-1));
         }
     }
 }

@@ -16,14 +16,23 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public async static Task<IReadOnlyCollection<Message>> GetMessages(int dialogId, uint offset, IReadOnlyCollection<uint> messagesIds)
         {
-            Logger.Info($"Updating messages {JsonConvert.SerializeObject(messagesIds)} in dialog {dialogId}");
+            try
+            {
+                Logger.Info($"Updating messages {JsonConvert.SerializeObject(messagesIds)} in dialog {dialogId}");
 
-            var json = JObject.Parse(messagesIds != null ?
-                await GetMessagesJson(messagesIds) :
-                await GetMessagesJson(dialogId, offset));
-            var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
-            var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
-            return FromJsonArray(json["response"]["items"] as JArray, profiles, groups);
+                var json = JObject.Parse(messagesIds != null ?
+                    await GetMessagesJson(messagesIds) :
+                    await GetMessagesJson(dialogId, offset));
+
+                var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
+                var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
+                return FromJsonArray(json["response"]["items"] as JArray, profiles, groups);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                return null;
+            }
         }
 
         private static List<Message> FromJsonArray(JArray source, IReadOnlyCollection<Profile> profiles,
@@ -104,23 +113,35 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using (var client = new ProxiedWebClient())
             {
-                return await client.DownloadStringTaskAsync(url);
+                var json = await client.DownloadStringTaskAsync(url);
+                Logger.Debug(json.ToString());
+                return json;
             }
         }
 
-        public async static Task Send(string text, int dialogId)
+        public async static Task<bool> Send(string text, int dialogId)
         {
-            var url =
-                "https://api.vk.com/method/messages.send" +
-                "?v=5.92" +
-                "&random_id=" + BitConverter.ToInt32(md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(text)), 0) +
-                "&peer_id=" + dialogId +
-                "&message=" + text +
-                "&access_token=" + Authorization.Token;
-
-            using (var client = new ProxiedWebClient())
+            try
             {
-                await client.DownloadStringTaskAsync(url);
+                var url =
+                    "https://api.vk.com/method/messages.send" +
+                    "?v=5.92" +
+                    "&random_id=" + BitConverter.ToInt32(md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(text)), 0) +
+                    "&peer_id=" + dialogId +
+                    "&message=" + text +
+                    "&access_token=" + Authorization.Token;
+
+                using (var client = new ProxiedWebClient())
+                {
+                    var json = await client.DownloadStringTaskAsync(url);
+                    Logger.Debug(json.ToString());
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                return false;
             }
         }
 
@@ -135,7 +156,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using (var client = new ProxiedWebClient())
             {
-                return await client.DownloadStringTaskAsync(url);
+                var json = await client.DownloadStringTaskAsync(url);
+                Logger.Debug(json.ToString());
+                return json;
             }
         }
     }
