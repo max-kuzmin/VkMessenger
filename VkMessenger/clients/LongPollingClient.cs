@@ -17,6 +17,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static event EventHandler<UserStatusEventArgs> OnUserStatusUpdate;
 
+        public static event EventHandler OnFullRefresh;
+
         private static TimeSpan currentRequestInterval = LongPolling.RequestInterval;
         private static Timer timer = new Timer(new TimerCallback(
             async (obj) => await MainLoop()),
@@ -43,7 +45,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private async static Task<bool> SendLongRequest()
+        private async static Task<JObject> SendLongRequest()
         {
             using (var client = new ProxiedWebClient())
             {
@@ -57,83 +59,77 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
                 Logger.Debug(json.ToString());
 
-                if (json.ContainsKey("failed"))
-                {
-                    if (json["failed"].Value<int>() == 1)
-                    {
-                        //TODO: run event to refresh dialogs list and opened messages
-                        LongPolling.Ts = json["ts"].Value<uint>();
-                    }
-                    return false;
-                }
+                return json;
+            }
+        }
 
-                LongPolling.Ts = json["ts"].Value<uint>();
-                var messageEventArgs = new MessageEventArgs();
-                var dialogEventArgs = new DialogEventArgs();
-                var userStatusEventArgs = new UserStatusEventArgs();
+        private static void ParseLongPollingJson(JObject json)
+        {
+            LongPolling.Ts = json["ts"].Value<uint>();
 
-                foreach (JArray update in json["updates"] as JArray)
+            var messageEventArgs = new MessageEventArgs();
+            var dialogEventArgs = new DialogEventArgs();
+            var userStatusEventArgs = new UserStatusEventArgs();
+
+            foreach (JArray update in json["updates"] as JArray)
+            {
+                switch (update[0].Value<uint>())
                 {
-                    switch (update[0].Value<uint>())
-                    {
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 4:
-                        case 5:
-                            {
-                                messageEventArgs.Data.Add((update[1].Value<uint>(), update[3].Value<int>()));
-                                break;
-                            }
-                        case 6:
-                        case 7:
-                        case 10:
-                        case 11:
-                        case 12:
-                        case 13:
-                        case 14:
-                        case 51:
-                        case 52:
-                            {
-                                dialogEventArgs.DialogIds.Add(update[1].Value<int>());
-                                break;
-                            }
-                        case 8:
-                            {
-                                userStatusEventArgs.Data.Add(((uint)update[1].Value<int>(), true));
-                                break;
-                            }
-                        case 9:
-                            {
-                                userStatusEventArgs.Data.Add(((uint)update[1].Value<int>(), false));
-                                break;
-                            }
-                        default:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                        {
+                            messageEventArgs.Data.Add((update[1].Value<uint>(), update[3].Value<int>()));
                             break;
-                    }
-                }
-
-                if (messageEventArgs.Data.Any())
-                {
-                    Logger.Info("Messages update: " +
-                        JsonConvert.SerializeObject(messageEventArgs.Data.Select(i => i.MessageId)));
-                    OnMessageUpdate?.Invoke(null, messageEventArgs);
-                }
-                if (dialogEventArgs.DialogIds.Any())
-                {
-                    Logger.Info("Dialogs update: " +
-                        JsonConvert.SerializeObject(dialogEventArgs.DialogIds));
-                    OnDialogUpdate?.Invoke(null, dialogEventArgs);
-                }
-                if (userStatusEventArgs.Data.Any())
-                {
-                    Logger.Info("Online status changed for users: " +
-                        JsonConvert.SerializeObject(userStatusEventArgs.Data.Select(i => i.UserId)));
-                    OnUserStatusUpdate?.Invoke(null, userStatusEventArgs);
+                        }
+                    case 6:
+                    case 7:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 14:
+                    case 51:
+                    case 52:
+                        {
+                            dialogEventArgs.DialogIds.Add(update[1].Value<int>());
+                            break;
+                        }
+                    case 8:
+                        {
+                            userStatusEventArgs.Data.Add(((uint)update[1].Value<int>(), true));
+                            break;
+                        }
+                    case 9:
+                        {
+                            userStatusEventArgs.Data.Add(((uint)update[1].Value<int>(), false));
+                            break;
+                        }
+                    default:
+                        break;
                 }
             }
 
-            return true;
+            if (messageEventArgs.Data.Any())
+            {
+                Logger.Info("Messages update: " +
+                    JsonConvert.SerializeObject(messageEventArgs.Data.Select(i => i.MessageId)));
+                OnMessageUpdate?.Invoke(null, messageEventArgs);
+            }
+            if (dialogEventArgs.DialogIds.Any())
+            {
+                Logger.Info("Dialogs update: " +
+                    JsonConvert.SerializeObject(dialogEventArgs.DialogIds));
+                OnDialogUpdate?.Invoke(null, dialogEventArgs);
+            }
+            if (userStatusEventArgs.Data.Any())
+            {
+                Logger.Info("Online status changed for users: " +
+                    JsonConvert.SerializeObject(userStatusEventArgs.Data.Select(i => i.UserId)));
+                OnUserStatusUpdate?.Invoke(null, userStatusEventArgs);
+            }
         }
 
         public static void Start()
@@ -158,9 +154,21 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 try
                 {
-                    if (LongPolling.Ts == null || !await SendLongRequest())
+                    if (LongPolling.Ts == null)
                     {
                         await GetLongPollServer();
+                    }
+
+                    var json = await SendLongRequest();
+
+                    if (json.ContainsKey("failed"))
+                    {
+                        LongPolling.Ts = null;
+                        OnFullRefresh(null, null);
+                    }
+                    else
+                    {
+                        ParseLongPollingJson(json);
                     }
                 }
                 catch (Exception e)

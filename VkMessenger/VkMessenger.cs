@@ -8,16 +8,14 @@ using Xamarin.Forms.Platform.Tizen;
 
 namespace ru.MaxKuzmin.VkMessenger
 {
-    class Program : FormsApplication
+    partial class Program : FormsApplication
     {
-        static Program()
-        {
-            AppDomain.CurrentDomain.UnhandledException += (s, e) => Logger.Error(e.ExceptionObject as Exception);
-        }
-
         protected override void OnCreate()
         {
             base.OnCreate();
+
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+                Logger.Error(e.ExceptionObject as Exception);
 
             var config = new Configuration()
             {
@@ -31,10 +29,6 @@ namespace ru.MaxKuzmin.VkMessenger
 #endif
             };
             ImageService.Instance.Initialize(config);
-
-#if DEBUG
-            DebugSetting.Set();
-#endif
 
             LoadApplication(new App());
         }

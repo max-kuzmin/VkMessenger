@@ -25,7 +25,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 loginWebView.Navigated -= LoginCallback;
                 await Navigation.PushAsync(new DialogsPage());
                 Navigation.RemovePage(this);
-                LongPollingClient.Start();
             }
         }
 

@@ -73,6 +73,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
             LongPollingClient.OnMessageUpdate += OnMessageUpdate;
+            LongPollingClient.OnFullRefresh += async (s, e) => await dialog.Messages.Update(dialog.Id, 0, null);
         }
 
         private async void LoadMoreMessages(object sender, ItemVisibilityEventArgs e)

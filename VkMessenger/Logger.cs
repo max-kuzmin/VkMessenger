@@ -12,7 +12,6 @@ namespace ru.MaxKuzmin.VkMessenger
 
         private static void Send(string level, string message)
         {
-#if DEBUG
             Task.Run(() =>
             {
                 try
@@ -22,13 +21,14 @@ namespace ru.MaxKuzmin.VkMessenger
                 }
                 catch { }
             });
-#endif
         }
 
         public static void Info(string text, [CallerFilePath] string file = null, [CallerMemberName] string caller = null, [CallerLineNumber]int line = 0)
         {
             Log.Info(Tag, text, file, caller, line);
+#if DEBUG
             Send(nameof(Info), text);
+#endif
         }
 
         public static void Debug(string text, [CallerFilePath] string file = null, [CallerMemberName] string caller = null, [CallerLineNumber]int line = 0)
@@ -43,7 +43,9 @@ namespace ru.MaxKuzmin.VkMessenger
         public static void Error(Exception e, [CallerFilePath] string file = null, [CallerMemberName] string caller = null, [CallerLineNumber]int line = 0)
         {
             Log.Error(Tag, e.ToString(), file, caller, line);
+#if DEBUG
             Send(nameof(Error), e.ToString());
+#endif
         }
     }
 }
