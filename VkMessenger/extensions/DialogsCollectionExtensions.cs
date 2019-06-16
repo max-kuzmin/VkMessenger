@@ -20,7 +20,10 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             {
                 return false;
             }
-            collection.AddUpdate(newDialogs);
+            else if (newDialogs.Any())
+            {
+                collection.AddUpdate(newDialogs);
+            }
             return true;
         }
 

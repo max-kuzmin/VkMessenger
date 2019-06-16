@@ -67,6 +67,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                     cell.photo.HorizontalOptions = LayoutOptions.End;
                     cell.text.HorizontalOptions = LayoutOptions.Start;
                     cell.attachmentImage.HorizontalOptions = LayoutOptions.StartAndExpand;
+                    cell.View.BackgroundColor = Color.FromHex("00354A");
                 }
                 else
                 {
@@ -84,6 +85,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             {
                 if ((bool)newValue)
                 {
+                    //Is always set as read
                     cell.View.BackgroundColor = Color.Black;
                 }
                 else

@@ -44,6 +44,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Group = group;
             Profile = profile;
             AttachmentImage = attachmentImage;
+            Read = Profile?.Id == Authorization.UserId;
         }
 
         public void SetRead()

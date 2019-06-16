@@ -6,6 +6,7 @@ using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -73,7 +74,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
             LongPollingClient.OnMessageUpdate += OnMessageUpdate;
-            LongPollingClient.OnFullRefresh += async (s, e) => await dialog.Messages.Update(dialog.Id, 0, null);
+            LongPollingClient.OnFullRefresh += RefreshAllAndScroll;
+        }
+
+        private async void RefreshAllAndScroll(object s, EventArgs e)
+        {
+            await dialog.Messages.Update(dialog.Id, 0, null);
+            messagesListView.ScrollTo(dialog.Messages[0], ScrollToPosition.Center, true);
         }
 
         private async void LoadMoreMessages(object sender, ItemVisibilityEventArgs e)
@@ -97,6 +104,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 await dialog.Messages.Update(0, 0, items.Select(e => e.MessageId).ToArray());
             }
+
+            messagesListView.ScrollTo(dialog.Messages[0], ScrollToPosition.Center, true);
+            new Feedback().Play(FeedbackType.Vibration, "Tap");
         }
 
         /// <summary>

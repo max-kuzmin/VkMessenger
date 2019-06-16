@@ -3,6 +3,7 @@ using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -72,7 +73,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
             LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds);
             LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
-            LongPollingClient.OnFullRefresh += async (s, e) => await dialogs.Update(null);
+            LongPollingClient.OnFullRefresh += RefreshAllAndScroll;
+        }
+
+        private async void RefreshAllAndScroll(object s, EventArgs e)
+        {
+            await dialogs.Update(null);
+            dialogsListView.ScrollTo(dialogs[0], ScrollToPosition.Center, true);
         }
 
         /// <summary>

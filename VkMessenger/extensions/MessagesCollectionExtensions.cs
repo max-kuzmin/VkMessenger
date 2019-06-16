@@ -21,7 +21,10 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             {
                 return false;
             }
-            collection.AddUpdate(newMessages);
+            else if (newMessages.Any())
+            {
+                collection.AddUpdate(newMessages);
+            }
             return true;
         }
 

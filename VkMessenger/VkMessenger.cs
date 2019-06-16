@@ -21,8 +21,6 @@ namespace ru.MaxKuzmin.VkMessenger
             {
                 ExecuteCallbacksOnUIThread = true,
                 DataResolverFactory = new ProxiedDataResolverFactory(),
-                MaxMemoryCacheSize = 1024 * 1024,
-                DiskCacheDuration = TimeSpan.FromDays(30),
 #if DEBUG
                 Logger = new FFImageLoadingLogger(),
                 VerboseLogging = true
