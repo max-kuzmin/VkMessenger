@@ -77,12 +77,34 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             LongPollingClient.OnFullRefresh += RefreshAllAndScroll;
         }
 
+        /// <summary>
+        /// Called when long polling token outdated
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
         private async void RefreshAllAndScroll(object s, EventArgs e)
         {
             await dialog.Messages.Update(dialog.Id, 0, null);
-            messagesListView.ScrollTo(dialog.Messages[0], ScrollToPosition.Center, true);
+            Scroll();
         }
 
+        /// <summary>
+        /// Scroll to most recent message
+        /// </summary>
+        private void Scroll()
+        {
+            var firstMessage = dialog.Messages.FirstOrDefault();
+            if (firstMessage != null)
+            {
+                messagesListView.ScrollTo(firstMessage, ScrollToPosition.Center, false);
+            }
+        }
+
+        /// <summary>
+        /// Load more messages when scroll reached the end of the page
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void LoadMoreMessages(object sender, ItemVisibilityEventArgs e)
         {
             if (dialog.Messages.All(i => i.Id >= (e.Item as Message).Id))
@@ -105,7 +127,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 await dialog.Messages.Update(0, 0, items.Select(e => e.MessageId).ToArray());
             }
 
-            messagesListView.ScrollTo(dialog.Messages[0], ScrollToPosition.Center, true);
+            Scroll();
             new Feedback().Play(FeedbackType.Vibration, "Tap");
         }
 

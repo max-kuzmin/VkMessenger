@@ -48,7 +48,10 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     else
                     {
                         if (isOldMessages)
+                        {
+                            newMessage.SetRead();
                             collection.Add(newMessage);
+                        }
                         else
                             collection.Insert(0, newMessage);
                     }

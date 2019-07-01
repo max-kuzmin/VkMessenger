@@ -41,10 +41,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     async () => await dialogs.Update(null).ContinueWith(AfterInitialUpdate))
                     .Show();
             }
-            else
-            {
-                Scroll();
-            }
         }
 
         /// <summary>
@@ -76,10 +72,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             LongPollingClient.OnFullRefresh += RefreshAllAndScroll;
         }
 
+        /// <summary>
+        /// Called when long polling token outdated
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
         private async void RefreshAllAndScroll(object s, EventArgs e)
         {
             await dialogs.Update(null);
-            dialogsListView.ScrollTo(dialogs[0], ScrollToPosition.Center, true);
+            Scroll();
         }
 
         /// <summary>
