@@ -41,6 +41,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     async () => await dialogs.Update(null).ContinueWith(AfterInitialUpdate))
                     .Show();
             }
+            else
+            {
+                Scroll();
+            }
         }
 
         /// <summary>
