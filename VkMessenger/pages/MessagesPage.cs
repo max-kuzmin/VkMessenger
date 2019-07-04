@@ -39,11 +39,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             this.dialog = dialog;
             Setup();
-            dialog.Messages.Update(dialog.Id, 0, null).ContinueWith(AfterInitialUpdate);
+            RefreshAll().ContinueWith(AfterInitialUpdate);
         }
 
         /// <summary>
-        /// If update successfull scroll to most recent message, otherwise show error popup
+        /// If update unsuccessfull show error popup and retry
         /// </summary>
         private void AfterInitialUpdate(Task<bool> t)
         {
@@ -51,7 +51,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 new RetryInformationPopup(
                     "Can't load messages",
-                    async () => await dialog.Messages.Update(dialog.Id, 0, null).ContinueWith(AfterInitialUpdate))
+                    async () => await RefreshAll().ContinueWith(AfterInitialUpdate))
                     .Show();
             }
             else
@@ -75,21 +75,22 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
             LongPollingClient.OnMessageUpdate += OnMessageUpdate;
-            LongPollingClient.OnFullRefresh += RefreshAll;
+            LongPollingClient.OnFullRefresh += async (s, e) => await RefreshAll();
         }
 
         /// <summary>
-        /// Called when long polling token outdated
+        /// Called on start or when long polling token outdated
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private async void RefreshAll(object s, EventArgs e)
+        private async Task<bool> RefreshAll()
         {
-            var popup = new InformationPopup() { Text = "Refreshing..." };
-            popup.Show();
-            await dialog.Messages.Update(dialog.Id, 0, null);
+            var refreshingPopup = new InformationPopup() { Text = "Refreshing..." };
+            refreshingPopup.Show();
+            var result = await dialog.Messages.Update(dialog.Id, 0, null);
             Scroll();
-            popup.Dismiss();
+            refreshingPopup.Dismiss();
+            return result;
         }
 
         /// <summary>

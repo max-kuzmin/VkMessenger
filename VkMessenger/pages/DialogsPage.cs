@@ -3,7 +3,6 @@ using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Models;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -26,11 +25,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         public DialogsPage()
         {
             Setup();
-            dialogs.Update(null).ContinueWith(AfterInitialUpdate);
+            RefreshAll().ContinueWith(AfterInitialUpdate);
         }
 
         /// <summary>
-        /// If update successfull scroll to most recent dialog, otherwise show error popup
+        /// If update unsuccessfull show error popup and retry
         /// </summary>
         private void AfterInitialUpdate(Task<bool> t)
         {
@@ -38,7 +37,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 new RetryInformationPopup(
                     "Can't load dialogs",
-                    async () => await dialogs.Update(null).ContinueWith(AfterInitialUpdate))
+                    async () => await RefreshAll().ContinueWith(AfterInitialUpdate))
                     .Show();
             }
         }
@@ -70,21 +69,22 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
             LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds);
             LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
-            LongPollingClient.OnFullRefresh += RefreshAll;
+            LongPollingClient.OnFullRefresh += async (s, e) => await RefreshAll();
         }
 
         /// <summary>
-        /// Called when long polling token outdated
+        /// Called on start or when long polling token outdated
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private async void RefreshAll(object s, EventArgs e)
+        private async Task<bool> RefreshAll()
         {
-            var popup = new InformationPopup() { Text = "Refreshing..." };
-            popup.Show();
-            await dialogs.Update(null);
+            var refreshingPopup = new InformationPopup() { Text = "Refreshing..." };
+            refreshingPopup.Show();
+            var result = await dialogs.Update(null);
             Scroll();
-            popup.Dismiss();
+            refreshingPopup.Dismiss();
+            return result;
         }
 
         /// <summary>
