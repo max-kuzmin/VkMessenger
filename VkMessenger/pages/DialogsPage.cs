@@ -41,10 +41,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     async () => await dialogs.Update(null).ContinueWith(AfterInitialUpdate))
                     .Show();
             }
-            else
-            {
-                Scroll();
-            }
         }
 
         /// <summary>
@@ -56,6 +52,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (firstDialog != null)
             {
                 dialogsListView.ScrollTo(firstDialog, ScrollToPosition.Center, false);
+                dialogsListView.ScrollTo(firstDialog, ScrollToPosition.Center, false); //TODO
             }
         }
 
@@ -73,7 +70,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
             LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds);
             LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
-            LongPollingClient.OnFullRefresh += RefreshAllAndScroll;
+            LongPollingClient.OnFullRefresh += RefreshAll;
         }
 
         /// <summary>
@@ -81,10 +78,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private async void RefreshAllAndScroll(object s, EventArgs e)
+        private async void RefreshAll(object s, EventArgs e)
         {
+            var popup = new InformationPopup() { Text = "Refreshing..." };
+            popup.Show();
             await dialogs.Update(null);
             Scroll();
+            popup.Dismiss();
         }
 
         /// <summary>

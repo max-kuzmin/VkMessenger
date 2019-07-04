@@ -8,7 +8,7 @@ namespace ru.MaxKuzmin.VkMessenger
     public class Logger
     {
         private const string Tag = "VK";
-        private const string Ip = "192.168.0.104:5100";
+        private const string Ip = "192.168.0.103:5100";
 
         private static void Send(string level, string message)
         {

@@ -68,13 +68,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             NavigationPage.SetHasNavigationBar(this, false);
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
             messagesListView.ItemsSource = dialog.Messages;
+            messagesListView.ItemTapped += (s, e) => (e.Item as Message).SetRead();
             popupEntryView.Completed += OnTextCompleted;
 
             verticalLayout.Children.Add(messagesListView);
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
             LongPollingClient.OnMessageUpdate += OnMessageUpdate;
-            LongPollingClient.OnFullRefresh += RefreshAllAndScroll;
+            LongPollingClient.OnFullRefresh += RefreshAll;
         }
 
         /// <summary>
@@ -82,10 +83,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private async void RefreshAllAndScroll(object s, EventArgs e)
+        private async void RefreshAll(object s, EventArgs e)
         {
+            var popup = new InformationPopup() { Text = "Refreshing..." };
+            popup.Show();
             await dialog.Messages.Update(dialog.Id, 0, null);
             Scroll();
+            popup.Dismiss();
         }
 
         /// <summary>
@@ -97,6 +101,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (firstMessage != null)
             {
                 messagesListView.ScrollTo(firstMessage, ScrollToPosition.Center, false);
+                messagesListView.ScrollTo(firstMessage, ScrollToPosition.Center, false); //TODO
             }
         }
 
@@ -127,7 +132,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 await dialog.Messages.Update(0, 0, items.Select(e => e.MessageId).ToArray());
             }
 
-            Scroll();
+            //Scroll(); //TODO
             new Feedback().Play(FeedbackType.Vibration, "Tap");
         }
 
