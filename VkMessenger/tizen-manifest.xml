@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest package="ru.MaxKuzmin.VkMessenger" version="0.1.1" api-version="4" xmlns="http://tizen.org/ns/packages">
+<manifest package="ru.MaxKuzmin.VkMessenger" version="0.1.2" api-version="4" xmlns="http://tizen.org/ns/packages">
     <author>Max Kuzmin</author>
     <profile name="wearable" />
     <ui-application appid="ru.MaxKuzmin.VkMessenger" exec="VkMessenger.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" launch_mode="single">
