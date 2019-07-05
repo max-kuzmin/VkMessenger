@@ -51,7 +51,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (firstDialog != null)
             {
                 dialogsListView.ScrollTo(firstDialog, ScrollToPosition.Center, false);
-                dialogsListView.ScrollTo(firstDialog, ScrollToPosition.Center, false); //TODO
             }
         }
 
@@ -83,6 +82,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             refreshingPopup.Show();
             var result = await dialogs.Update(null);
             Scroll();
+            await Task.Delay(100); //TODO
+            Scroll(); //TODO
             refreshingPopup.Dismiss();
             return result;
         }

@@ -102,7 +102,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (firstMessage != null)
             {
                 messagesListView.ScrollTo(firstMessage, ScrollToPosition.Center, false);
-                messagesListView.ScrollTo(firstMessage, ScrollToPosition.Center, false); //TODO
             }
         }
 
