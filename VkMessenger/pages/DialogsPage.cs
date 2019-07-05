@@ -125,5 +125,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             await DialogsClient.MarkAsRead(dialog.Id);
         }
+
+        protected override bool OnBackButtonPressed() => true;
     }
 }

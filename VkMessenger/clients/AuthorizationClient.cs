@@ -18,7 +18,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&v=5.92";
         }
 
-        public static bool SetUserFromUrl(string url)
+        public static async Task<bool> SetUserFromUrl(string url)
         {
             var token = string.Concat(Regex.Match(url, @"access_token=(\d|\w)*").Value.Skip(13));
             var userIdString = string.Concat(Regex.Match(url, @"user_id=\d*").Value.Skip(8));
@@ -26,7 +26,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 Models.Authorization.Token = token;
                 Models.Authorization.UserId = userId;
-                GetPhoto().Start();
+                await GetPhoto();
                 return true;
             }
             else return false;

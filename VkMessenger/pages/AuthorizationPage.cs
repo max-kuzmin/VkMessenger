@@ -20,11 +20,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             await Task.Delay(1000);
             var url = (loginWebView.Source as UrlWebViewSource).Url;
-            if (AuthorizationClient.SetUserFromUrl(url))
+            if (await AuthorizationClient.SetUserFromUrl(url))
             {
                 loginWebView.Navigated -= LoginCallback;
                 await Navigation.PushAsync(new DialogsPage());
-                Navigation.RemovePage(this);
             }
         }
 
