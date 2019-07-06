@@ -24,8 +24,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         public DialogsPage()
         {
-            Setup();
-            RefreshAll().ContinueWith(AfterInitialUpdate);
+            NavigationPage.SetHasNavigationBar(this, false);
+
+            UpdateAll().ContinueWith(AfterInitialUpdate);
         }
 
         /// <summary>
@@ -36,30 +37,33 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (!t.Result)
             {
                 new RetryInformationPopup(
-                    "Can't load dialogs",
-                    async () => await RefreshAll().ContinueWith(AfterInitialUpdate))
+                    "Can't load dialogs. No internet connection",
+                    async () => await UpdateAll().ContinueWith(AfterInitialUpdate))
                     .Show();
+            }
+            else
+            {
+                Setup();
             }
         }
 
         /// <summary>
         /// Scroll to most recent dialog
         /// </summary>
-        private void Scroll()
+        /*private void Scroll()
         {
             var firstDialog = dialogs.FirstOrDefault();
             if (firstDialog != null)
             {
                 dialogsListView.ScrollTo(firstDialog, ScrollToPosition.Center, false);
             }
-        }
+        }*/
 
         /// <summary>
         /// Initial setup of page
         /// </summary>
         private void Setup()
         {
-            NavigationPage.SetHasNavigationBar(this, false);
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
             dialogsListView.ItemTapped += OnDialogTapped;
             dialogsListView.ItemsSource = dialogs;
@@ -68,7 +72,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
             LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds);
             LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
-            LongPollingClient.OnFullRefresh += async (s, e) => await RefreshAll();
         }
 
         /// <summary>
@@ -76,12 +79,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private async Task<bool> RefreshAll()
+        private async Task<bool> UpdateAll()
         {
-            var refreshingPopup = new InformationPopup() { Text = "Refreshing..." };
+            var refreshingPopup = new InformationPopup() { Text = "Loading dialogs..." };
             refreshingPopup.Show();
             var result = await dialogs.Update(null);
-            Scroll();
             refreshingPopup.Dismiss();
             return result;
         }

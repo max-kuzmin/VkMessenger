@@ -37,9 +37,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         public MessagesPage(Dialog dialog)
         {
+            NavigationPage.SetHasNavigationBar(this, false);
             this.dialog = dialog;
-            Setup();
-            RefreshAll().ContinueWith(AfterInitialUpdate);
+
+            UpdateAll().ContinueWith(AfterInitialUpdate);
         }
 
         /// <summary>
@@ -50,13 +51,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (!t.Result)
             {
                 new RetryInformationPopup(
-                    "Can't load messages",
-                    async () => await RefreshAll().ContinueWith(AfterInitialUpdate))
+                    "Can't load messages. No internet connection",
+                    async () => await UpdateAll().ContinueWith(AfterInitialUpdate))
                     .Show();
             }
             else
             {
-                messagesListView.ItemAppearing += LoadMoreMessages;
+                Setup();
             }
         }
 
@@ -65,17 +66,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private void Setup()
         {
-            NavigationPage.SetHasNavigationBar(this, false);
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
             messagesListView.ItemsSource = dialog.Messages;
             messagesListView.ItemTapped += OnItemTapped;
+            messagesListView.ItemAppearing += LoadMoreMessages;
             popupEntryView.Completed += OnTextCompleted;
 
             verticalLayout.Children.Add(messagesListView);
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
             LongPollingClient.OnMessageUpdate += OnMessageUpdate;
-            LongPollingClient.OnFullRefresh += async (s, e) => await RefreshAll();
         }
 
         private void OnItemTapped(object sender, ItemTappedEventArgs e)
@@ -96,12 +96,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private async Task<bool> RefreshAll()
+        private async Task<bool> UpdateAll()
         {
-            var refreshingPopup = new InformationPopup() { Text = "Refreshing..." };
+            var refreshingPopup = new InformationPopup() { Text = "Loading messages..." };
             refreshingPopup.Show();
             var result = await dialog.Messages.Update(dialog.Id, 0, null);
-            Scroll();
             refreshingPopup.Dismiss();
             return result;
         }
@@ -109,14 +108,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Scroll to most recent message
         /// </summary>
-        private void Scroll()
+        /*private void Scroll()
         {
             var firstMessage = dialog.Messages.FirstOrDefault();
             if (firstMessage != null)
             {
                 messagesListView.ScrollTo(firstMessage, ScrollToPosition.Center, false);
             }
-        }
+        }*/
 
         /// <summary>
         /// Load more messages when scroll reached the end of the page

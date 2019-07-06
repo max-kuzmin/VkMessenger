@@ -17,7 +17,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static event EventHandler<UserStatusEventArgs> OnUserStatusUpdate;
 
-        public static event EventHandler OnFullRefresh;
+        public static event EventHandler OnFullReset;
 
         private static TimeSpan currentRequestInterval = LongPolling.RequestInterval;
         private static Timer timer = new Timer(new TimerCallback(
@@ -164,7 +164,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     if (json.ContainsKey("failed"))
                     {
                         LongPolling.Ts = null;
-                        OnFullRefresh(null, null);
+                        OnFullReset(null, null);
                     }
                     else
                     {
