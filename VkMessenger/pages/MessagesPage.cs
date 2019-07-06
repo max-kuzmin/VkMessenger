@@ -82,7 +82,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             var message = e.Item as Message;
             message.SetRead();
-            Navigation.PushAsync(new MessagePage(message));
+
+            if (message.FullText.Length > Message.MaxLength
+                || message.AttachmentImages.Any()
+                || message.AttachmentUri != null)
+            {
+                Navigation.PushAsync(new MessagePage(message));
+            }
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Models;
+using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -7,10 +8,6 @@ namespace ru.MaxKuzmin.VkMessenger.pages
     public class MessagePage : CirclePage
     {
         private readonly CircleScrollView scrollView = new CircleScrollView();
-        private readonly Image image = new Image
-        {
-            Margin = new Thickness(0, 10, 0, 70)
-        };
         private StackLayout wrapperLayout = new StackLayout
         {
             Orientation = StackOrientation.Vertical,
@@ -22,17 +19,51 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             LineBreakMode = LineBreakMode.WordWrap,
             HorizontalTextAlignment = TextAlignment.Center,
             VerticalTextAlignment = TextAlignment.Center,
-            Margin = new Thickness(30, 70, 30, 10)
+            Margin = new Thickness(30, 70, 30, 0)
+        };
+        private readonly Label uri = new Label
+        {
+            FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
+            LineBreakMode = LineBreakMode.WordWrap,
+            HorizontalTextAlignment = TextAlignment.Center,
+            VerticalTextAlignment = TextAlignment.Center,
+            Margin = new Thickness(30, 10, 30, 0),
+            TextColor = Color.Blue,
+            TextDecorations = TextDecorations.Underline
         };
 
         public MessagePage(Message message)
         {
             NavigationPage.SetHasNavigationBar(this, false);
 
-            image.Source = message.BigAttachmentImage;
-            text.Text = message.Text;
+            text.Text = message.FullText;
             wrapperLayout.Children.Add(text);
-            wrapperLayout.Children.Add(image);
+
+            if (message.AttachmentUri != null)
+            {
+                uri.Text = message.AttachmentUri.ToString();
+                wrapperLayout.Children.Add(uri);
+
+                var tapGestureRecognizer = new TapGestureRecognizer();
+                tapGestureRecognizer.Tapped += (s, e) =>
+                    AppControl.SendLaunchRequest(new AppControl
+                    {
+                        Operation = AppControlOperations.View,
+                        Uri = message.AttachmentUri.ToString()
+                    });
+                uri.GestureRecognizers.Add(tapGestureRecognizer);
+            }
+
+            foreach (var item in message.AttachmentImages)
+            {
+                var image = new Image { Margin = new Thickness(0, 10, 0, 0) };
+                image.Source = item;
+                wrapperLayout.Children.Add(image);
+            }
+
+            var emptyLabel = new Label { Margin = new Thickness(0, 0, 0, 70) };
+            wrapperLayout.Children.Add(emptyLabel);
+
             scrollView.Content = wrapperLayout;
             Content = scrollView;
             SetBinding(RotaryFocusObjectProperty, new Binding { Source = scrollView });

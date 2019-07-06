@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -53,43 +54,50 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var dialogId = source["from_id"].Value<int>();
 
-            ParseAttachments(source, out string text, out Uri attachmentImage, out Uri bigAttachmentImage);
+            ParseAttachments(source, out string text,
+                out IList<ImageSource> attachmentImages, out Uri attachmentUri);
 
             var result = new Message(
                 source["id"].Value<uint>(),
                 text,
+                source["text"].Value<string>(),
                 new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc),
                 profiles?.FirstOrDefault(p => p.Id == dialogId),
                 groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)),
-                attachmentImage,
-                bigAttachmentImage);
+                attachmentImages.ToArray(),
+                attachmentUri);
 
             return result;
         }
 
-        private static void ParseAttachments(JObject source, out string text, out Uri attachmentImage, out Uri bigAttachmentImage)
+        private static void ParseAttachments(JObject source, out string text,
+            out IList<ImageSource> attachmentImages, out Uri attachmentUri)
         {
             text = source["text"].Value<string>();
-            attachmentImage = null;
-            bigAttachmentImage = null;
+            text = text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text;
 
-            var firstAttachment = (source["attachments"] as JArray)?.FirstOrDefault();
-            if (firstAttachment != null)
+            attachmentImages = new List<ImageSource>();
+            attachmentUri = null;
+
+            var attachments = source["attachments"] as JArray;
+
+            if (attachments != null)
             {
-                if (firstAttachment["type"].Value<string>() == "photo")
+                foreach (var item in attachments)
                 {
-                    var sizes = firstAttachment["photo"]["sizes"];
-                    attachmentImage = new Uri(sizes.Single(i => i["type"].Value<string>() == "s")["url"].Value<string>());
-                    bigAttachmentImage = new Uri(sizes.Single(i => i["type"].Value<string>() == "q")["url"].Value<string>());
-                }
-                else
-                {
-                    if (text != string.Empty) text += "\n";
+                    if (item["type"].Value<string>() == "photo")
+                    {
+                        attachmentImages
+                            .Add(new Uri(item["photo"]["sizes"]
+                            .Single(i => i["type"].Value<string>() == "q")["url"].Value<string>()));
+                    }
+                    else if (attachmentUri == null && item["type"].Value<string>() == "link")
+                    {
+                        attachmentUri = new Uri(item["link"]["url"].Value<string>());
+                    }
 
-                    if (firstAttachment["type"].Value<string>() == "link")
-                        text += $"<{firstAttachment["link"]["url"].Value<string>()}>";
-                    else
-                        text += $"<{firstAttachment["type"].Value<string>()}>";
+                    if (text != string.Empty) text += "\n";
+                    text += $"<{item["type"].Value<string>()}>";
                 }
             }
 

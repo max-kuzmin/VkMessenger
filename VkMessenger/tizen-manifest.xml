@@ -13,6 +13,7 @@
         <privilege>http://tizen.org/privilege/network.get</privilege>
         <privilege>http://tizen.org/privilege/internet</privilege>
         <privilege>http://tizen.org/privilege/haptic</privilege>
+        <privilege>http://tizen.org/privilege/appmanager.launch</privilege>
     </privileges>
     <provides-appdefined-privileges />
 </manifest>

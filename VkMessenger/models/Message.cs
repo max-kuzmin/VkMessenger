@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Xamarin.Forms;
 
@@ -6,7 +7,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 {
     public class Message : INotifyPropertyChanged
     {
-        public const int MaxLength = 200;
+        public const int MaxLength = 150;
 
         public uint Id { get; }
         public string Text { get; private set; }
@@ -14,10 +15,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public DateTime Date { get; }
         public Profile Profile { get; }
         public Group Group { get; }
-        public ImageSource AttachmentImage { get; }
-
-        public ImageSource BigAttachmentImage { get; }
         public string FullText { get; private set; }
+        public IReadOnlyCollection<ImageSource> AttachmentImages { get; }
+        public Uri AttachmentUri { get; }
 
         public int SenderId
         {
@@ -39,16 +39,17 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Message(uint id, string text, DateTime date, Profile profile, Group group, Uri attachmentImage, Uri bigAttachmentImage)
+        public Message(uint id, string text, string fullText, DateTime date, Profile profile, Group group,
+            IReadOnlyCollection<ImageSource> attachmentImages, Uri attachmentUri)
         {
             Id = id;
-            Text = text.Length > MaxLength ? text.Substring(0, MaxLength) + "..." : text;
-            FullText = text;
+            Text = text;
+            FullText = fullText;
             Date = date;
             Group = group;
             Profile = profile;
-            AttachmentImage = attachmentImage;
-            BigAttachmentImage = bigAttachmentImage;
+            AttachmentImages = attachmentImages;
+            AttachmentUri = attachmentUri;
             Read = Profile?.Id == Authorization.UserId;
         }
 
