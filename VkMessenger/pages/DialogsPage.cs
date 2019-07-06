@@ -82,8 +82,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             refreshingPopup.Show();
             var result = await dialogs.Update(null);
             Scroll();
-            await Task.Delay(100); //TODO
-            Scroll(); //TODO
             refreshingPopup.Dismiss();
             return result;
         }

@@ -3,6 +3,7 @@ using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Models;
+using ru.MaxKuzmin.VkMessenger.pages;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,7 +28,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private readonly PopupEntry popupEntryView = new PopupEntry
         {
             VerticalOptions = LayoutOptions.End,
-            MaxLength = Message.MaxLength,
             Placeholder = "Type here...",
             HorizontalTextAlignment = TextAlignment.Center,
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
@@ -68,7 +68,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             NavigationPage.SetHasNavigationBar(this, false);
             SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
             messagesListView.ItemsSource = dialog.Messages;
-            messagesListView.ItemTapped += (s, e) => (e.Item as Message).SetRead();
+            messagesListView.ItemTapped += OnItemTapped;
             popupEntryView.Completed += OnTextCompleted;
 
             verticalLayout.Children.Add(messagesListView);
@@ -76,6 +76,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             Content = verticalLayout;
             LongPollingClient.OnMessageUpdate += OnMessageUpdate;
             LongPollingClient.OnFullRefresh += async (s, e) => await RefreshAll();
+        }
+
+        private void OnItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            var message = e.Item as Message;
+            message.SetRead();
+            Navigation.PushAsync(new MessagePage(message));
         }
 
         /// <summary>
@@ -132,7 +139,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 await dialog.Messages.Update(0, 0, items.Select(e => e.MessageId).ToArray());
             }
 
-            //Scroll(); //TODO
             new Feedback().Play(FeedbackType.Vibration, "Tap");
         }
 

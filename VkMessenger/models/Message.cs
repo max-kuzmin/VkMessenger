@@ -16,6 +16,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public Group Group { get; }
         public ImageSource AttachmentImage { get; }
 
+        public ImageSource BigAttachmentImage { get; }
+        public string FullText { get; private set; }
+
         public int SenderId
         {
             get
@@ -36,14 +39,16 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Message(uint id, string text, DateTime date, Profile profile, Group group, Uri attachmentImage)
+        public Message(uint id, string text, DateTime date, Profile profile, Group group, Uri attachmentImage, Uri bigAttachmentImage)
         {
             Id = id;
-            Text = text;
+            Text = text.Length > MaxLength ? text.Substring(0, MaxLength) + "..." : text;
+            FullText = text;
             Date = date;
             Group = group;
             Profile = profile;
             AttachmentImage = attachmentImage;
+            BigAttachmentImage = bigAttachmentImage;
             Read = Profile?.Id == Authorization.UserId;
         }
 

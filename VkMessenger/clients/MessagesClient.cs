@@ -53,31 +53,34 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var dialogId = source["from_id"].Value<int>();
 
-            ParseAttachments(source, out string text, out Uri attachmentImage);
+            ParseAttachments(source, out string text, out Uri attachmentImage, out Uri bigAttachmentImage);
 
             var result = new Message(
                 source["id"].Value<uint>(),
-                text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text,
+                text,
                 new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc),
                 profiles?.FirstOrDefault(p => p.Id == dialogId),
                 groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)),
-                attachmentImage);
+                attachmentImage,
+                bigAttachmentImage);
 
             return result;
         }
 
-        private static void ParseAttachments(JObject source, out string text, out Uri attachmentImage)
+        private static void ParseAttachments(JObject source, out string text, out Uri attachmentImage, out Uri bigAttachmentImage)
         {
             text = source["text"].Value<string>();
             attachmentImage = null;
+            bigAttachmentImage = null;
 
             var firstAttachment = (source["attachments"] as JArray)?.FirstOrDefault();
             if (firstAttachment != null)
             {
                 if (firstAttachment["type"].Value<string>() == "photo")
                 {
-                    attachmentImage = new Uri(firstAttachment["photo"]["sizes"]
-                        .Single(i => i["type"].Value<string>() == "s")["url"].Value<string>());
+                    var sizes = firstAttachment["photo"]["sizes"];
+                    attachmentImage = new Uri(sizes.Single(i => i["type"].Value<string>() == "s")["url"].Value<string>());
+                    bigAttachmentImage = new Uri(sizes.Single(i => i["type"].Value<string>() == "q")["url"].Value<string>());
                 }
                 else
                 {
