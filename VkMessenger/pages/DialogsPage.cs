@@ -25,6 +25,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         public DialogsPage()
         {
             NavigationPage.SetHasNavigationBar(this, false);
+            SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
+            dialogsListView.ItemsSource = dialogs;
+            Content = dialogsListView;
 
             UpdateAll().ContinueWith(AfterInitialUpdate);
         }
@@ -43,7 +46,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
             else
             {
-                Setup();
+                dialogsListView.ItemTapped += OnDialogTapped;
+                LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
+                LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds);
+                LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
             }
         }
 
@@ -58,21 +64,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 dialogsListView.ScrollTo(firstDialog, ScrollToPosition.Center, false);
             }
         }*/
-
-        /// <summary>
-        /// Initial setup of page
-        /// </summary>
-        private void Setup()
-        {
-            SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
-            dialogsListView.ItemTapped += OnDialogTapped;
-            dialogsListView.ItemsSource = dialogs;
-            Content = dialogsListView;
-
-            LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
-            LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds);
-            LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
-        }
 
         /// <summary>
         /// Called on start or when long polling token outdated

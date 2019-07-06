@@ -37,8 +37,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         public MessagesPage(Dialog dialog)
         {
-            NavigationPage.SetHasNavigationBar(this, false);
             this.dialog = dialog;
+
+            NavigationPage.SetHasNavigationBar(this, false);
+            SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
+            messagesListView.ItemsSource = this.dialog.Messages;
+            verticalLayout.Children.Add(messagesListView);
+            verticalLayout.Children.Add(popupEntryView);
+            Content = verticalLayout;
 
             UpdateAll().ContinueWith(AfterInitialUpdate);
         }
@@ -57,25 +63,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
             else
             {
-                Setup();
+                messagesListView.ItemTapped += OnItemTapped;
+                messagesListView.ItemAppearing += LoadMoreMessages;
+                popupEntryView.Completed += OnTextCompleted;
+                LongPollingClient.OnMessageUpdate += OnMessageUpdate;
             }
-        }
-
-        /// <summary>
-        /// Initial setup of page
-        /// </summary>
-        private void Setup()
-        {
-            SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
-            messagesListView.ItemsSource = dialog.Messages;
-            messagesListView.ItemTapped += OnItemTapped;
-            messagesListView.ItemAppearing += LoadMoreMessages;
-            popupEntryView.Completed += OnTextCompleted;
-
-            verticalLayout.Children.Add(messagesListView);
-            verticalLayout.Children.Add(popupEntryView);
-            Content = verticalLayout;
-            LongPollingClient.OnMessageUpdate += OnMessageUpdate;
         }
 
         private void OnItemTapped(object sender, ItemTappedEventArgs e)
