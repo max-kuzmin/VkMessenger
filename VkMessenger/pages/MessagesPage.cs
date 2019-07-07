@@ -93,6 +93,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var refreshingPopup = new InformationPopup() { Text = "Loading messages..." };
             refreshingPopup.Show();
             var result = await dialog.Messages.Update(dialog.Id, 0, null);
+            await Scroll(dialog.Messages.LastOrDefault());
             refreshingPopup.Dismiss();
             return result;
         }
@@ -100,14 +101,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Scroll to most recent message
         /// </summary>
-        /*private void Scroll()
+        private async Task Scroll(Message itemToScroll)
         {
-            var firstMessage = dialog.Messages.FirstOrDefault();
-            if (firstMessage != null)
+            if (itemToScroll != null)
             {
-                messagesListView.ScrollTo(firstMessage, ScrollToPosition.Center, false);
+                await Task.Delay(100);
+                messagesListView.ScrollTo(itemToScroll, ScrollToPosition.Center, false);
+                await Task.Delay(100);
             }
-        }*/
+        }
 
         /// <summary>
         /// Load more messages when scroll reached the end of the page
@@ -116,10 +118,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <param name="e"></param>
         private async void LoadMoreMessages(object sender, ItemVisibilityEventArgs e)
         {
-            if (dialog.Messages.All(i => i.Id >= (e.Item as Message).Id))
+            var message = e.Item as Message;
+            if (dialog.Messages.All(i => i.Id >= message.Id))
             {
                 messagesListView.ItemAppearing -= LoadMoreMessages;
                 await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count, null);
+                await Scroll(message);
                 messagesListView.ItemAppearing += LoadMoreMessages;
             }
         }

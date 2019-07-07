@@ -56,14 +56,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Scroll to most recent dialog
         /// </summary>
-        /*private void Scroll()
+        private async Task Scroll()
         {
             var firstDialog = dialogs.FirstOrDefault();
             if (firstDialog != null)
             {
+                await Task.Delay(100);
                 dialogsListView.ScrollTo(firstDialog, ScrollToPosition.Center, false);
+                await Task.Delay(100);
             }
-        }*/
+        }
 
         /// <summary>
         /// Called on start or when long polling token outdated
@@ -75,6 +77,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var refreshingPopup = new InformationPopup() { Text = "Loading dialogs..." };
             refreshingPopup.Show();
             var result = await dialogs.Update(null);
+            await Scroll();
             refreshingPopup.Dismiss();
             return result;
         }
