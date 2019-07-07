@@ -56,14 +56,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Scroll to most recent dialog
         /// </summary>
-        private async Task Scroll()
+        private void Scroll()
         {
             var firstDialog = dialogs.FirstOrDefault();
             if (firstDialog != null)
             {
-                await Task.Delay(100);
                 dialogsListView.ScrollTo(firstDialog, ScrollToPosition.Center, false);
-                await Task.Delay(100);
             }
         }
 
@@ -77,7 +75,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var refreshingPopup = new InformationPopup() { Text = "Loading dialogs..." };
             refreshingPopup.Show();
             var result = await dialogs.Update(null);
-            await Scroll();
+            Scroll();
             refreshingPopup.Dismiss();
             return result;
         }

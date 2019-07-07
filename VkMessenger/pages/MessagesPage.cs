@@ -93,7 +93,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var refreshingPopup = new InformationPopup() { Text = "Loading messages..." };
             refreshingPopup.Show();
             var result = await dialog.Messages.Update(dialog.Id, 0, null);
-            await Scroll(dialog.Messages.LastOrDefault());
+            Scroll(dialog.Messages.LastOrDefault());
             refreshingPopup.Dismiss();
             return result;
         }
@@ -101,13 +101,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Scroll to most recent message
         /// </summary>
-        private async Task Scroll(Message itemToScroll)
+        private void Scroll(Message itemToScroll)
         {
             if (itemToScroll != null)
             {
-                await Task.Delay(100);
                 messagesListView.ScrollTo(itemToScroll, ScrollToPosition.Center, false);
-                await Task.Delay(100);
             }
         }
 
@@ -123,7 +121,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 messagesListView.ItemAppearing -= LoadMoreMessages;
                 await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count, null);
-                await Scroll(message);
+                Scroll(message);
                 messagesListView.ItemAppearing += LoadMoreMessages;
             }
         }
@@ -138,9 +136,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (items.Any())
             {
                 await dialog.Messages.Update(0, 0, items.Select(e => e.MessageId).ToArray());
+                new Feedback().Play(FeedbackType.Vibration, "Tap");
             }
-
-            new Feedback().Play(FeedbackType.Vibration, "Tap");
         }
 
         /// <summary>

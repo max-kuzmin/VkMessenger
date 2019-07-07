@@ -12,7 +12,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public ObservableCollection<Profile> Profiles { get; }
         public Group Group { get; }
         public Chat Chat { get; }
-        public ObservableCollection<Message> Messages { get; }
+        public CustomObservableCollection<Message> Messages { get; }
         public DialogType Type { get; }
         public uint UnreadCount { get; private set; }
         public string Text => Messages.LastOrDefault()?.Text?.Replace('\n', ' ') ?? string.Empty;
@@ -79,7 +79,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Chat = chat;
             UnreadCount = unreadCount;
 
-            Messages = new ObservableCollection<Message>(messages ?? Array.Empty<Message>());
+            Messages = new CustomObservableCollection<Message>(messages ?? Array.Empty<Message>());
             Messages.CollectionChanged += (s, e) =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));

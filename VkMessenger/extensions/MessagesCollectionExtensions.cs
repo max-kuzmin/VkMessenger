@@ -1,7 +1,6 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,7 +12,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// Update messages from API. Can be used during setup of page or with <see cref="LongPolling"/>
         /// </summary>
         /// <param name="messagesIds">Message id collection or null</param>
-        public static async Task<bool> Update(this ObservableCollection<Message> collection, int dialogId,
+        public static async Task<bool> Update(this CustomObservableCollection<Message> collection, int dialogId,
             uint offset, IReadOnlyCollection<uint> messagesIds)
         {
             var newMessages = await MessagesClient.GetMessages(dialogId, offset, messagesIds);
@@ -28,31 +27,36 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             return true;
         }
 
-        public static void AddUpdate(this ObservableCollection<Message> collection,
+        public static void AddUpdate(this CustomObservableCollection<Message> collection,
             IReadOnlyCollection<Message> newMessages)
         {
             lock (collection)
             {
-                foreach (var newMessage in newMessages.Reverse())
+                var smallestToAppendId = newMessages.Last().Id;
+                var biggestExistingId = collection.First().Id;
+                bool isOldMessages = biggestExistingId >= smallestToAppendId;
+
+                var toAppend = newMessages.ToList();
+                foreach (var newMessage in newMessages)
                 {
                     var foundMessage = collection.FirstOrDefault(m => m.Id == newMessage.Id);
                     if (foundMessage != null)
                     {
                         UpdateMessage(newMessage, foundMessage);
+                        toAppend.Remove(newMessage);
                     }
-                    else
-                    {
-                        var place = collection.Where(x => x.Id > newMessage.Id).FirstOrDefault();
-                        if (place == null)
-                        {
-                            collection.Add(newMessage);
-                        }
-                        else
-                        {
-                            newMessage.SetRead();
-                            collection.Insert(collection.IndexOf(place), newMessage);
-                        }
-                    }
+                }
+
+                if (isOldMessages)
+                {
+                    foreach (var newMessage in toAppend)
+                        newMessage.SetRead();
+                    collection.InsertRange(0, toAppend);
+                }
+                else
+                {
+                    foreach (var newMessage in toAppend)
+                        collection.Add(newMessage);
                 }
             }
         }
