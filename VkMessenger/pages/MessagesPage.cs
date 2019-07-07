@@ -97,6 +97,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             refreshingPopup.Dismiss();
             return result;
         }
+
         /// <summary>
         /// Scroll to most recent message
         /// </summary>
@@ -178,8 +179,22 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         protected override bool OnBackButtonPressed()
         {
+            messagesListView.ItemAppearing -= LoadMoreMessages;
             Navigation.PopAsync();
             return base.OnBackButtonPressed();
+        }
+
+        private bool initialAppearing = true;
+        protected override void OnAppearing()
+        {
+            if (!initialAppearing)
+            {
+                Scroll(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
+                messagesListView.ItemAppearing += LoadMoreMessages;
+            }
+            else initialAppearing = false;
+
+            base.OnAppearing();
         }
     }
 }
