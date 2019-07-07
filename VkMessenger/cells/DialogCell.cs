@@ -11,7 +11,9 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             HorizontalOptions = LayoutOptions.Start,
             Aspect = Aspect.AspectFit,
             HeightRequest = 75,
-            WidthRequest = 75
+            WidthRequest = 75,
+            LoadingPlaceholder = ImageSource.FromFile(
+                        Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/placeholder.png")
 
         };
         private Label text = new Label

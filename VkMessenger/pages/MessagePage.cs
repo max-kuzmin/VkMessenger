@@ -1,4 +1,5 @@
-﻿using ru.MaxKuzmin.VkMessenger.Models;
+﻿using FFImageLoading.Forms;
+using ru.MaxKuzmin.VkMessenger.Models;
 using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
@@ -56,7 +57,12 @@ namespace ru.MaxKuzmin.VkMessenger.pages
 
             foreach (var item in message.AttachmentImages)
             {
-                var image = new Image { Margin = new Thickness(0, 10, 0, 0) };
+                var image = new CachedImage
+                {
+                    Margin = new Thickness(0, 10, 0, 0),
+                    LoadingPlaceholder = ImageSource.FromFile(
+                        Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/placeholder.png")
+            };
                 image.Source = item;
                 wrapperLayout.Children.Add(image);
             }
