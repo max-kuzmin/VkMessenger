@@ -54,10 +54,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     collection.InsertRange(0, toAppend);
                 }
                 else
-                {
-                    foreach (var newMessage in toAppend)
-                        collection.Add(newMessage);
-                }
+                    collection.AddRange(toAppend);
             }
         }
 

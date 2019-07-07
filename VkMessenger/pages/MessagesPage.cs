@@ -93,19 +93,18 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var refreshingPopup = new InformationPopup() { Text = "Loading messages..." };
             refreshingPopup.Show();
             var result = await dialog.Messages.Update(dialog.Id, 0, null);
-            Scroll(dialog.Messages.LastOrDefault());
+            Scroll(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
             refreshingPopup.Dismiss();
             return result;
         }
-
         /// <summary>
         /// Scroll to most recent message
         /// </summary>
-        private void Scroll(Message itemToScroll)
+        private void Scroll(Message itemToScroll, ScrollToPosition type)
         {
             if (itemToScroll != null)
             {
-                messagesListView.ScrollTo(itemToScroll, ScrollToPosition.Center, false);
+                messagesListView.ScrollTo(itemToScroll, type, false);
             }
         }
 
@@ -117,12 +116,19 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void LoadMoreMessages(object sender, ItemVisibilityEventArgs e)
         {
             var message = e.Item as Message;
-            if (dialog.Messages.All(i => i.Id >= message.Id))
+            if (dialog.Messages.Count >= 20 && dialog.Messages.All(i => i.Id >= message.Id))
             {
+                // Temporary disable scroll and "load more" event
+                var tempRotaryFocus = RotaryFocusObject;
+                RotaryFocusObject = null;
                 messagesListView.ItemAppearing -= LoadMoreMessages;
+
                 await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count, null);
-                Scroll(message);
+                Scroll(message, ScrollToPosition.MakeVisible);
+
+                await Task.Delay(500);
                 messagesListView.ItemAppearing += LoadMoreMessages;
+                RotaryFocusObject = tempRotaryFocus;
             }
         }
 
