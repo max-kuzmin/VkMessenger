@@ -164,6 +164,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     if (json.ContainsKey("failed"))
                     {
                         LongPolling.Ts = null;
+                        OnMessageUpdate = null;
+                        OnDialogUpdate = null;
+                        OnUserStatusUpdate = null;
                         OnFullReset(null, null);
                     }
                     else

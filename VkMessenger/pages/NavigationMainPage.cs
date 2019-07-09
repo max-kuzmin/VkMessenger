@@ -11,17 +11,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             SetHasNavigationBar(this, false);
 
             if (Authorization.Token != null)
-                PushAsync(new DialogsPage());
+                Navigation.PushAsync(new DialogsPage());
             else
-            {
-                PushAsync(new AuthorizationPage());
+                Navigation.PushAsync(new AuthorizationPage());
 
-                LongPollingClient.OnFullReset += (s, e) =>
-                {
-                    Navigation.PopToRootAsync();
-                    PushAsync(new AuthorizationPage());
-                };
-            }
+            LongPollingClient.OnFullReset += async (s, e) =>
+            {
+                await Navigation.PopToRootAsync();
+                await Navigation.PushAsync(new DialogsPage());
+            };
         }
     }
 }
