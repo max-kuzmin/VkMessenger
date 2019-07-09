@@ -70,7 +70,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
         }
 
-        private void OnItemTapped(object sender, ItemTappedEventArgs e)
+        private async void OnItemTapped(object sender, ItemTappedEventArgs e)
         {
             var message = e.Item as Message;
             message.SetRead();
@@ -79,7 +79,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 || message.AttachmentImages.Any()
                 || message.AttachmentUri != null)
             {
-                Navigation.PushAsync(new MessagePage(message));
+                shouldScroll = false;
+                await Navigation.PushAsync(new MessagePage(message));
             }
         }
 
@@ -184,15 +185,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             return base.OnBackButtonPressed();
         }
 
-        private bool initialAppearing = true;
-        protected override void OnAppearing()
+        private bool shouldScroll = false;
+        protected override async void OnAppearing()
         {
-            if (!initialAppearing)
+            if (shouldScroll)
             {
                 Scroll(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
+                await Task.Delay(500);
                 messagesListView.ItemAppearing += LoadMoreMessages;
             }
-            else initialAppearing = false;
+            else shouldScroll = true;
 
             base.OnAppearing();
         }
