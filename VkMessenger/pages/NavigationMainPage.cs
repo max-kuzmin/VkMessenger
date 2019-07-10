@@ -17,8 +17,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             LongPollingClient.OnFullReset += async (s, e) =>
             {
+                Navigation.InsertPageBefore(new DialogsPage(), Navigation.NavigationStack[0]);
                 await Navigation.PopToRootAsync();
-                await Navigation.PushAsync(new DialogsPage());
             };
         }
     }
