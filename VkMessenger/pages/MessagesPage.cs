@@ -50,7 +50,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         }
 
         /// <summary>
-        /// If update unsuccessfull show error popup and retry
+        /// If update unsuccessful show error popup and retry
         /// </summary>
         private void AfterInitialUpdate(Task<bool> t)
         {
@@ -128,7 +128,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count, null);
                 Scroll(message, ScrollToPosition.MakeVisible);
 
-                await Task.Delay(500);
+                await Task.Delay(TimeSpan.FromSeconds(0.5)); //to prevent event activation
                 messagesListView.ItemAppearing += LoadMoreMessages;
                 RotaryFocusObject = tempRotaryFocus;
             }
@@ -139,7 +139,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async void OnMessageUpdate(object sender, MessageEventArgs args)
         {
-            var items = args.Data.Where(e => e.DialogId == dialog.Id);
+            var items = args.Data.Where(e => e.DialogId == dialog.Id).ToArray();
 
             if (items.Any())
             {
@@ -185,13 +185,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             return base.OnBackButtonPressed();
         }
 
-        private bool shouldScroll = false;
+        private bool shouldScroll;
         protected override async void OnAppearing()
         {
             if (shouldScroll)
             {
                 Scroll(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
-                await Task.Delay(500);
+                await Task.Delay(TimeSpan.FromSeconds(0.5)); //to prevent event activation
                 messagesListView.ItemAppearing += LoadMoreMessages;
             }
             else shouldScroll = true;

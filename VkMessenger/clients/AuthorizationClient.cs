@@ -7,7 +7,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class AuthorizationClient
     {
-        public static string GetAutorizeUri()
+        public static string GetAuthorizeUri()
         {
             return
                 "https://oauth.vk.com/authorize" +
@@ -32,7 +32,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             else return false;
         }
 
-        private async static Task GetPhoto()
+        private static async Task GetPhoto()
         {
             var url =
                 "https://api.vk.com/method/users.get" +

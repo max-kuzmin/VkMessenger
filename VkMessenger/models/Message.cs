@@ -15,7 +15,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public DateTime Date { get; }
         public Profile Profile { get; }
         public Group Group { get; }
-        public string FullText { get; private set; }
+        public string FullText { get; }
         public IReadOnlyCollection<ImageSource> AttachmentImages { get; }
         public Uri AttachmentUri { get; }
 

@@ -16,7 +16,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public DialogType Type { get; }
         public uint UnreadCount { get; private set; }
         public string Text => Messages.LastOrDefault()?.Text?.Replace('\n', ' ') ?? string.Empty;
-        public bool Online => Type == DialogType.User ? Profiles.First().Online : false;
+        public bool Online => Type == DialogType.User && Profiles.First().Online;
 
         public string Title
         {

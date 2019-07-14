@@ -82,7 +82,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var conversation = dialog["conversation"] ?? dialog;
 
             var dialogId = conversation["peer"]["id"].Value<int>();
-            var profile = profiles.Where(o => o["id"].Value<uint>() == dialogId).FirstOrDefault();
+            var profile = profiles.FirstOrDefault(o => o["id"].Value<uint>() == dialogId);
             if (profile != null)
             {
                 return ProfilesClient.FromJson(profile as JObject);
@@ -90,7 +90,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             else return null;
         }
 
-        public async static Task<IReadOnlyCollection<Dialog>> GetDialogs(IReadOnlyCollection<int> dialogIds)
+        public static async Task<IReadOnlyCollection<Dialog>> GetDialogs(IReadOnlyCollection<int> dialogIds)
         {
             try
             {
@@ -124,7 +124,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private async static Task<string> GetDialogsJson()
+        private static async Task<string> GetDialogsJson()
         {
             var url =
                 "https://api.vk.com/method/messages.getConversations" +
@@ -135,12 +135,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using (var client = new ProxiedWebClient())
             {
                 var json = await client.DownloadStringTaskAsync(url);
-                Logger.Debug(json.ToString());
+                Logger.Debug(json);
                 return json;
             }
         }
 
-        public async static Task<bool> MarkAsRead(int dialogId)
+        public static async Task<bool> MarkAsRead(int dialogId)
         {
             try
             {
@@ -164,7 +164,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private async static Task<string> GetDialogsJson(IReadOnlyCollection<int> dialogIds)
+        private static async Task<string> GetDialogsJson(IReadOnlyCollection<int> dialogIds)
         {
             var url =
                 "https://api.vk.com/method/messages.getConversationsById" +
@@ -176,7 +176,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using (var client = new ProxiedWebClient())
             {
                 var json = await client.DownloadStringTaskAsync(url);
-                Logger.Debug(json.ToString());
+                Logger.Debug(json);
                 return json;
             }
         }

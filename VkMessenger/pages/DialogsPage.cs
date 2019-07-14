@@ -14,7 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class DialogsPage : CirclePage
     {
-        private Dictionary<int, MessagesPage> messagesPages = new Dictionary<int, MessagesPage>();
+        private readonly Dictionary<int, MessagesPage> messagesPages = new Dictionary<int, MessagesPage>();
         private readonly ObservableCollection<Dialog> dialogs = new ObservableCollection<Dialog>();
 
         private readonly CircleListView dialogsListView = new CircleListView
@@ -33,7 +33,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         }
 
         /// <summary>
-        /// If update unsuccessfull show error popup and retry
+        /// If update unsuccessful show error popup and retry
         /// </summary>
         private void AfterInitialUpdate(Task<bool> t)
         {

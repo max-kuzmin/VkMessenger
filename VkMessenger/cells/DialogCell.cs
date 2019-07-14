@@ -6,7 +6,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 {
     public class DialogCell : ViewCell
     {
-        private CachedImage photo = new CachedImage
+        private readonly CachedImage photo = new CachedImage
         {
             HorizontalOptions = LayoutOptions.Start,
             Aspect = Aspect.AspectFit,
@@ -16,7 +16,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                         Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/placeholder.png")
 
         };
-        private Label text = new Label
+        private readonly Label text = new Label
         {
             VerticalOptions = LayoutOptions.Fill,
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
@@ -24,35 +24,35 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             LineBreakMode = LineBreakMode.TailTruncation,
             HeightRequest = 40
         };
-        private Label title = new Label
+        private readonly Label title = new Label
         {
             VerticalOptions = LayoutOptions.Fill,
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
             FontAttributes = FontAttributes.Bold,
             LineBreakMode = LineBreakMode.TailTruncation
         };
-        private Label unreadCount = new Label
+        private readonly Label unreadCount = new Label
         {
             VerticalOptions = LayoutOptions.Fill,
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
             FontAttributes = FontAttributes.Bold
         };
-        private Label onlineIndicator = new Label
+        private readonly Label onlineIndicator = new Label
         {
             VerticalOptions = LayoutOptions.Fill,
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
             TextColor = Color.LightGreen,
             FontAttributes = FontAttributes.Bold
         };
-        private StackLayout titleLayout = new StackLayout
+        private readonly StackLayout titleLayout = new StackLayout
         {
             Orientation = StackOrientation.Horizontal
         };
-        private StackLayout titleAndtextLayout = new StackLayout
+        private readonly StackLayout titleAndTextLayout = new StackLayout
         {
             Orientation = StackOrientation.Vertical
         };
-        private StackLayout wrapperLayout = new StackLayout
+        private readonly StackLayout wrapperLayout = new StackLayout
         {
             Orientation = StackOrientation.Horizontal,
             Padding = new Thickness(10, 5)
@@ -94,10 +94,10 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             titleLayout.Children.Add(title);
             titleLayout.Children.Add(unreadCount);
             titleLayout.Children.Add(onlineIndicator);
-            titleAndtextLayout.Children.Add(titleLayout);
-            titleAndtextLayout.Children.Add(text);
+            titleAndTextLayout.Children.Add(titleLayout);
+            titleAndTextLayout.Children.Add(text);
             wrapperLayout.Children.Add(photo);
-            wrapperLayout.Children.Add(titleAndtextLayout);
+            wrapperLayout.Children.Add(titleAndTextLayout);
             View = wrapperLayout;
         }
 

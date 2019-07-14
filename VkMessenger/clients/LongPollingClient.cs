@@ -20,13 +20,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         public static event EventHandler OnFullReset;
 
         private static TimeSpan currentRequestInterval = LongPolling.RequestInterval;
-        private static Timer timer = new Timer(new TimerCallback(
-            async (obj) => await MainLoop()),
+        private static readonly Timer timer = new Timer(
+            async obj => await MainLoop(),
             null,
             TimeSpan.FromMilliseconds(-1),
             TimeSpan.FromMilliseconds(-1));
 
-        private async static Task GetLongPollServer()
+        private static async Task GetLongPollServer()
         {
             var url =
                 "https://api.vk.com/method/messages.getLongPollServer" +
@@ -45,7 +45,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private async static Task<JObject> SendLongRequest()
+        private static async Task<JObject> SendLongRequest()
         {
             using (var client = new ProxiedWebClient())
             {
@@ -107,8 +107,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                             userStatusEventArgs.Data.Add(((uint)update[1].Value<int>(), false));
                             break;
                         }
-                    default:
-                        break;
                 }
             }
 

@@ -1,4 +1,5 @@
-﻿using ru.MaxKuzmin.VkMessenger.Clients;
+﻿using System;
+using ru.MaxKuzmin.VkMessenger.Clients;
 using System.Threading.Tasks;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
@@ -7,7 +8,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class AuthorizationPage : CirclePage
     {
-        WebView loginWebView = new WebView();
+        readonly WebView loginWebView = new WebView();
 
         public AuthorizationPage()
         {
@@ -18,7 +19,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void LoginCallback(object sender, WebNavigatedEventArgs e)
         {
-            await Task.Delay(1000);
+            await Task.Delay(TimeSpan.FromSeconds(2)); //wait page loading
             var url = (loginWebView.Source as UrlWebViewSource).Url;
             if (await AuthorizationClient.SetUserFromUrl(url))
             {
@@ -29,7 +30,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         protected override void OnAppearing()
         {
-            loginWebView.Source = AuthorizationClient.GetAutorizeUri();
+            loginWebView.Source = AuthorizationClient.GetAuthorizeUri();
             base.OnAppearing();
         }
     }

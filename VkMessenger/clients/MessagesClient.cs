@@ -15,7 +15,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
     {
         private static readonly MD5 md5Hasher = MD5.Create();
 
-        public async static Task<IReadOnlyCollection<Message>> GetMessages(int dialogId, uint offset, IReadOnlyCollection<uint> messagesIds)
+        public static async Task<IReadOnlyCollection<Message>> GetMessages(int dialogId, uint offset, IReadOnlyCollection<uint> messagesIds)
         {
             try
             {
@@ -79,9 +79,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             attachmentImages = new List<ImageSource>();
             attachmentUri = null;
 
-            var attachments = source["attachments"] as JArray;
-
-            if (attachments != null)
+            if (source["attachments"] is JArray attachments)
             {
                 foreach (var item in attachments)
                 {
@@ -101,7 +99,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 }
             }
 
-            var forwardMessages = (source["fwd_messages"] as JArray)?.Select(i => i["text"])?.ToArray();
+            var forwardMessages = (source["fwd_messages"] as JArray)?.Select(i => i["text"]).ToArray();
             if (forwardMessages != null)
             {
                 foreach (var item in forwardMessages)
@@ -112,7 +110,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private async static Task<string> GetMessagesJson(int dialogId, uint offset)
+        private static async Task<string> GetMessagesJson(int dialogId, uint offset)
         {
             var url =
                 "https://api.vk.com/method/messages.getHistory" +
@@ -125,12 +123,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using (var client = new ProxiedWebClient())
             {
                 var json = await client.DownloadStringTaskAsync(url);
-                Logger.Debug(json.ToString());
+                Logger.Debug(json);
                 return json;
             }
         }
 
-        public async static Task<bool> Send(string text, int dialogId)
+        public static async Task<bool> Send(string text, int dialogId)
         {
             try
             {
@@ -145,7 +143,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 using (var client = new ProxiedWebClient())
                 {
                     var json = await client.DownloadStringTaskAsync(url);
-                    Logger.Debug(json.ToString());
+                    Logger.Debug(json);
                     return true;
                 }
             }
@@ -156,7 +154,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private async static Task<string> GetMessagesJson(IReadOnlyCollection<uint> messagesIds)
+        private static async Task<string> GetMessagesJson(IReadOnlyCollection<uint> messagesIds)
         {
             var url =
                 "https://api.vk.com/method/messages.getById" +
@@ -168,7 +166,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using (var client = new ProxiedWebClient())
             {
                 var json = await client.DownloadStringTaskAsync(url);
-                Logger.Debug(json.ToString());
+                Logger.Debug(json);
                 return json;
             }
         }

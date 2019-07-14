@@ -6,19 +6,19 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 {
     public class MessageCell : ViewCell
     {
-        private CachedImage photo = new CachedImage
+        private readonly CachedImage photo = new CachedImage
         {
             Aspect = Aspect.AspectFit,
             HeightRequest = 40,
             WidthRequest = 40
         };
-        private Label text = new Label
+        private readonly Label text = new Label
         {
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             LineBreakMode = LineBreakMode.WordWrap,
             VerticalTextAlignment = TextAlignment.Center
         };
-        private StackLayout wrapperLayout = new StackLayout
+        private readonly StackLayout wrapperLayout = new StackLayout
         {
             Orientation = StackOrientation.Horizontal,
             Padding = new Thickness(10, 0),

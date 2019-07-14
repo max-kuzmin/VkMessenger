@@ -9,7 +9,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
     public class MessagePage : CirclePage
     {
         private readonly CircleScrollView scrollView = new CircleScrollView();
-        private StackLayout wrapperLayout = new StackLayout
+        private readonly StackLayout wrapperLayout = new StackLayout
         {
             Orientation = StackOrientation.Vertical,
             VerticalOptions = LayoutOptions.FillAndExpand
@@ -61,9 +61,9 @@ namespace ru.MaxKuzmin.VkMessenger.pages
                 {
                     Margin = new Thickness(0, 10, 0, 0),
                     LoadingPlaceholder = ImageSource.FromFile(
-                        Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/placeholder.png")
-            };
-                image.Source = item;
+                        Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/placeholder.png"),
+                    Source = item
+                };
                 wrapperLayout.Children.Add(image);
             }
 

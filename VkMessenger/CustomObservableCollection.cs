@@ -8,7 +8,7 @@ namespace ru.MaxKuzmin.VkMessenger
 {
     public class CustomObservableCollection<T> : Collection<T>, INotifyCollectionChanged, INotifyPropertyChanged
     {
-        public CustomObservableCollection() : base()
+        public CustomObservableCollection()
         {
         }
 

@@ -42,6 +42,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             photoSource = ImageSource.FromUri(new Uri(url));
         }
 
-        private static ImageSource photoSource = null;
+        private static ImageSource photoSource;
     }
 }
