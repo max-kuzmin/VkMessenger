@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using ru.MaxKuzmin.VkMessenger.Clients;
+﻿using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
 
@@ -19,15 +17,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             LongPollingClient.OnFullReset += async (s, e) =>
             {
-                var newPage = new DialogsPage();
-                await Navigation.PushAsync(newPage);
-                await Task.Delay(TimeSpan.FromSeconds(1)); //to prevent app closing
-
-                foreach (var page in Navigation.NavigationStack)
-                {
-                    if (page != newPage && page != this)
-                        Navigation.RemovePage(page);
-                }
+                await Navigation.PushAsync(new DialogsPage());
             };
         }
     }

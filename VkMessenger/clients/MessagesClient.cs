@@ -54,13 +54,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var dialogId = source["from_id"].Value<int>();
 
-            ParseAttachments(source, out string text,
+            ParseAttachments(source, out string text, out string fullText,
                 out IList<ImageSource> attachmentImages, out Uri attachmentUri);
 
             var result = new Message(
                 source["id"].Value<uint>(),
                 text,
-                source["text"].Value<string>(),
+                fullText,
                 new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc),
                 profiles?.FirstOrDefault(p => p.Id == dialogId),
                 groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)),
@@ -70,10 +70,22 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             return result;
         }
 
-        private static void ParseAttachments(JObject source, out string text,
+        private static void ParseAttachments(JObject source, out string text, out string fullText,
             out IList<ImageSource> attachmentImages, out Uri attachmentUri)
         {
             text = source["text"].Value<string>();
+
+            var forwardMessages = (source["fwd_messages"] as JArray)?.Select(i => i["text"]).ToArray();
+            if (forwardMessages != null)
+            {
+                foreach (var item in forwardMessages)
+                {
+                    if (text != string.Empty) text += "\n";
+                    text += $"\"{item.Value<string>()}\"";
+                }
+            }
+
+            fullText = text;
             text = text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text;
 
             attachmentImages = new List<ImageSource>();
@@ -96,16 +108,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                     if (text != string.Empty) text += "\n";
                     text += $"<{item["type"].Value<string>()}>";
-                }
-            }
-
-            var forwardMessages = (source["fwd_messages"] as JArray)?.Select(i => i["text"]).ToArray();
-            if (forwardMessages != null)
-            {
-                foreach (var item in forwardMessages)
-                {
-                    if (text != string.Empty) text += "\n";
-                    text += $"\"{item.Value<string>()}\"";
                 }
             }
         }
