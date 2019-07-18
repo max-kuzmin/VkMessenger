@@ -165,7 +165,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         OnMessageUpdate = null;
                         OnDialogUpdate = null;
                         OnUserStatusUpdate = null;
-                        OnFullReset(null, null);
+                        OnFullReset?.Invoke(null, null);
                     }
                     else
                     {
