@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -161,11 +162,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                     if (json.ContainsKey("failed"))
                     {
-                        LongPolling.Ts = null;
-                        OnMessageUpdate = null;
-                        OnDialogUpdate = null;
-                        OnUserStatusUpdate = null;
-                        OnFullReset?.Invoke(null, null);
+                        Reset();
                     }
                     else
                     {
@@ -179,6 +176,18 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
 
             timer.Change(currentRequestInterval, TimeSpan.FromMilliseconds(-1));
+        }
+
+        private static void Reset()
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                LongPolling.Ts = null;
+                OnMessageUpdate = null;
+                OnDialogUpdate = null;
+                OnUserStatusUpdate = null;
+                OnFullReset?.Invoke(null, null);
+            });
         }
     }
 }
