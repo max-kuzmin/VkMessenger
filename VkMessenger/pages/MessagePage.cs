@@ -29,7 +29,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             HorizontalTextAlignment = TextAlignment.Center,
             VerticalTextAlignment = TextAlignment.Center,
             Margin = new Thickness(30, 10, 30, 0),
-            TextColor = Color.Blue,
+            TextColor = Color.FromHex("6464ff"),
             TextDecorations = TextDecorations.Underline
         };
 
