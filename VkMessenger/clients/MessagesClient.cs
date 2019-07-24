@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using Group = ru.MaxKuzmin.VkMessenger.Models.Group;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -54,7 +56,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var dialogId = source["from_id"].Value<int>();
 
-            ParseAttachments(source, out string text, out string fullText,
+            ParseMessageBody(source, out string text, out string fullText,
                 out IList<ImageSource> attachmentImages, out Uri attachmentUri);
 
             var result = new Message(
@@ -70,23 +72,22 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             return result;
         }
 
-        private static void ParseAttachments(JObject source, out string text, out string fullText,
+        private static void ParseMessageBody(JObject source, out string text, out string fullText,
             out IList<ImageSource> attachmentImages, out Uri attachmentUri)
         {
-            text = source["text"].Value<string>();
+            fullText = source["text"].Value<string>();
 
             var forwardMessages = (source["fwd_messages"] as JArray)?.Select(i => i["text"]).ToArray();
             if (forwardMessages != null)
             {
                 foreach (var item in forwardMessages)
                 {
-                    if (text != string.Empty) text += "\n";
-                    text += $"\"{item.Value<string>()}\"";
+                    if (fullText != string.Empty) fullText += "\n";
+                    fullText += $"\"{item.Value<string>()}\"";
                 }
             }
 
-            fullText = text;
-            text = text.Length > Message.MaxLength ? text.Substring(0, Message.MaxLength) + "..." : text;
+            text = fullText.Length > Message.MaxLength ? fullText.Substring(0, Message.MaxLength) + "..." : fullText;
 
             attachmentImages = new List<ImageSource>();
             attachmentUri = null;
@@ -108,6 +109,16 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                     if (text != string.Empty) text += "\n";
                     text += $"<{item["type"].Value<string>()}>";
+                }
+            }
+
+
+            if (attachmentUri == null)
+            {
+                var match = Regex.Match(fullText, @"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
+                if (match != null && Uri.TryCreate(match.Value, UriKind.Absolute, out Uri parsed))
+                {
+                    attachmentUri = parsed;
                 }
             }
         }

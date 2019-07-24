@@ -9,9 +9,12 @@ namespace ru.MaxKuzmin.VkMessenger
     {
         private const string Tag = "VK";
         private const string Ip = "192.168.0.103:5100";
+        private static bool UseLogServer = false;
 
-        private static void Send(string level, string message)
+        private static void SendToLogServer(string level, string message)
         {
+            if (!UseLogServer) return;
+
             Task.Run(() =>
             {
                 try
@@ -27,7 +30,7 @@ namespace ru.MaxKuzmin.VkMessenger
         {
             Log.Info(Tag, text, file, caller, line);
 #if DEBUG
-            Send(nameof(Info), text);
+            SendToLogServer(nameof(Info), text);
 #endif
         }
 
@@ -36,7 +39,7 @@ namespace ru.MaxKuzmin.VkMessenger
 #if DEBUG
             var textWithoutEndLines = text.Replace('\n', ' ');
             Log.Debug(Tag, textWithoutEndLines, file, caller, line);
-            Send(nameof(Debug), textWithoutEndLines);
+            SendToLogServer(nameof(Debug), textWithoutEndLines);
 #endif
         }
 
@@ -44,7 +47,7 @@ namespace ru.MaxKuzmin.VkMessenger
         {
             Log.Error(Tag, e.ToString(), file, caller, line);
 #if DEBUG
-            Send(nameof(Error), e.ToString());
+            SendToLogServer(nameof(Error), e.ToString());
 #endif
         }
     }
