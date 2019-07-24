@@ -8,7 +8,7 @@
     <Authors>Max Kuzmin</Authors>
     <Company />
     <PackageId>ru.MaxKuzmin.VkMessenger</PackageId>
-    <Version>0.2.0</Version>
+    <Version>1.0</Version>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
