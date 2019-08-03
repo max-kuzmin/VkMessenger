@@ -8,7 +8,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class AuthorizationPage : CirclePage
     {
-        readonly WebView loginWebView = new WebView();
+        readonly WebView loginWebView = new WebView
+        {
+            Margin = new Thickness(50, 0, 50, 0)
+        };
 
         public AuthorizationPage()
         {
@@ -19,12 +22,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void LoginCallback(object sender, WebNavigatedEventArgs e)
         {
-            await Task.Delay(TimeSpan.FromSeconds(2)); //wait page loading
+            await Task.Delay(TimeSpan.FromSeconds(0.5)); //wait page loading
             var url = (loginWebView.Source as UrlWebViewSource).Url;
             if (await AuthorizationClient.SetUserFromUrl(url))
             {
                 loginWebView.Navigated -= LoginCallback;
-                await Navigation.PushAsync(new DialogsPage());
+                Navigation.InsertPageBefore(new DialogsPage(), Navigation.NavigationStack[0]);
+                await Navigation.PopToRootAsync();
             }
         }
 

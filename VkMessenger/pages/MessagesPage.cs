@@ -32,7 +32,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             HorizontalTextAlignment = TextAlignment.Center,
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             TextColor = Color.White,
-            PlaceholderColor = Color.Gray
+            PlaceholderColor = Color.Gray,
+            HeightRequest = 50
         };
 
         public MessagesPage(Dialog dialog)

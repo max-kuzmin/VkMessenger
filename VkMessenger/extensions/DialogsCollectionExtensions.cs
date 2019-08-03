@@ -37,15 +37,17 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     var foundDialog = collection.FirstOrDefault(m => m.Id == newDialog.Id);
                     if (foundDialog != null)
                     {
+                        var oldLastMessage = foundDialog.Messages.Last();
+
+                        UpdateDialog(newDialog, foundDialog);
+
                         // Move dialog to top, because it was updated
                         if (collection.IndexOf(foundDialog) != collection.Count - 1
-                            && newDialog.Messages.Last().Date > foundDialog.Messages.Last().Date)
+                            && oldLastMessage != foundDialog.Messages.Last())
                         {
                             collection.Remove(foundDialog);
                             collection.Insert(0, foundDialog);
                         }
-
-                        UpdateDialog(newDialog, foundDialog);
                     }
                     else
                     {
