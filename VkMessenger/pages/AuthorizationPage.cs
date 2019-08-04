@@ -22,7 +22,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void LoginCallback(object sender, WebNavigatedEventArgs e)
         {
-            await Task.Delay(TimeSpan.FromSeconds(0.5)); //wait page loading
+            await Task.Delay(TimeSpan.FromSeconds(0.5)); // Wait page loading
+
+            loginWebView.Eval("$('.FloatBtn').style.display = 'none'");
+
             var url = (loginWebView.Source as UrlWebViewSource).Url;
             if (await AuthorizationClient.SetUserFromUrl(url))
             {

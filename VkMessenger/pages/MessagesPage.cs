@@ -73,9 +73,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OnItemTapped(object sender, ItemTappedEventArgs e)
         {
-            var message = e.Item as Message;
-            message.SetRead();
+            await dialog.SetReadWithMessagesAndPublish();
 
+            var message = e.Item as Message;
             if (message.FullText.Length > Message.MaxLength
                 || message.AttachmentImages.Any()
                 || message.AttachmentUri != null)
@@ -95,20 +95,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var refreshingPopup = new InformationPopup() { Text = "Loading messages..." };
             refreshingPopup.Show();
             var result = await dialog.Messages.Update(dialog.Id, 0, null);
-            Scroll(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
+            messagesListView.ScrollIfExist(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
             refreshingPopup.Dismiss();
             return result;
-        }
-
-        /// <summary>
-        /// Scroll to most recent message
-        /// </summary>
-        private void Scroll(Message itemToScroll, ScrollToPosition type)
-        {
-            if (itemToScroll != null)
-            {
-                messagesListView.ScrollTo(itemToScroll, type, false);
-            }
         }
 
         /// <summary>
@@ -127,9 +116,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 messagesListView.ItemAppearing -= LoadMoreMessages;
 
                 await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count, null);
-                Scroll(message, ScrollToPosition.MakeVisible);
+                messagesListView.ScrollIfExist(message, ScrollToPosition.MakeVisible);
 
-                await Task.Delay(TimeSpan.FromSeconds(0.5)); //to prevent event activation
+                await Task.Delay(TimeSpan.FromSeconds(0.5)); // To prevent event activation
                 messagesListView.ItemAppearing += LoadMoreMessages;
                 RotaryFocusObject = tempRotaryFocus;
             }
@@ -154,9 +143,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async void OnTextCompleted(object sender, EventArgs args)
         {
-            dialog.SetReadWithMessages();
-
-            await DialogsClient.MarkAsRead(dialog.Id);
+            await dialog.SetReadWithMessagesAndPublish();
 
             var text = popupEntryView.Text;
             if (!string.IsNullOrEmpty(text))
@@ -191,8 +178,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             if (shouldScroll)
             {
-                Scroll(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
-                await Task.Delay(TimeSpan.FromSeconds(0.5)); //to prevent event activation
+                messagesListView.ScrollIfExist(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
+                await Task.Delay(TimeSpan.FromSeconds(0.5)); // To prevent event activation
                 messagesListView.ItemAppearing += LoadMoreMessages;
             }
             else shouldScroll = true;

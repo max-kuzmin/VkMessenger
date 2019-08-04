@@ -69,5 +69,19 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             foundDialog.Messages.AddUpdate(newDialog.Messages);
             foundDialog.SetUnreadCount(newDialog.UnreadCount);
         }
+
+        /// <summary>
+        /// Update user status in every dialog
+        /// </summary>
+        public static void SetOnline(this ObservableCollection<Dialog> dialogs, HashSet<(uint UserId, bool Status)> updates)
+        {
+            foreach (var dialog in dialogs)
+            {
+                foreach (var (UserId, Status) in updates)
+                {
+                    dialog.SetOnline(UserId, Status);
+                }
+            }
+        }
     }
 }
