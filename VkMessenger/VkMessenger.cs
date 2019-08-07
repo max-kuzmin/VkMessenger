@@ -1,6 +1,7 @@
 using FFImageLoading;
 using FFImageLoading.Config;
 using FFImageLoading.Forms.Platform;
+using FFImageLoading.Work;
 using System;
 using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms.Renderer;
@@ -19,8 +20,13 @@ namespace ru.MaxKuzmin.VkMessenger
 
             var config = new Configuration()
             {
-                ExecuteCallbacksOnUIThread = true,
+                AllowUpscale = false,
                 DataResolverFactory = new ProxiedDataResolverFactory(),
+                DecodingMaxParallelTasks = 1,
+                DownsampleInterpolationMode = InterpolationMode.None,
+                ExecuteCallbacksOnUIThread = true,
+                SchedulerMaxParallelTasks = 2,
+                MaxMemoryCacheSize = 1024 * 1024 * 8
 #if DEBUG
                 Logger = new FFImageLoadingLogger(),
                 VerboseLogging = true
