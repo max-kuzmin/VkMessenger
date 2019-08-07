@@ -94,7 +94,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             var refreshingPopup = new InformationPopup() { Text = "Loading messages..." };
             refreshingPopup.Show();
-            var result = await dialog.Messages.Update(dialog.Id, 0, null);
+            var result = await dialog.Messages.Update(dialog.Id);
             messagesListView.ScrollIfExist(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
             refreshingPopup.Dismiss();
             return result;
@@ -115,7 +115,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 RotaryFocusObject = null;
                 messagesListView.ItemAppearing -= LoadMoreMessages;
 
-                await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count, null);
+                await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count);
                 messagesListView.ScrollIfExist(message, ScrollToPosition.MakeVisible);
 
                 await Task.Delay(TimeSpan.FromSeconds(0.5)); // To prevent event activation
@@ -129,11 +129,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async void OnMessageUpdate(object sender, MessageEventArgs args)
         {
-            var items = args.Data.Where(e => e.DialogId == dialog.Id).ToArray();
+            var items = args.Data.Where(e => e.DialogId == dialog.Id).Select(e => e.MessageId).ToArray();
 
             if (items.Any())
             {
-                await dialog.Messages.Update(0, 0, items.Select(e => e.MessageId).ToArray());
+                await dialog.Messages.Update(dialog.Id, messagesIds: items);
                 new Feedback().Play(FeedbackType.Vibration, "Tap");
             }
         }

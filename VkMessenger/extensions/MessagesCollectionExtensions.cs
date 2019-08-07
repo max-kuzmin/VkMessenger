@@ -13,7 +13,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// </summary>
         /// <param name="messagesIds">Message id collection or null</param>
         public static async Task<bool> Update(this CustomObservableCollection<Message> collection, int dialogId,
-            uint offset, IReadOnlyCollection<uint> messagesIds)
+            uint? offset = null, IReadOnlyCollection<uint> messagesIds = null)
         {
             var newMessages = await MessagesClient.GetMessages(dialogId, offset, messagesIds);
             if (newMessages == null)

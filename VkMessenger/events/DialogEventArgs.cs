@@ -4,6 +4,6 @@ namespace ru.MaxKuzmin.VkMessenger.Events
 {
     public class DialogEventArgs
     {
-        public HashSet<int> DialogIds { get; set; } = new HashSet<int>();
+        public HashSet<int> DialogIds { get; } = new HashSet<int>();
     }
 }

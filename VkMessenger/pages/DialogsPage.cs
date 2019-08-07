@@ -61,7 +61,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             var refreshingPopup = new InformationPopup() { Text = "Loading dialogs..." };
             refreshingPopup.Show();
-            var result = await dialogs.Update(null);
+            var result = await dialogs.Update();
             dialogsListView.ScrollIfExist(dialogs.FirstOrDefault(), ScrollToPosition.Center);
             refreshingPopup.Dismiss();
             return result;

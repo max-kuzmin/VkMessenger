@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
@@ -90,11 +90,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             else return null;
         }
 
-        public static async Task<IReadOnlyCollection<Dialog>> GetDialogs(IReadOnlyCollection<int> dialogIds)
+        public static async Task<IReadOnlyCollection<Dialog>> GetDialogs(IReadOnlyCollection<int> dialogIds = null)
         {
             try
             {
-                Logger.Info($"Updating dialogs {JsonConvert.SerializeObject(dialogIds)}");
+                Logger.Info($"Updating dialogs {dialogIds.ToJson()}");
 
                 var json = JObject.Parse(dialogIds == null ?
                     await GetDialogsJson() :

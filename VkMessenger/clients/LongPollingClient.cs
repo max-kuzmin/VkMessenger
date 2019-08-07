@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Events;
+using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Linq;
@@ -113,21 +113,23 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             if (messageEventArgs.Data.Any())
             {
-                Logger.Info("Messages update: " +
-                    JsonConvert.SerializeObject(messageEventArgs.Data.Select(i => i.MessageId)));
-                OnMessageUpdate?.Invoke(null, messageEventArgs);
+                Logger.Info("Messages update: " + messageEventArgs.Data.Select(i => i.MessageId).ToJson());
+                Device.BeginInvokeOnMainThread(() =>
+                    OnMessageUpdate?.Invoke(null, messageEventArgs));
             }
+
             if (dialogEventArgs.DialogIds.Any())
             {
-                Logger.Info("Dialogs update: " +
-                    JsonConvert.SerializeObject(dialogEventArgs.DialogIds));
-                OnDialogUpdate?.Invoke(null, dialogEventArgs);
+                Logger.Info("Dialogs update: " + dialogEventArgs.DialogIds.ToJson());
+                Device.BeginInvokeOnMainThread(() =>
+                    OnDialogUpdate?.Invoke(null, dialogEventArgs));
             }
+
             if (userStatusEventArgs.Data.Any())
             {
-                Logger.Info("Online status changed for users: " +
-                    JsonConvert.SerializeObject(userStatusEventArgs.Data.Select(i => i.UserId)));
-                OnUserStatusUpdate?.Invoke(null, userStatusEventArgs);
+                Logger.Info("Online status changed for users: " + userStatusEventArgs.Data.Select(i => i.UserId).ToJson());
+                Device.BeginInvokeOnMainThread(() =>
+                    OnUserStatusUpdate?.Invoke(null, userStatusEventArgs));
             }
         }
 
@@ -180,14 +182,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         private static void Reset()
         {
+            LongPolling.Ts = null;
+            OnMessageUpdate = null;
+            OnDialogUpdate = null;
+            OnUserStatusUpdate = null;
+
             Device.BeginInvokeOnMainThread(() =>
-            {
-                LongPolling.Ts = null;
-                OnMessageUpdate = null;
-                OnDialogUpdate = null;
-                OnUserStatusUpdate = null;
-                OnFullReset?.Invoke(null, null);
-            });
+                OnFullReset?.Invoke(null, null));
         }
     }
 }

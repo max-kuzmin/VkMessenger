@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
@@ -17,11 +17,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
     {
         private static readonly MD5 md5Hasher = MD5.Create();
 
-        public static async Task<IReadOnlyCollection<Message>> GetMessages(int dialogId, uint offset, IReadOnlyCollection<uint> messagesIds)
+        public static async Task<IReadOnlyCollection<Message>> GetMessages(
+            int dialogId, uint? offset = null, IReadOnlyCollection<uint> messagesIds = null)
         {
             try
             {
-                Logger.Info($"Updating messages {JsonConvert.SerializeObject(messagesIds)} in dialog {dialogId}");
+                Logger.Info($"Updating messages {messagesIds.ToJson()} in dialog {dialogId}");
 
                 var json = JObject.Parse(messagesIds != null ?
                     await GetMessagesJson(messagesIds) :
@@ -123,13 +124,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private static async Task<string> GetMessagesJson(int dialogId, uint offset)
+        private static async Task<string> GetMessagesJson(int dialogId, uint? offset = null)
         {
             var url =
                 "https://api.vk.com/method/messages.getHistory" +
                 "?v=5.92" +
                 "&extended=1" +
-                "&offset=" + offset +
+                "&offset=" + offset ?? 0 +
                 "&peer_id=" + dialogId +
                 "&access_token=" + Authorization.Token;
 
