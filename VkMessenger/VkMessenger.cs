@@ -5,6 +5,7 @@ using FFImageLoading.Work;
 using System;
 using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms.Renderer;
+using Xamarin.Forms;
 using Xamarin.Forms.Platform.Tizen;
 
 namespace ru.MaxKuzmin.VkMessenger
@@ -26,7 +27,7 @@ namespace ru.MaxKuzmin.VkMessenger
                 DownsampleInterpolationMode = InterpolationMode.None,
                 ExecuteCallbacksOnUIThread = true,
                 SchedulerMaxParallelTasks = 2,
-                MaxMemoryCacheSize = 1024 * 1024 * 8
+                MaxMemoryCacheSize = 1024 * 1024 * 8,
 #if DEBUG
                 Logger = new FFImageLoadingLogger(),
                 VerboseLogging = true
