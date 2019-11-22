@@ -2,10 +2,10 @@
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -28,41 +28,38 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
 
-            UpdateAll().ContinueWith(AfterInitialUpdate);
+            Appearing += UpdateAll;
         }
 
         /// <summary>
-        /// If update unsuccessful show error popup and retry
+        /// Called on start. If update unsuccessful show error popup and retry
         /// </summary>
-        private void AfterInitialUpdate(Task<bool> t)
+        private async void UpdateAll(object s, EventArgs e)
         {
-            if (!t.Result)
+            Appearing -= UpdateAll;
+
+            var refreshingPopup = new InformationPopup { Text = "Loading dialogs..." };
+            refreshingPopup.Show();
+
+
+            if (await dialogs.Update())
             {
-                new RetryInformationPopup(
-                    "Can't load dialogs. No internet connection",
-                    async () => await UpdateAll().ContinueWith(AfterInitialUpdate))
-                    .Show();
-            }
-            else
-            {
+                dialogsListView.ScrollIfExist(dialogs.FirstOrDefault(), ScrollToPosition.Center);
+
                 dialogsListView.ItemTapped += OnDialogTapped;
                 LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
                 LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds);
                 LongPollingClient.OnUserStatusUpdate += (s, e) => dialogs.SetOnline(e.Data);
             }
-        }
+            else
+            {
+                new RetryInformationPopup(
+                    "Can't load dialogs. No internet connection",
+                    () => UpdateAll(null, null))
+                    .Show();
+            }
 
-        /// <summary>
-        /// Called on start or when long polling token outdated
-        /// </summary>
-        private async Task<bool> UpdateAll()
-        {
-            var refreshingPopup = new InformationPopup { Text = "Loading dialogs..." };
-            refreshingPopup.Show();
-            var result = await dialogs.Update();
-            dialogsListView.ScrollIfExist(dialogs.FirstOrDefault(), ScrollToPosition.Center);
             refreshingPopup.Dismiss();
-            return result;
         }
 
         /// <summary>

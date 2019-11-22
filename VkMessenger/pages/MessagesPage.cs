@@ -17,6 +17,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     {
         private readonly StackLayout verticalLayout = new StackLayout();
         private readonly Dialog dialog;
+        private bool shouldScroll;
 
         private readonly CircleListView messagesListView = new CircleListView
         {
@@ -47,28 +48,37 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
 
-            UpdateAll().ContinueWith(AfterInitialUpdate);
+            Appearing += UpdateAll;
         }
 
         /// <summary>
-        /// If update unsuccessful show error popup and retry
+        /// Called on start. If update unsuccessful show error popup and retry
         /// </summary>
-        private void AfterInitialUpdate(Task<bool> t)
+        private async void UpdateAll(object s, EventArgs e)
         {
-            if (!t.Result)
+            Appearing -= UpdateAll;
+
+            var refreshingPopup = new InformationPopup { Text = "Loading messages..." };
+            refreshingPopup.Show();
+
+            if (await dialog.Messages.Update(dialog.Id))
             {
-                new RetryInformationPopup(
-                    "Can't load messages. No internet connection",
-                    async () => await UpdateAll().ContinueWith(AfterInitialUpdate))
-                    .Show();
-            }
-            else
-            {
+                messagesListView.ScrollIfExist(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
+
                 messagesListView.ItemTapped += OnItemTapped;
                 messagesListView.ItemAppearing += LoadMoreMessages;
                 popupEntryView.Completed += OnTextCompleted;
                 LongPollingClient.OnMessageUpdate += OnMessageUpdate;
             }
+            else
+            {
+                new RetryInformationPopup(
+                    "Can't load messages. No internet connection",
+                    () => UpdateAll(null, null))
+                    .Show();
+            }
+
+            refreshingPopup.Dismiss();
         }
 
         private async void OnItemTapped(object sender, ItemTappedEventArgs e)
@@ -83,19 +93,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 shouldScroll = false;
                 await Navigation.PushAsync(new MessagePage(message));
             }
-        }
-
-        /// <summary>
-        /// Called on start or when long polling token outdated
-        /// </summary>
-        private async Task<bool> UpdateAll()
-        {
-            var refreshingPopup = new InformationPopup { Text = "Loading messages..." };
-            refreshingPopup.Show();
-            var result = await dialog.Messages.Update(dialog.Id);
-            messagesListView.ScrollIfExist(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
-            refreshingPopup.Dismiss();
-            return result;
         }
 
         /// <summary>
@@ -171,7 +168,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             return base.OnBackButtonPressed();
         }
 
-        private bool shouldScroll;
         protected override async void OnAppearing()
         {
             if (shouldScroll)
