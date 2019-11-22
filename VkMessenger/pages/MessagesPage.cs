@@ -41,7 +41,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             this.dialog = dialog;
 
             NavigationPage.SetHasNavigationBar(this, false);
-            SetBinding(RotaryFocusObjectProperty, new Binding() { Source = messagesListView });
+            SetBinding(RotaryFocusObjectProperty, new Binding { Source = messagesListView });
             messagesListView.ItemsSource = this.dialog.Messages;
             verticalLayout.Children.Add(messagesListView);
             verticalLayout.Children.Add(popupEntryView);
@@ -90,7 +90,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async Task<bool> UpdateAll()
         {
-            var refreshingPopup = new InformationPopup() { Text = "Loading messages..." };
+            var refreshingPopup = new InformationPopup { Text = "Loading messages..." };
             refreshingPopup.Show();
             var result = await dialog.Messages.Update(dialog.Id);
             messagesListView.ScrollIfExist(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);

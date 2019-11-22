@@ -24,7 +24,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         public DialogsPage()
         {
             NavigationPage.SetHasNavigationBar(this, false);
-            SetBinding(RotaryFocusObjectProperty, new Binding() { Source = dialogsListView });
+            SetBinding(RotaryFocusObjectProperty, new Binding { Source = dialogsListView });
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
 
@@ -57,7 +57,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async Task<bool> UpdateAll()
         {
-            var refreshingPopup = new InformationPopup() { Text = "Loading dialogs..." };
+            var refreshingPopup = new InformationPopup { Text = "Loading dialogs..." };
             refreshingPopup.Show();
             var result = await dialogs.Update();
             dialogsListView.ScrollIfExist(dialogs.FirstOrDefault(), ScrollToPosition.Center);

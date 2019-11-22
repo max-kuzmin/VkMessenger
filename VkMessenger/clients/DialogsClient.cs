@@ -77,19 +77,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             return result;
         }
 
-        private static Profile GetFriend(JObject dialog, JArray profiles)
-        {
-            var conversation = dialog["conversation"] ?? dialog;
-
-            var dialogId = conversation["peer"]["id"].Value<int>();
-            var profile = profiles.FirstOrDefault(o => o["id"].Value<uint>() == dialogId);
-            if (profile != null)
-            {
-                return ProfilesClient.FromJson(profile as JObject);
-            }
-            else return null;
-        }
-
         public static async Task<IReadOnlyCollection<Dialog>> GetDialogs(IReadOnlyCollection<int> dialogIds = null)
         {
             try

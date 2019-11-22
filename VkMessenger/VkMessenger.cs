@@ -19,7 +19,7 @@ namespace ru.MaxKuzmin.VkMessenger
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
                 Logger.Error(e.ExceptionObject as Exception);
 
-            var config = new Configuration()
+            var config = new Configuration
             {
                 AllowUpscale = false,
                 DataResolverFactory = new ProxiedDataResolverFactory(),
