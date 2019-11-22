@@ -26,7 +26,7 @@ namespace ru.MaxKuzmin.VkMessenger
                 DecodingMaxParallelTasks = 1,
                 DownsampleInterpolationMode = InterpolationMode.None,
                 ExecuteCallbacksOnUIThread = true,
-                SchedulerMaxParallelTasks = 2,
+                SchedulerMaxParallelTasks = 1,
                 MaxMemoryCacheSize = 1024 * 1024 * 8,
 #if DEBUG
                 Logger = new FFImageLoadingLogger(),
