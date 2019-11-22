@@ -55,8 +55,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Called on start or when long polling token outdated
         /// </summary>
-        /// <param name="s"></param>
-        /// <param name="e"></param>
         private async Task<bool> UpdateAll()
         {
             var refreshingPopup = new InformationPopup() { Text = "Loading dialogs..." };

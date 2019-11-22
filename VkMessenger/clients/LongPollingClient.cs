@@ -42,7 +42,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 LongPolling.Key = json["response"]["key"].Value<string>();
                 LongPolling.Server = json["response"]["server"].Value<string>();
-                LongPolling.Ts = LongPolling.Ts ?? json["response"]["ts"].Value<uint>();
+                LongPolling.Ts ??= json["response"]["ts"].Value<uint>();
             }
         }
 

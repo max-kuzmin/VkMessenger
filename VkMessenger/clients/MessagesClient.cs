@@ -15,7 +15,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class MessagesClient
     {
-        private static readonly MD5 md5Hasher = MD5.Create();
+        private static readonly MD5 Md5Hasher = MD5.Create();
 
         public static async Task<IReadOnlyCollection<Message>> GetMessages(
             int dialogId, uint? offset = null, IReadOnlyCollection<uint> messagesIds = null)
@@ -117,7 +117,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             if (attachmentUri == null)
             {
                 var match = Regex.Match(fullText, @"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
-                if (match != null && Uri.TryCreate(match.Value, UriKind.Absolute, out Uri parsed))
+                if (Uri.TryCreate(match.Value, UriKind.Absolute, out Uri parsed))
                 {
                     attachmentUri = parsed;
                 }
@@ -130,7 +130,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "https://api.vk.com/method/messages.getHistory" +
                 "?v=5.92" +
                 "&extended=1" +
-                "&offset=" + offset ?? 0 +
+                "&offset=" + (offset ?? 0) +
                 "&peer_id=" + dialogId +
                 "&access_token=" + Authorization.Token;
 
@@ -149,7 +149,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var url =
                     "https://api.vk.com/method/messages.send" +
                     "?v=5.92" +
-                    "&random_id=" + BitConverter.ToInt32(md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(text)), 0) +
+                    "&random_id=" + BitConverter.ToInt32(Md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(text)), 0) +
                     "&peer_id=" + dialogId +
                     "&message=" + text +
                     "&access_token=" + Authorization.Token;

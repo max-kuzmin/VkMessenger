@@ -77,9 +77,9 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         {
             foreach (var dialog in dialogs)
             {
-                foreach (var (UserId, Status) in updates)
+                foreach (var (userId, status) in updates)
                 {
-                    dialog.SetOnline(UserId, Status);
+                    dialog.SetOnline(userId, status);
                 }
             }
         }
