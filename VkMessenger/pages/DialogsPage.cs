@@ -34,7 +34,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Called on start. If update unsuccessful show error popup and retry
         /// </summary>
-        private async void UpdateAll(object s, EventArgs e)
+        private async void UpdateAll(object sender, EventArgs args)
         {
             Appearing -= UpdateAll;
 
