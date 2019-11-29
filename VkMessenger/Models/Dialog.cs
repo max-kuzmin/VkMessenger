@@ -80,7 +80,10 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Chat = chat;
             UnreadCount = unreadCount;
 
-            Messages = new CustomObservableCollection<Message>(messages ?? Array.Empty<Message>());
+            Messages = messages == null
+                ? new CustomObservableCollection<Message>()
+                : new CustomObservableCollection<Message>(messages);
+
             Messages.CollectionChanged += (s, e) =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));

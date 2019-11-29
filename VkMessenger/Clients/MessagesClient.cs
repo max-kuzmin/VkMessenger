@@ -28,9 +28,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 Logger.Info($"Updating messages {messagesIds.ToJson()} in dialog {dialogId}");
 
-                var json = JObject.Parse(messagesIds != null ?
-                    await GetMessagesJson(messagesIds) :
-                    await GetMessagesJson(dialogId, offset));
+                var json = JObject.Parse(messagesIds != null
+                    ? await GetMessagesJson(messagesIds)
+                    : await GetMessagesJson(dialogId, offset));
 
                 var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
                 var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
@@ -99,7 +99,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 }
             }
 
-            text = fullText.Length > Message.MaxLength ? fullText.Substring(0, Message.MaxLength) + "..." : fullText;
+            text = fullText.Length > Message.MaxLength
+                ? fullText.Substring(0, Message.MaxLength) + "..."
+                : fullText;
 
             var attachmentImagesList = new List<ImageSource>();
             attachmentImages = attachmentImagesList;

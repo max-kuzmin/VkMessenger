@@ -40,9 +40,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var dialogType = Enum.Parse<DialogType>(conversation["peer"]["type"].Value<string>(), true);
             var unreadCount = conversation["unread_count"]?.Value<uint>() ?? 0u;
 
-            var lastMessage = new[] { dialog.ContainsKey("last_message") ?
-                MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups) :
-                lastMessages.First(e => e.Id == dialog["last_message_id"].Value<uint>()) };
+            var lastMessage = new[] { dialog.ContainsKey("last_message")
+                ? MessagesClient.FromJson(dialog["last_message"] as JObject, profiles, groups)
+                : lastMessages.First(e => e.Id == dialog["last_message_id"].Value<uint>()) };
 
             Dialog result = null;
 
@@ -63,8 +63,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 {
                     Title = chatSettings["title"].Value<string>(),
                     Id = (uint)dialogId,
-                    Photo = chatSettings["photo"] != null ?
-                        ImageSource.FromUri(new Uri(chatSettings["photo"]["photo_50"].Value<string>())) : null
+                    Photo = chatSettings["photo"] != null
+                    ? ImageSource.FromUri(new Uri(chatSettings["photo"]["photo_50"].Value<string>()))
+                    : null
                 };
 
                 var dialogProfiles = new List<Profile>();
@@ -85,9 +86,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 Logger.Info($"Updating dialogs {dialogIds.ToJson()}");
 
-                var json = JObject.Parse(dialogIds == null ?
-                    await GetDialogsJson() :
-                    await GetDialogsJson(dialogIds));
+                var json = JObject.Parse(dialogIds == null
+                    ? await GetDialogsJson()
+                    : await GetDialogsJson(dialogIds));
 
                 var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
                 var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
@@ -101,9 +102,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         lastMessagesIds.Add(item["last_message_id"].Value<uint>());
                     }
                 }
-                var lastMessages = lastMessagesIds.Any() ?
-                    await MessagesClient.GetMessages(0, 0, lastMessagesIds) :
-                    Array.Empty<Message>();
+                var lastMessages = lastMessagesIds.Any()
+                    ? await MessagesClient.GetMessages(0, 0, lastMessagesIds)
+                    : Array.Empty<Message>();
 
                 return FromJsonArray(json["response"]["items"] as JArray, profiles, groups, lastMessages);
             }
