@@ -22,7 +22,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             VerticalTextAlignment = TextAlignment.Center,
             Margin = new Thickness(30, 70, 30, 0)
         };
-        private readonly Label uri = new Label
+        private Label CreateUri(string text) => new Label
         {
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             LineBreakMode = LineBreakMode.WordWrap,
@@ -30,7 +30,16 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             VerticalTextAlignment = TextAlignment.Center,
             Margin = new Thickness(30, 10, 30, 0),
             TextColor = CustomColors.BrightBlue,
-            TextDecorations = TextDecorations.Underline
+            TextDecorations = TextDecorations.Underline,
+            Text = text
+        };
+
+        private CachedImage CreateImage(ImageSource source) => new CachedImage
+        {
+            Margin = new Thickness(0, 10, 0, 0),
+            LoadingPlaceholder = ImageSource.FromFile(
+                Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/Placeholder.png"),
+            Source = source
         };
 
         public MessagePage(Message message)
@@ -40,9 +49,9 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             text.Text = message.FullText;
             wrapperLayout.Children.Add(text);
 
-            if (message.AttachmentUri != null)
+            foreach (var item in message.AttachmentUris)
             {
-                uri.Text = message.AttachmentUri.ToString();
+                var uri = CreateUri(item.ToString());
                 wrapperLayout.Children.Add(uri);
 
                 var tapGestureRecognizer = new TapGestureRecognizer();
@@ -50,20 +59,14 @@ namespace ru.MaxKuzmin.VkMessenger.pages
                     AppControl.SendLaunchRequest(new AppControl
                     {
                         Operation = AppControlOperations.View,
-                        Uri = message.AttachmentUri.ToString()
+                        Uri = item.ToString()
                     });
                 uri.GestureRecognizers.Add(tapGestureRecognizer);
             }
 
             foreach (var item in message.AttachmentImages)
             {
-                var image = new CachedImage
-                {
-                    Margin = new Thickness(0, 10, 0, 0),
-                    LoadingPlaceholder = ImageSource.FromFile(
-                        Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/Placeholder.png"),
-                    Source = item
-                };
+                var image = CreateImage(item);
                 wrapperLayout.Children.Add(image);
             }
 

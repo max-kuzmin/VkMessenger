@@ -63,79 +63,62 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups)
         {
-            var dialogId = source["from_id"].Value<int>();
+            var dialogId = (uint)source["from_id"].Value<int>();
+            var messageId = source["id"].Value<uint>();
+            var date = new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc);
+            var fullText = source["text"].Value<string>();
 
-            ParseMessageBody(source, out var text, out var fullText, out var attachmentImages, out var attachmentUri);
-
-            var result = new Message(
-                source["id"].Value<uint>(),
-                text,
-                fullText,
-                new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc),
-                profiles?.FirstOrDefault(p => p.Id == dialogId),
-                groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)),
-                attachmentImages,
-                attachmentUri);
-
-            return result;
-        }
-
-        private static void ParseMessageBody(
-            JObject source,
-            out string text,
-            out string fullText,
-            out IReadOnlyCollection<ImageSource> attachmentImages,
-            out Uri attachmentUri)
-        {
-            fullText = source["text"].Value<string>();
-
-            var forwardMessages = (source["fwd_messages"] as JArray)?.Select(i => i["text"]).ToArray();
-            if (forwardMessages != null)
-            {
-                foreach (var item in forwardMessages)
-                {
-                    if (fullText != string.Empty) fullText += "\n";
-                    fullText += $"\"{item.Value<string>()}\"";
-                }
-            }
-
-            text = fullText.Length > Message.MaxLength
-                ? fullText.Substring(0, Message.MaxLength) + "..."
-                : fullText;
-
-            var attachmentImagesList = new List<ImageSource>();
-            attachmentImages = attachmentImagesList;
-            attachmentUri = null;
+            var forwardedMessages = (source["fwd_messages"] as JArray)?.Select(i => i["text"].Value<string>()).ToArray();
+            var attachmentImages = new List<ImageSource>();
+            var attachmentUris = new List<Uri>();
+            var otherAttachments = new List<string>();
 
             if (source["attachments"] is JArray attachments)
             {
                 foreach (var item in attachments)
                 {
-                    if (item["type"].Value<string>() == "photo")
+                    switch (item["type"].Value<string>())
                     {
-                        attachmentImagesList
-                            .Add(new Uri(item["photo"]["sizes"]
-                            .Single(i => i["type"].Value<string>() == "q")["url"].Value<string>()));
-                    }
-                    else if (attachmentUri == null && item["type"].Value<string>() == "link")
-                    {
-                        attachmentUri = new Uri(item["link"]["url"].Value<string>());
-                    }
+                        case "photo":
+                            attachmentImages
+                                .Add(new Uri(item["photo"]["sizes"]
+                                .Single(i => i["type"].Value<string>() == "q")["url"].Value<string>()));
+                            break;
 
-                    if (text != string.Empty) text += "\n";
-                    text += $"<{item["type"].Value<string>()}>";
+                        case "link":
+                            attachmentUris.Add(new Uri(item["link"]["url"].Value<string>()));
+                            break;
+
+                        default:
+                            otherAttachments.Add(item["type"].Value<string>());
+                            break;
+                    }
                 }
             }
 
 
-            if (attachmentUri == null)
+            if (!attachmentUris.Any())
             {
-                var match = Regex.Match(fullText, @"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
-                if (Uri.TryCreate(match.Value, UriKind.Absolute, out Uri parsed))
+                var matches = Regex.Matches(fullText, @"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
+                foreach (Match match in matches)
                 {
-                    attachmentUri = parsed;
+                    if (Uri.TryCreate(match.Value, UriKind.Absolute, out Uri parsed))
+                    {
+                        attachmentUris.Add(parsed);
+                    }
                 }
             }
+
+            return new Message(
+                messageId,
+                fullText,
+                date,
+                profiles?.FirstOrDefault(p => p.Id == dialogId),
+                groups?.FirstOrDefault(p => p.Id == dialogId),
+                attachmentImages,
+                attachmentUris,
+                forwardedMessages,
+                otherAttachments);
         }
 
         private static async Task<string> GetMessagesJson(int dialogId, uint? offset = null)

@@ -7,7 +7,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 {
     public class Message : INotifyPropertyChanged
     {
-        public const int MaxLength = 150;
+        private const int MaxLength = 150;
 
         public uint Id { get; }
         public string Text { get; private set; }
@@ -17,7 +17,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public Group Group { get; }
         public string FullText { get; }
         public IReadOnlyCollection<ImageSource> AttachmentImages { get; }
-        public Uri AttachmentUri { get; }
+        public IReadOnlyCollection<Uri> AttachmentUris { get; }
 
         public int SenderId
         {
@@ -39,18 +39,40 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Message(uint id, string text, string fullText, DateTime date, Profile profile, Group group,
-            IReadOnlyCollection<ImageSource> attachmentImages, Uri attachmentUri)
+        public Message(
+            uint id,
+            string fullText,
+            DateTime date,
+            Profile profile,
+            Group group,
+            IReadOnlyCollection<ImageSource> attachmentImages,
+            IReadOnlyCollection<Uri> attachmentUris,
+            IReadOnlyCollection<string> forwardedMessages,
+            IReadOnlyCollection<string> otherAttachments)
         {
             Id = id;
-            Text = text;
-            FullText = fullText;
             Date = date;
             Group = group;
             Profile = profile;
             AttachmentImages = attachmentImages;
-            AttachmentUri = attachmentUri;
+            AttachmentUris = attachmentUris;
             Read = Profile?.Id == Authorization.UserId;
+
+            foreach (var forwarded in forwardedMessages)
+            {
+               fullText += $"\n \"{forwarded}\"";
+            }
+
+            foreach (var other in otherAttachments)
+            {
+                fullText += $"\n📎 {other}";
+            }
+
+
+            FullText = fullText;
+            Text = fullText.Length > MaxLength
+                ? fullText.Substring(0, MaxLength) + "..."
+                : fullText;
         }
 
         public void SetRead()
