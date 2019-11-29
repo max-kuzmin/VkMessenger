@@ -4,6 +4,6 @@ namespace ru.MaxKuzmin.VkMessenger.Events
 {
     public class UserStatusEventArgs
     {
-        public HashSet<(uint UserId, bool Status)> Data { get; } = new HashSet<(uint, bool)>();
+        public ISet<(uint UserId, bool Status)> Data { get; } = new HashSet<(uint, bool)>();
     }
 }

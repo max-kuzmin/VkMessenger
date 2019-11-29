@@ -1,4 +1,5 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Collections;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,11 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// Update messages from API. Can be used during setup of page or with <see cref="LongPolling"/>
         /// </summary>
         /// <param name="messagesIds">Message id collection or null</param>
-        public static async Task<bool> Update(this CustomObservableCollection<Message> collection, int dialogId,
-            uint? offset = null, IReadOnlyCollection<uint> messagesIds = null)
+        public static async Task<bool> Update(
+            this CustomObservableCollection<Message> collection,
+            int dialogId,
+            uint? offset = null,
+            IReadOnlyCollection<uint> messagesIds = null)
         {
             var newMessages = await MessagesClient.GetMessages(dialogId, offset, messagesIds);
             if (newMessages == null)
@@ -27,7 +31,8 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             return true;
         }
 
-        public static void AddUpdate(this CustomObservableCollection<Message> collection,
+        public static void AddUpdate(
+            this CustomObservableCollection<Message> collection,
             IReadOnlyCollection<Message> newMessages)
         {
             lock (collection)

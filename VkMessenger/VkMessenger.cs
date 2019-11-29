@@ -2,6 +2,8 @@ using FFImageLoading;
 using FFImageLoading.Config;
 using FFImageLoading.Forms.Platform;
 using FFImageLoading.Work;
+using ru.MaxKuzmin.VkMessenger.Loggers;
+using ru.MaxKuzmin.VkMessenger.Net;
 using System;
 using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms.Renderer;

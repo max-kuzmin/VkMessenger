@@ -8,7 +8,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class GroupsClient
     {
-        public static Group FromJson(JObject group)
+        private static Group FromJson(JObject group)
         {
             return new Group
             {

@@ -12,12 +12,14 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             HeightRequest = 40,
             WidthRequest = 40
         };
+
         private readonly Label text = new Label
         {
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             LineBreakMode = LineBreakMode.WordWrap,
             VerticalTextAlignment = TextAlignment.Center
         };
+
         private readonly StackLayout wrapperLayout = new StackLayout
         {
             Orientation = StackOrientation.Horizontal,
@@ -63,7 +65,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                     cell.wrapperLayout.LowerChild(cell.photo);
                     cell.photo.HorizontalOptions = LayoutOptions.End;
                     cell.text.HorizontalOptions = LayoutOptions.StartAndExpand;
-                    cell.View.BackgroundColor = Color.FromHex("00354A");
+                    cell.View.BackgroundColor = CustomColors.DarkBlue;
                 }
                 else
                 {
@@ -84,7 +86,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 }
                 else
                 {
-                    cell.View.BackgroundColor = Color.FromHex("00354A");
+                    cell.View.BackgroundColor = CustomColors.DarkBlue;
                 }
             }
         }

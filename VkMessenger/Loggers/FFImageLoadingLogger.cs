@@ -1,7 +1,7 @@
 ﻿using FFImageLoading.Helpers;
 using System;
 
-namespace ru.MaxKuzmin.VkMessenger
+namespace ru.MaxKuzmin.VkMessenger.Loggers
 {
     public class FFImageLoadingLogger : IMiniLogger
     {

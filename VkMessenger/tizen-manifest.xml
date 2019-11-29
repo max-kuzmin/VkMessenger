@@ -1,20 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest package="ru.MaxKuzmin.VkMessenger" version="1.0.0" api-version="4" xmlns="http://tizen.org/ns/packages">
-  <author>Max Kuzmin</author>
-  <description>VkMessenger for Galaxy Watch</description>
-  <profile name="wearable" />
-  <ui-application appid="ru.MaxKuzmin.VkMessenger" exec="VkMessenger.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" launch_mode="single">
-    <label>VkMessenger</label>
-    <icon>VkMessenger.png</icon>
-    <metadata key="http://tizen.org/metadata/prefer_dotnet_aot" value="true" />
-    <splash-screens />
-  </ui-application>
-  <shortcut-list />
-  <privileges>
-    <privilege>http://tizen.org/privilege/network.get</privilege>
-    <privilege>http://tizen.org/privilege/internet</privilege>
-    <privilege>http://tizen.org/privilege/haptic</privilege>
-    <privilege>http://tizen.org/privilege/appmanager.launch</privilege>
-  </privileges>
-  <provides-appdefined-privileges />
+    <author>Max Kuzmin</author>
+    <description>VkMessenger for Samsung smart watches</description>
+    <profile name="wearable" />
+    <ui-application appid="ru.MaxKuzmin.VkMessenger" exec="VkMessenger.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" launch_mode="single">
+        <label>VkMessenger</label>
+        <icon>Icon.png</icon>
+        <splash-screens />
+    </ui-application>
+    <shortcut-list />
+    <privileges>
+        <privilege>http://tizen.org/privilege/network.get</privilege>
+        <privilege>http://tizen.org/privilege/internet</privilege>
+        <privilege>http://tizen.org/privilege/haptic</privilege>
+        <privilege>http://tizen.org/privilege/appmanager.launch</privilege>
+    </privileges>
+    <provides-appdefined-privileges />
 </manifest>

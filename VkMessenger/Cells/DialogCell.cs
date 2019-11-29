@@ -13,9 +13,10 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             HeightRequest = 75,
             WidthRequest = 75,
             LoadingPlaceholder = ImageSource.FromFile(
-                        Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/placeholder.png")
+                        Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/Placeholder.png")
 
         };
+
         private readonly Label text = new Label
         {
             VerticalOptions = LayoutOptions.Fill,
@@ -24,6 +25,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             LineBreakMode = LineBreakMode.TailTruncation,
             HeightRequest = 40
         };
+
         private readonly Label title = new Label
         {
             VerticalOptions = LayoutOptions.Fill,
@@ -31,12 +33,14 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             FontAttributes = FontAttributes.Bold,
             LineBreakMode = LineBreakMode.TailTruncation
         };
+
         private readonly Label unreadCount = new Label
         {
             VerticalOptions = LayoutOptions.Fill,
             FontSize = Device.GetNamedSize(NamedSize.Small, typeof(Label)),
             FontAttributes = FontAttributes.Bold
         };
+
         private readonly Label onlineIndicator = new Label
         {
             VerticalOptions = LayoutOptions.Fill,
@@ -44,14 +48,17 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             TextColor = Color.LightGreen,
             FontAttributes = FontAttributes.Bold
         };
+
         private readonly StackLayout titleLayout = new StackLayout
         {
             Orientation = StackOrientation.Horizontal
         };
+
         private readonly StackLayout titleAndTextLayout = new StackLayout
         {
             Orientation = StackOrientation.Vertical
         };
+
         private readonly StackLayout wrapperLayout = new StackLayout
         {
             Orientation = StackOrientation.Horizontal,
@@ -109,7 +116,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 if (unreadCount > 0)
                 {
                     cell.unreadCount.Text = $"({unreadCount})";
-                    cell.View.BackgroundColor = Color.FromHex("00354A");
+                    cell.View.BackgroundColor = CustomColors.DarkBlue;
                 }
                 else
                 {

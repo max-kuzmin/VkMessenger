@@ -29,7 +29,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             HorizontalTextAlignment = TextAlignment.Center,
             VerticalTextAlignment = TextAlignment.Center,
             Margin = new Thickness(30, 10, 30, 0),
-            TextColor = Color.FromHex("6464ff"),
+            TextColor = CustomColors.BrightBlue,
             TextDecorations = TextDecorations.Underline
         };
 
@@ -61,7 +61,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
                 {
                     Margin = new Thickness(0, 10, 0, 0),
                     LoadingPlaceholder = ImageSource.FromFile(
-                        Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/placeholder.png"),
+                        Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/Placeholder.png"),
                     Source = item
                 };
                 wrapperLayout.Children.Add(image);

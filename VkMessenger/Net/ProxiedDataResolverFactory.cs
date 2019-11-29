@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Http;
 using Tizen.Network.Connection;
 
-namespace ru.MaxKuzmin.VkMessenger
+namespace ru.MaxKuzmin.VkMessenger.Net
 {
     public class ProxiedDataResolverFactory : DataResolverFactory
     {

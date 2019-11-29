@@ -8,7 +8,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class ProfilesClient
     {
-        public static Profile FromJson(JObject profile)
+        private static Profile FromJson(JObject profile)
         {
             return new Profile
             {

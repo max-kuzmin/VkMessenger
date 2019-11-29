@@ -13,7 +13,9 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// Update dialogs from API. Can be used during setup of page or with <see cref="LongPolling"/>
         /// </summary>
         /// <param name="dialogIds">Dialog id collection or null</param>
-        public static async Task<bool> Update(this ObservableCollection<Dialog> collection, IReadOnlyCollection<int> dialogIds = null)
+        public static async Task<bool> Update(
+            this ObservableCollection<Dialog> collection,
+            IReadOnlyCollection<int> dialogIds = null)
         {
             var newDialogs = await DialogsClient.GetDialogs(dialogIds);
             if (newDialogs == null)
@@ -27,7 +29,8 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             return true;
         }
 
-        private static void AddUpdate(this ObservableCollection<Dialog> collection,
+        private static void AddUpdate(
+            this ObservableCollection<Dialog> collection,
             IReadOnlyCollection<Dialog> newDialogs)
         {
             lock (collection)
@@ -73,7 +76,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// <summary>
         /// Update user status in every dialog
         /// </summary>
-        public static void SetOnline(this ObservableCollection<Dialog> dialogs, HashSet<(uint UserId, bool Status)> updates)
+        public static void SetOnline(this IReadOnlyCollection<Dialog> dialogs, ISet<(uint UserId, bool Status)> updates)
         {
             foreach (var dialog in dialogs)
             {

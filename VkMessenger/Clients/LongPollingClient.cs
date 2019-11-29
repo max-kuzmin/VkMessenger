@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Extensions;
+using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
+using ru.MaxKuzmin.VkMessenger.Net;
 using System;
 using System.Linq;
 using System.Threading;

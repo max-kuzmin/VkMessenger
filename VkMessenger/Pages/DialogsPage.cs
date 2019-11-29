@@ -48,7 +48,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
                 dialogsListView.ItemTapped += OnDialogTapped;
                 LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
-                LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds);
+                LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds.ToArray());
                 LongPollingClient.OnUserStatusUpdate += (s, e) => dialogs.SetOnline(e.Data);
             }
             else

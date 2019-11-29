@@ -1,9 +1,10 @@
-﻿using System;
+﻿using ru.MaxKuzmin.VkMessenger.Net;
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Tizen;
 
-namespace ru.MaxKuzmin.VkMessenger
+namespace ru.MaxKuzmin.VkMessenger.Loggers
 {
     public class Logger
     {
@@ -37,9 +38,9 @@ namespace ru.MaxKuzmin.VkMessenger
         public static void Debug(string text, [CallerFilePath] string file = null, [CallerMemberName] string caller = null, [CallerLineNumber]int line = 0)
         {
 #if DEBUG
-            var textWithoutEndLines = text.Replace('\n', ' ');
-            Log.Debug(Tag, textWithoutEndLines, file, caller, line);
-            SendToLogServer(nameof(Debug), textWithoutEndLines);
+            var textWithoutLineEndings = text.Replace('\n', ' ');
+            Log.Debug(Tag, textWithoutLineEndings, file, caller, line);
+            SendToLogServer(nameof(Debug), textWithoutLineEndings);
 #endif
         }
 

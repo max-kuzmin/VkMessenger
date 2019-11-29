@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Extensions;
+using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
+using ru.MaxKuzmin.VkMessenger.Net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +20,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         private static readonly MD5 Md5Hasher = MD5.Create();
 
         public static async Task<IReadOnlyCollection<Message>> GetMessages(
-            int dialogId, uint? offset = null, IReadOnlyCollection<uint> messagesIds = null)
+            int dialogId,
+            uint? offset = null,
+            IReadOnlyCollection<uint> messagesIds = null)
         {
             try
             {
@@ -39,7 +43,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private static List<Message> FromJsonArray(JArray source, IReadOnlyCollection<Profile> profiles,
+        private static List<Message> FromJsonArray(
+            JArray source,
+            IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups)
         {
             var result = new List<Message>();
@@ -52,13 +58,14 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             return result;
         }
 
-        public static Message FromJson(JObject source, IReadOnlyCollection<Profile> profiles,
+        public static Message FromJson(
+            JObject source,
+            IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups)
         {
             var dialogId = source["from_id"].Value<int>();
 
-            ParseMessageBody(source, out string text, out string fullText,
-                out IList<ImageSource> attachmentImages, out Uri attachmentUri);
+            ParseMessageBody(source, out var text, out var fullText, out var attachmentImages, out var attachmentUri);
 
             var result = new Message(
                 source["id"].Value<uint>(),
@@ -67,14 +74,18 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc),
                 profiles?.FirstOrDefault(p => p.Id == dialogId),
                 groups?.FirstOrDefault(p => p.Id == Math.Abs(dialogId)),
-                attachmentImages.ToArray(),
+                attachmentImages,
                 attachmentUri);
 
             return result;
         }
 
-        private static void ParseMessageBody(JObject source, out string text, out string fullText,
-            out IList<ImageSource> attachmentImages, out Uri attachmentUri)
+        private static void ParseMessageBody(
+            JObject source,
+            out string text,
+            out string fullText,
+            out IReadOnlyCollection<ImageSource> attachmentImages,
+            out Uri attachmentUri)
         {
             fullText = source["text"].Value<string>();
 
@@ -90,7 +101,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             text = fullText.Length > Message.MaxLength ? fullText.Substring(0, Message.MaxLength) + "..." : fullText;
 
-            attachmentImages = new List<ImageSource>();
+            var attachmentImagesList = new List<ImageSource>();
+            attachmentImages = attachmentImagesList;
             attachmentUri = null;
 
             if (source["attachments"] is JArray attachments)
@@ -99,7 +111,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 {
                     if (item["type"].Value<string>() == "photo")
                     {
-                        attachmentImages
+                        attachmentImagesList
                             .Add(new Uri(item["photo"]["sizes"]
                             .Single(i => i["type"].Value<string>() == "q")["url"].Value<string>()));
                     }
