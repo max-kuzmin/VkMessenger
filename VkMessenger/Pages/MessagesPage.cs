@@ -85,7 +85,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             await dialog.SetReadWithMessagesAndPublish();
 
-            var message = e.Item as Message;
+            var message = (Message)e.Item;
             if (message.FullText.Length > Message.MaxLength
                 || message.AttachmentImages.Any()
                 || message.AttachmentUri != null)
@@ -102,7 +102,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <param name="e"></param>
         private async void LoadMoreMessages(object sender, ItemVisibilityEventArgs e)
         {
-            var message = e.Item as Message;
+            var message = (Message)e.Item;
             if (dialog.Messages.Count >= 20 && dialog.Messages.All(i => i.Id >= message.Id))
             {
                 // Temporary disable scroll and "load more" event

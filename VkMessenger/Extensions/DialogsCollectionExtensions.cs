@@ -12,7 +12,6 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// <summary>
         /// Update dialogs from API. Can be used during setup of page or with <see cref="LongPolling"/>
         /// </summary>
-        /// <param name="dialogIds">Dialog id collection or null</param>
         public static async Task<bool> Update(
             this ObservableCollection<Dialog> collection,
             IReadOnlyCollection<int> dialogIds = null)

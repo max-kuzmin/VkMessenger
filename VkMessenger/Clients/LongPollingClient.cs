@@ -74,8 +74,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var dialogEventArgs = new DialogEventArgs();
             var userStatusEventArgs = new UserStatusEventArgs();
 
-            foreach (JArray update in json["updates"] as JArray)
+            foreach (var jToken in (JArray)json["updates"])
             {
+                var update = (JArray)jToken;
                 switch (update[0].Value<uint>())
                 {
                     case 1:

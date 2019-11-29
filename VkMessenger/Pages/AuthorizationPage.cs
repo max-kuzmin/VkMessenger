@@ -26,7 +26,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             loginWebView.Eval("$('.FloatBtn').style.display = 'none'");
 
-            var url = (loginWebView.Source as UrlWebViewSource).Url;
+            var url = ((UrlWebViewSource)loginWebView.Source).Url;
             if (await AuthorizationClient.SetUserFromUrl(url))
             {
                 loginWebView.Navigated -= LoginCallback;

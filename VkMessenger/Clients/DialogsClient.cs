@@ -68,7 +68,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 };
 
                 var dialogProfiles = new List<Profile>();
-                foreach (var id in chatSettings["active_ids"] as JArray)
+                foreach (var id in (JArray)chatSettings["active_ids"])
                 {
                     dialogProfiles.Add(profiles.First(p => p.Id == id.Value<uint>()));
                 }
@@ -93,8 +93,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
 
                 var lastMessagesIds = new List<uint>();
-                foreach (JObject item in json["response"]["items"])
+                foreach (var jToken in json["response"]["items"])
                 {
+                    var item = (JObject)jToken;
                     if (!item.ContainsKey("last_message"))
                     {
                         lastMessagesIds.Add(item["last_message_id"].Value<uint>());

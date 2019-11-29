@@ -12,7 +12,6 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// <summary>
         /// Update messages from API. Can be used during setup of page or with <see cref="LongPolling"/>
         /// </summary>
-        /// <param name="messagesIds">Message id collection or null</param>
         public static async Task<bool> Update(
             this CustomObservableCollection<Message> collection,
             int dialogId,

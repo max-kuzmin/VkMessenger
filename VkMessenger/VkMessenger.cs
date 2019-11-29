@@ -12,7 +12,7 @@ using Xamarin.Forms.Platform.Tizen;
 
 namespace ru.MaxKuzmin.VkMessenger
 {
-    class Program : FormsApplication
+    public class Program : FormsApplication
     {
         protected override void OnCreate()
         {
