@@ -6,7 +6,7 @@ using Tizen;
 
 namespace ru.MaxKuzmin.VkMessenger.Loggers
 {
-    public class Logger
+    public static class Logger
     {
         private const string Tag = "VK";
         private const string Ip = "192.168.0.103:5100";
