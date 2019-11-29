@@ -23,15 +23,32 @@ namespace ru.MaxKuzmin.VkMessenger
 
             var config = new Configuration
             {
-                AllowUpscale = false,
-                DataResolverFactory = new ProxiedDataResolverFactory(),
+                BitmapOptimizations = true,
+                FadeAnimationEnabled = false,
+                FadeAnimationForCachedImages = false,
+                FadeAnimationDuration = 300,
+                TransformPlaceholders = true,
+                DownsampleInterpolationMode = InterpolationMode.Default,
+                HttpHeadersTimeout = 3,
+                HttpReadTimeout = 15,
+                HttpReadBufferSize = 8192,
                 DecodingMaxParallelTasks = 1,
-                DownsampleInterpolationMode = InterpolationMode.None,
-                ExecuteCallbacksOnUIThread = true,
                 SchedulerMaxParallelTasks = 1,
-                MaxMemoryCacheSize = 1024 * 1024 * 8,
+                DiskCacheDuration = TimeSpan.FromDays(30d),
+                TryToReadDiskCacheDurationFromHttpHeaders = false,
+                ExecuteCallbacksOnUIThread = false,
+                StreamChecksumsAsKeys = true,
+                AnimateGifs = true,
+                DelayInMs = 10,
+                ClearMemoryCacheOnOutOfMemory = true,
+                InvalidateLayout = true,
+
+                AllowUpscale = true,
+                DataResolverFactory = new ProxiedDataResolverFactory(),
+                MaxMemoryCacheSize = 1024 * 1024 * 1,
 #if DEBUG
                 Logger = new FFImageLoadingLogger(),
+                VerbosePerformanceLogging = true,
                 VerboseLogging = true
 #endif
             };
