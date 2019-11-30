@@ -14,14 +14,17 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             Orientation = StackOrientation.Vertical,
             VerticalOptions = LayoutOptions.FillAndExpand
         };
-        private readonly Label text = new Label
+
+        private Label CreateLabel(string text) => new Label
         {
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             LineBreakMode = LineBreakMode.WordWrap,
             HorizontalTextAlignment = TextAlignment.Center,
             VerticalTextAlignment = TextAlignment.Center,
-            Margin = new Thickness(30, 70, 30, 0)
+            Margin = new Thickness(30, 70, 30, 0),
+            Text = text
         };
+
         private Label CreateUri(string text) => new Label
         {
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
@@ -46,8 +49,13 @@ namespace ru.MaxKuzmin.VkMessenger.pages
         {
             NavigationPage.SetHasNavigationBar(this, false);
 
-            text.Text = message.FullText;
-            wrapperLayout.Children.Add(text);
+            wrapperLayout.Children.Add(CreateLabel(message.FullText));
+
+            foreach (var item in message.AttachmentMessages)
+            {
+                var text = $"{item.Profile.Name}: \"{item.Text}\"";
+                wrapperLayout.Children.Add(CreateLabel(text));
+            }
 
             foreach (var item in message.AttachmentUris)
             {

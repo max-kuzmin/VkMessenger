@@ -68,10 +68,16 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var date = new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc);
             var fullText = source["text"].Value<string>();
 
-            var forwardedMessages = (source["fwd_messages"] as JArray)?.Select(i => i["text"].Value<string>()).ToArray();
             var attachmentImages = new List<ImageSource>();
             var attachmentUris = new List<Uri>();
             var otherAttachments = new List<string>();
+
+            var attachmentMessages = (source["fwd_messages"] as JArray)?
+                .Select(i =>
+                (
+                    profiles.Single(e => e.Id == i["peer_id"].Value<uint>()),
+                    i["text"].Value<string>()
+                )).ToArray();
 
             if (source["attachments"] is JArray attachments)
             {
@@ -87,6 +93,22 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                         case "link":
                             attachmentUris.Add(new Uri(item["link"]["url"].Value<string>()));
+                            break;
+
+                        case "wall":
+                            otherAttachments.Add("Wall post");
+                            break;
+
+                        case "video":
+                            otherAttachments.Add("Video");
+                            break;
+
+                        case "doc":
+                            otherAttachments.Add("File");
+                            break;
+
+                        case "album":
+                            otherAttachments.Add("Album");
                             break;
 
                         default:
@@ -117,7 +139,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 groups?.FirstOrDefault(p => p.Id == dialogId),
                 attachmentImages,
                 attachmentUris,
-                forwardedMessages,
+                attachmentMessages,
                 otherAttachments);
         }
 

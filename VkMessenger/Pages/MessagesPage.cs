@@ -86,9 +86,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             await dialog.SetReadWithMessagesAndPublish();
 
             var message = (Message)e.Item;
-            if (message.FullText.Length != message.Text.Length
-                || message.AttachmentImages.Any()
-                || message.AttachmentUris.Any())
+            if (message.FullScreenAllowed)
             {
                 shouldScroll = false;
                 await Navigation.PushAsync(new MessagePage(message));

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
@@ -8,6 +9,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     public class Message : INotifyPropertyChanged
     {
         private const int MaxLength = 150;
+        private const string PaperClip = "📎";
 
         public uint Id { get; }
         public string Text { get; private set; }
@@ -18,6 +20,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public string FullText { get; }
         public IReadOnlyCollection<ImageSource> AttachmentImages { get; }
         public IReadOnlyCollection<Uri> AttachmentUris { get; }
+        public IReadOnlyCollection<(Profile Profile, string Text)> AttachmentMessages { get; }
+        public bool FullScreenAllowed { get; }
 
         public int SenderId
         {
@@ -47,7 +51,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Group group,
             IReadOnlyCollection<ImageSource> attachmentImages,
             IReadOnlyCollection<Uri> attachmentUris,
-            IReadOnlyCollection<string> forwardedMessages,
+            IReadOnlyCollection<(Profile Profile, string Text)> attachmentMessages,
             IReadOnlyCollection<string> otherAttachments)
         {
             Id = id;
@@ -56,23 +60,44 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Profile = profile;
             AttachmentImages = attachmentImages;
             AttachmentUris = attachmentUris;
+            AttachmentMessages = attachmentMessages;
             Read = Profile?.Id == Authorization.UserId;
-
-            foreach (var forwarded in forwardedMessages)
-            {
-               fullText += $"\n \"{forwarded}\"";
-            }
-
-            foreach (var other in otherAttachments)
-            {
-                fullText += $"\n📎 {other}";
-            }
-
-
             FullText = fullText;
-            Text = fullText.Length > MaxLength
-                ? fullText.Substring(0, MaxLength) + "..."
-                : fullText;
+
+            if (fullText.Length > MaxLength)
+            {
+                Text = fullText.Substring(0, MaxLength) + "...";
+                FullScreenAllowed = true;
+            }
+            else
+            {
+                Text = fullText;
+            }
+
+            foreach (var profileName in attachmentMessages.Select(e => e.Profile.Name).Distinct())
+            {
+                Text += $"\n{PaperClip} Message from {profileName}";
+                FullScreenAllowed = true;
+            }
+
+            if (attachmentUris.Any())
+            {
+                Text += $"\n{PaperClip} Link";
+                FullScreenAllowed = true;
+            }
+
+            if (attachmentImages.Any())
+            {
+                Text += $"\n{PaperClip} Image";
+                FullScreenAllowed = true;
+            }
+
+            foreach (var other in otherAttachments.Distinct())
+            {
+                Text += $"\n{PaperClip} {other}";
+            }
+
+            Text = Text.Trim('\n');
         }
 
         public void SetRead()
