@@ -46,35 +46,41 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             Dialog result = null;
 
-            if (dialogType == DialogType.User)
+            switch (dialogType)
             {
-                var dialogProfiles = new[] { profiles.First(p => p.Id == dialogId) };
-                result = new Dialog(dialogType, null, null, unreadCount, dialogProfiles, lastMessage);
-            }
-            else if (dialogType == DialogType.Group)
-            {
-                var group = groups.First(g => g.Id == Math.Abs(dialogId));
-                result = new Dialog(dialogType, group, null, unreadCount, null, lastMessage);
-            }
-            else if (dialogType == DialogType.Chat)
-            {
-                var chatSettings = conversation["chat_settings"];
-                var chat = new Chat
+                case DialogType.User:
                 {
-                    Title = chatSettings["title"].Value<string>(),
-                    Id = (uint)dialogId,
-                    Photo = chatSettings["photo"] != null
-                    ? ImageSource.FromUri(new Uri(chatSettings["photo"]["photo_50"].Value<string>()))
-                    : null
-                };
-
-                var dialogProfiles = new List<Profile>();
-                foreach (var id in (JArray)chatSettings["active_ids"])
-                {
-                    dialogProfiles.Add(profiles.First(p => p.Id == id.Value<uint>()));
+                    var dialogProfiles = new[] { profiles.First(p => p.Id == dialogId) };
+                    result = new Dialog(dialogType, null, null, unreadCount, dialogProfiles, lastMessage);
+                    break;
                 }
+                case DialogType.Group:
+                {
+                    var group = groups.First(g => g.Id == Math.Abs(dialogId));
+                    result = new Dialog(dialogType, group, null, unreadCount, null, lastMessage);
+                    break;
+                }
+                case DialogType.Chat:
+                {
+                    var chatSettings = conversation["chat_settings"];
+                    var chat = new Chat
+                    {
+                        Title = chatSettings["title"].Value<string>(),
+                        Id = (uint)dialogId,
+                        Photo = chatSettings["photo"] != null
+                            ? ImageSource.FromUri(new Uri(chatSettings["photo"]["photo_50"].Value<string>()))
+                            : null
+                    };
 
-                result = new Dialog(dialogType, null, chat, unreadCount, dialogProfiles, lastMessage);
+                    var dialogProfiles = new List<Profile>();
+                    foreach (var id in (JArray)chatSettings["active_ids"])
+                    {
+                        dialogProfiles.Add(profiles.First(p => p.Id == id.Value<uint>()));
+                    }
+
+                    result = new Dialog(dialogType, null, chat, unreadCount, dialogProfiles, lastMessage);
+                    break;
+                }
             }
 
             return result;

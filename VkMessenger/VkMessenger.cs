@@ -47,7 +47,7 @@ namespace ru.MaxKuzmin.VkMessenger
                 DataResolverFactory = new ProxiedDataResolverFactory(),
                 MaxMemoryCacheSize = 1024 * 1024 * 1,
 #if DEBUG
-                Logger = new FFImageLoadingLogger(),
+                Logger = new FfImageLoadingLogger(),
                 VerbosePerformanceLogging = true,
                 VerboseLogging = true
 #endif
@@ -57,7 +57,7 @@ namespace ru.MaxKuzmin.VkMessenger
             LoadApplication(new App());
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var app = new Program();
             CachedImageRenderer.Init(app);

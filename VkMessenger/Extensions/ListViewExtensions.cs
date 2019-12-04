@@ -2,7 +2,7 @@
 
 namespace ru.MaxKuzmin.VkMessenger.Extensions
 {
-    public static class ListViewExtentions
+    public static class ListViewExtensions
     {
         public static void ScrollIfExist<T>(this ListView listView, T itemToScroll, ScrollToPosition type)
         {

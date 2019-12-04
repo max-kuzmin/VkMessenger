@@ -15,7 +15,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             VerticalOptions = LayoutOptions.FillAndExpand
         };
 
-        private Label CreateLabel(string text) => new Label
+        private static Label CreateLabel(string text) => new Label
         {
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             LineBreakMode = LineBreakMode.WordWrap,
@@ -25,7 +25,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             Text = text
         };
 
-        private Label CreateUri(string text) => new Label
+        private static Label CreateUri(string text) => new Label
         {
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             LineBreakMode = LineBreakMode.WordWrap,
@@ -37,7 +37,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             Text = text
         };
 
-        private CachedImage CreateImage(ImageSource source) => new CachedImage
+        private static CachedImage CreateImage(ImageSource source) => new CachedImage
         {
             Margin = new Thickness(0, 10, 0, 0),
             LoadingPlaceholder = ImageSource.FromFile(
@@ -51,9 +51,9 @@ namespace ru.MaxKuzmin.VkMessenger.pages
 
             wrapperLayout.Children.Add(CreateLabel(message.FullText));
 
-            foreach (var item in message.AttachmentMessages)
+            foreach (var (profile, msg) in message.AttachmentMessages)
             {
-                var text = $"{item.Profile.Name}: \"{item.Text}\"";
+                var text = $"{profile.Name}: \"{msg}\"";
                 wrapperLayout.Children.Add(CreateLabel(text));
             }
 

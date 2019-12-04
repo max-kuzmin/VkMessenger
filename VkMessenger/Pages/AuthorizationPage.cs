@@ -8,7 +8,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class AuthorizationPage : CirclePage
     {
-        readonly WebView loginWebView = new WebView
+        private readonly WebView loginWebView = new WebView
         {
             Margin = new Thickness(50, 0, 50, 0)
         };

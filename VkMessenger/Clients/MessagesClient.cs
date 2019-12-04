@@ -48,14 +48,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups)
         {
-            var result = new List<Message>();
-
-            foreach (var item in source)
-            {
-                result.Add(FromJson(item as JObject, profiles, groups));
-            }
-
-            return result;
+            return source.Select(item => FromJson(item as JObject, profiles, groups)).ToList();
         }
 
         public static Message FromJson(

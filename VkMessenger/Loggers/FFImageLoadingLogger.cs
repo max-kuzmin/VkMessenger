@@ -3,7 +3,7 @@ using System;
 
 namespace ru.MaxKuzmin.VkMessenger.Loggers
 {
-    public class FFImageLoadingLogger : IMiniLogger
+    public class FfImageLoadingLogger : IMiniLogger
     {
         public void Debug(string message)
         {
