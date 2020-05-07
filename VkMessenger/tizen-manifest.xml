@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest package="ru.MaxKuzmin.VkMessenger" version="1.0.0" api-version="4" xmlns="http://tizen.org/ns/packages">
+<manifest package="ru.MaxKuzmin.VkMessenger" version="1.0.1" api-version="4" xmlns="http://tizen.org/ns/packages">
     <author>Max Kuzmin</author>
     <description>VkMessenger for Samsung smart watches</description>
     <profile name="wearable" />
@@ -15,5 +15,6 @@
         <privilege>http://tizen.org/privilege/haptic</privilege>
         <privilege>http://tizen.org/privilege/appmanager.launch</privilege>
     </privileges>
+    <dependencies />
     <provides-appdefined-privileges />
 </manifest>

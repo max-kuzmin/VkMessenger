@@ -6,7 +6,7 @@ using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Net;
 using System;
 using Tizen.Applications;
-using Tizen.Wearable.CircularUI.Forms.Renderer;
+using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Tizen;
 

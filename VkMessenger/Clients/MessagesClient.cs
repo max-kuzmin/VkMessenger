@@ -68,7 +68,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var attachmentMessages = (source["fwd_messages"] as JArray)?
                 .Select(i =>
                 (
-                    profiles.Single(e => e.Id == i["peer_id"].Value<uint>()),
+                    profiles.Single(e => e.Id == i["from_id"].Value<uint>()),
                     i["text"].Value<string>()
                 )).ToArray();
 

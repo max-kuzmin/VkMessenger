@@ -103,17 +103,18 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var message = (Message)e.Item;
             if (dialog.Messages.Count >= 20 && dialog.Messages.All(i => i.Id >= message.Id))
             {
-                // Temporary disable scroll and "load more" event
-                var tempRotaryFocus = RotaryFocusObject;
-                RotaryFocusObject = null;
+                // Temporary "load more" event
                 messagesListView.ItemAppearing -= LoadMoreMessages;
 
                 await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count);
                 messagesListView.ScrollIfExist(message, ScrollToPosition.MakeVisible);
 
-                await Task.Delay(TimeSpan.FromSeconds(0.5)); // To prevent event activation
-                messagesListView.ItemAppearing += LoadMoreMessages;
-                RotaryFocusObject = tempRotaryFocus;
+                // To prevent event activation
+                Task.Run(async () =>
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(0.5));
+                    messagesListView.ItemAppearing += LoadMoreMessages;
+                });
             }
         }
 
@@ -171,8 +172,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (shouldScroll)
             {
                 messagesListView.ScrollIfExist(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
-                await Task.Delay(TimeSpan.FromSeconds(0.5)); // To prevent event activation
-                messagesListView.ItemAppearing += LoadMoreMessages;
+                // To prevent event activation
+                Task.Run(async () =>
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(0.5));
+                    messagesListView.ItemAppearing += LoadMoreMessages;
+                });
             }
             else shouldScroll = true;
 
