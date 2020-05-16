@@ -18,26 +18,23 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private readonly StackLayout verticalLayout = new StackLayout();
         private readonly Dialog dialog;
         private bool shouldScroll;
+        private bool firstTapPerformed = false;
+
+        private readonly SwipeGestureRecognizer swipeRecognizer = new SwipeGestureRecognizer
+        {
+            Direction = SwipeDirection.Right | SwipeDirection.Left
+        };
 
         private readonly CircleListView messagesListView = new CircleListView
         {
-            HorizontalOptions = LayoutOptions.StartAndExpand,
             ItemTemplate = new DataTemplate(typeof(MessageCell)),
             HasUnevenRows = true,
-            BarColor = Color.Transparent,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Never,
             Rotation = 180,
         };
 
         private readonly PopupEntry popupEntryView = new PopupEntry
         {
-            VerticalOptions = LayoutOptions.End,
-            Placeholder = "Type here...",
-            HorizontalTextAlignment = TextAlignment.Center,
-            FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
-            TextColor = Color.White,
-            PlaceholderColor = Color.Gray,
-            HeightRequest = 50
+            IsVisible = false
         };
 
         public MessagesPage(Dialog dialog)
@@ -50,6 +47,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             verticalLayout.Children.Add(messagesListView);
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
+
+            swipeRecognizer.Command = new Command(OpenKeyboard);
+            messagesListView.GestureRecognizers.Add(swipeRecognizer);
 
             Appearing += UpdateAll;
         }
@@ -86,6 +86,17 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OnItemTapped(object sender, ItemTappedEventArgs e)
         {
+            if (!firstTapPerformed)
+            {
+                firstTapPerformed = true;
+                Task.Run(async () =>
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    firstTapPerformed = false;
+                });
+                return;
+            }
+
             await dialog.SetReadWithMessagesAndPublish();
 
             var message = (Message)e.Item;
@@ -185,6 +196,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             else shouldScroll = true;
 
             base.OnAppearing();
+        }
+
+        private async void OpenKeyboard()
+        {
+            popupEntryView.IsPopupOpened = true;
+
+            await dialog.SetReadWithMessagesAndPublish();
         }
     }
 }

@@ -68,14 +68,16 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 {
                     cell.wrapperLayout.LowerChild(cell.photo);
                     cell.photo.HorizontalOptions = LayoutOptions.End;
-                    cell.text.HorizontalOptions = LayoutOptions.StartAndExpand;
+                    cell.text.HorizontalOptions = LayoutOptions.FillAndExpand;
+                    cell.text.HorizontalTextAlignment = TextAlignment.Start;
                     cell.View.BackgroundColor = CustomColors.DarkBlue;
                 }
                 else
                 {
                     cell.wrapperLayout.RaiseChild(cell.photo);
                     cell.photo.HorizontalOptions = LayoutOptions.Start;
-                    cell.text.HorizontalOptions = LayoutOptions.EndAndExpand;
+                    cell.text.HorizontalOptions = LayoutOptions.FillAndExpand;
+                    cell.text.HorizontalTextAlignment = TextAlignment.End;
                 }
             }
         }
