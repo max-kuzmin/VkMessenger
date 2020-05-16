@@ -40,25 +40,34 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                 var biggestExistingId = collection.First().Id;
                 bool isOldMessages = biggestExistingId >= smallestToAppendId;
 
-                var toAppend = newMessages.ToList();
+                var messagesToInsert = new List<Message>();
+
                 foreach (var newMessage in newMessages)
                 {
                     var foundMessage = collection.FirstOrDefault(m => m.Id == newMessage.Id);
                     if (foundMessage != null)
                     {
                         UpdateMessage(newMessage, foundMessage);
-                        toAppend.Remove(newMessage);
+                    }
+                    else
+                    {
+                        messagesToInsert.Add(newMessage);
                     }
                 }
 
                 if (isOldMessages)
                 {
-                    foreach (var newMessage in toAppend)
+                    foreach (var newMessage in messagesToInsert)
+                    {
                         newMessage.SetRead();
-                    collection.InsertRange(0, toAppend);
+                    }
+
+                    collection.AddRange(messagesToInsert);
                 }
                 else
-                    collection.AddRange(toAppend);
+                {
+                    collection.InsertRange(0, messagesToInsert);
+                }
             }
         }
 

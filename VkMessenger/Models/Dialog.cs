@@ -1,7 +1,6 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Collections;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using Xamarin.Forms;
@@ -10,13 +9,13 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 {
     public class Dialog : INotifyPropertyChanged
     {
-        public ObservableCollection<Profile> Profiles { get; }
+        public CustomObservableCollection<Profile> Profiles { get; }
         public Group Group { get; }
         public Chat Chat { get; }
         public CustomObservableCollection<Message> Messages { get; }
         public DialogType Type { get; }
         public uint UnreadCount { get; private set; }
-        public string Text => Messages.LastOrDefault()?.Text?.Replace('\n', ' ') ?? string.Empty;
+        public string Text => Messages.FirstOrDefault()?.Text?.Replace('\n', ' ') ?? string.Empty;
         public bool Online => Type == DialogType.User && Profiles.First().Online;
 
         public string Title
@@ -89,7 +88,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
             };
 
-            Profiles = new ObservableCollection<Profile>(profiles ?? Array.Empty<Profile>());
+            Profiles = new CustomObservableCollection<Profile>(profiles ?? Array.Empty<Profile>());
         }
 
         public void SetReadWithMessages()

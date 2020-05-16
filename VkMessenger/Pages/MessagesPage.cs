@@ -23,7 +23,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             HorizontalOptions = LayoutOptions.StartAndExpand,
             ItemTemplate = new DataTemplate(typeof(MessageCell)),
-            HasUnevenRows = true
+            HasUnevenRows = true,
+            BarColor = Color.Transparent,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Never,
+            Rotation = 180,
         };
 
         private readonly PopupEntry popupEntryView = new PopupEntry
@@ -63,7 +66,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             if (await dialog.Messages.Update(dialog.Id))
             {
-                messagesListView.ScrollIfExist(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
+                messagesListView.ScrollIfExist(dialog.Messages.FirstOrDefault(), ScrollToPosition.Center);
 
                 messagesListView.ItemTapped += OnItemTapped;
                 messagesListView.ItemAppearing += LoadMoreMessages;
@@ -171,7 +174,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             if (shouldScroll)
             {
-                messagesListView.ScrollIfExist(dialog.Messages.LastOrDefault(), ScrollToPosition.Center);
+                messagesListView.ScrollIfExist(dialog.Messages.FirstOrDefault(), ScrollToPosition.Center);
                 // To prevent event activation
                 Task.Run(async () =>
                 {

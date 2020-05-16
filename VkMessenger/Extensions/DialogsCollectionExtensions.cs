@@ -1,9 +1,9 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using ru.MaxKuzmin.VkMessenger.Collections;
 
 namespace ru.MaxKuzmin.VkMessenger.Extensions
 {
@@ -13,7 +13,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// Update dialogs from API. Can be used during setup of page or with <see cref="LongPolling"/>
         /// </summary>
         public static async Task<bool> Update(
-            this ObservableCollection<Dialog> collection,
+            this CustomObservableCollection<Dialog> collection,
             IReadOnlyCollection<int> dialogIds = null)
         {
             var newDialogs = await DialogsClient.GetDialogs(dialogIds);
@@ -29,12 +29,14 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         }
 
         private static void AddUpdate(
-            this ObservableCollection<Dialog> collection,
+            this CustomObservableCollection<Dialog> collection,
             IReadOnlyCollection<Dialog> newDialogs)
         {
             lock (collection)
             {
-                foreach (var newDialog in newDialogs.AsEnumerable().Reverse())
+                var dialogsToInsert = new List<Dialog>();
+
+                foreach (var newDialog in newDialogs)
                 {
                     var foundDialog = collection.FirstOrDefault(m => m.Id == newDialog.Id);
                     if (foundDialog != null)
@@ -45,17 +47,19 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
 
                         // Move dialog to top, because it was updated
                         if (collection.IndexOf(foundDialog) != collection.Count - 1
-                            && oldLastMessage != foundDialog.Messages.Last())
+                            && oldLastMessage != foundDialog.Messages.First())
                         {
                             collection.Remove(foundDialog);
-                            collection.Insert(0, foundDialog);
+                            dialogsToInsert.Add(foundDialog);
                         }
                     }
                     else
                     {
-                        collection.Insert(0, newDialog);
+                        dialogsToInsert.Add(newDialog);
                     }
                 }
+
+                collection.InsertRange(0, dialogsToInsert);
             }
         }
 

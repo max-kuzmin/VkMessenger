@@ -24,8 +24,11 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         {
             Orientation = StackOrientation.Horizontal,
             Padding = new Thickness(10, 0),
-            VerticalOptions = LayoutOptions.FillAndExpand
+            VerticalOptions = LayoutOptions.FillAndExpand,
+            Rotation = -180
         };
+
+        private readonly StackLayout outerLayout = new StackLayout();
 
         private static readonly BindableProperty SenderIdProperty =
             BindableProperty.Create(
@@ -52,7 +55,8 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
             wrapperLayout.Children.Add(photo);
             wrapperLayout.Children.Add(text);
-            View = wrapperLayout;
+            outerLayout.Children.Add(wrapperLayout);
+            View = outerLayout;
         }
 
         private static void OnSenderIdPropertyChanged(BindableObject bindable, object oldValue, object newValue)

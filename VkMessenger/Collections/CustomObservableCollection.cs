@@ -50,11 +50,16 @@ namespace ru.MaxKuzmin.VkMessenger.Collections
                 NotifyCollectionChangedAction.Add, item, index));
         }
 
-        public void InsertRange(int index, IList<T> items)
+        public void InsertRange(int index, IReadOnlyCollection<T> items)
         {
-            foreach (var item in items)
+            if (!items.Any())
             {
-                base.InsertItem(index, item);
+                return;
+            }
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                base.InsertItem(index + i, items.ElementAt(i));
             }
 
             OnCountPropertyChanged();
@@ -64,8 +69,13 @@ namespace ru.MaxKuzmin.VkMessenger.Collections
                 NotifyCollectionChangedAction.Add, items));
         }
 
-        public void AddRange(IList<T> items)
+        public void AddRange(IReadOnlyCollection<T> items)
         {
+            if (!items.Any())
+            {
+                return;
+            }
+
             var startingIndex = Count;
             foreach (var item in items)
             {
