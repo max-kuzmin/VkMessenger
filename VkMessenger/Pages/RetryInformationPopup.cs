@@ -8,11 +8,17 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     {
         public RetryInformationPopup(string message, Action retryAction)
         {
+            void CommandToExecute()
+            {
+                this.Dismiss();
+                retryAction();
+            }
+
             Text = message;
             BottomButton = new MenuItem
             {
                 Text = "Retry",
-                Command = new Command(retryAction)
+                Command = new Command(CommandToExecute)
             };
         }
     }

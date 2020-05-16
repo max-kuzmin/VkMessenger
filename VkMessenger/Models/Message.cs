@@ -76,7 +76,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
             foreach (var profileName in attachmentMessages.Select(e => e.Profile.Name).Distinct())
             {
-                Text += $"\n{PaperClip} Message from {profileName}";
+                Text += $"\n{PaperClip} Message";
                 FullScreenAllowed = true;
             }
 
