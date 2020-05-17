@@ -81,7 +81,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             return result;
         }
 
-        public static async Task<IReadOnlyCollection<Dialog>?> GetDialogs(IReadOnlyCollection<int>? dialogIds = null)
+        public static async Task<IReadOnlyCollection<Dialog>> GetDialogs(IReadOnlyCollection<int>? dialogIds = null)
         {
             try
             {
@@ -103,7 +103,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     .Select(e => e["last_message_id"]!.Value<uint>()).ToList();
 
                 var lastMessages = lastMessagesIds.Any()
-                    ? (await MessagesClient.GetMessages(0, 0, lastMessagesIds) ?? Array.Empty<Message>())
+                    ? await MessagesClient.GetMessages(0, 0, lastMessagesIds)
                     : Array.Empty<Message>();
 
                 return FromJsonArray((JArray)responseItems, profiles, groups, lastMessages);
@@ -111,7 +111,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             catch (Exception e)
             {
                 Logger.Error(e);
-                return null;
+                throw;
             }
         }
 

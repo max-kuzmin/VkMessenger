@@ -7,6 +7,7 @@ using ru.MaxKuzmin.VkMessenger.Models;
 using ru.MaxKuzmin.VkMessenger.pages;
 using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
@@ -66,8 +67,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var refreshingPopup = new InformationPopup { Text = LocalizedStrings.LoadingMessages };
             refreshingPopup.Show();
 
-            if (await dialog.Messages.Update(dialog.Id))
+            try
             {
+                await dialog.Messages.Update(dialog.Id);
                 messagesListView.ScrollIfExist(dialog.Messages.FirstOrDefault(), ScrollToPosition.Center);
 
                 messagesListView.ItemTapped += OnItemTapped;
@@ -75,10 +77,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 popupEntryView.Completed += OnTextCompleted;
                 LongPollingClient.OnMessageUpdate += OnMessageUpdate;
             }
-            else
+            catch (Exception ex)
             {
                 new RetryInformationPopup(
-                    LocalizedStrings.MessagesNoInternetError,
+                    ex is WebException
+                        ? LocalizedStrings.MessagesNoInternetError
+                        : ex.ToString(),
                     () => UpdateAll())
                     .Show();
             }
@@ -161,16 +165,19 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 return;
             }
 
-            if (await MessagesClient.Send(text, dialog.Id))
+            try
             {
+                await MessagesClient.Send(text, dialog.Id);
                 popupEntryView.Text = string.Empty;
             }
-            else
+            catch (Exception ex)
             {
                 popupEntryView.Text = text;
                 new RetryInformationPopup(
-                        LocalizedStrings.SendMessageNoInternetError,
-                        () => OnTextCompleted())
+                    ex is WebException
+                        ? LocalizedStrings.SendMessageNoInternetError
+                        : ex.ToString(),
+                    () => OnTextCompleted())
                     .Show();
             }
         }

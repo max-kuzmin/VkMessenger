@@ -20,7 +20,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
     {
         private static readonly MD5 Md5Hasher = MD5.Create();
 
-        public static async Task<IReadOnlyCollection<Message>?> GetMessages(
+        public static async Task<IReadOnlyCollection<Message>> GetMessages(
             int dialogId,
             uint? offset = null,
             IReadOnlyCollection<uint>? messagesIds = null)
@@ -41,7 +41,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             catch (Exception e)
             {
                 Logger.Error(e);
-                return null;
+                throw;
             }
         }
 
@@ -154,7 +154,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             return json;
         }
 
-        public static async Task<bool> Send(string text, int dialogId)
+        public static async Task Send(string text, int dialogId)
         {
             try
             {
@@ -169,12 +169,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 using var client = new ProxiedWebClient();
                 var json = await client.DownloadStringTaskAsync(url);
                 Logger.Debug(json);
-                return true;
             }
             catch (Exception e)
             {
                 Logger.Error(e);
-                return false;
+                throw;
             }
         }
 

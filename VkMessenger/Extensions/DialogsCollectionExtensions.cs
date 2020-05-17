@@ -12,20 +12,15 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// <summary>
         /// Update dialogs from API. Can be used during setup of page or with <see cref="LongPolling"/>
         /// </summary>
-        public static async Task<bool> Update(
+        public static async Task Update(
             this CustomObservableCollection<Dialog> collection,
             IReadOnlyCollection<int>? dialogIds = null)
         {
             var newDialogs = await DialogsClient.GetDialogs(dialogIds);
-            if (newDialogs == null)
-            {
-                return false;
-            }
-            else if (newDialogs.Any())
+            if (newDialogs.Any())
             {
                 collection.AddUpdate(newDialogs);
             }
-            return true;
         }
 
         private static void AddUpdate(

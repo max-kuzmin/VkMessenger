@@ -7,6 +7,7 @@ using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -43,8 +44,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             refreshingPopup.Show();
 
 
-            if (await dialogs.Update())
+            try
             {
+                await dialogs.Update();
                 dialogsListView.ScrollIfExist(dialogs.FirstOrDefault(), ScrollToPosition.Center);
 
                 dialogsListView.ItemTapped += OnDialogTapped;
@@ -52,10 +54,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds.ToArray());
                 LongPollingClient.OnUserStatusUpdate += (s, e) => dialogs.SetOnline(e.Data);
             }
-            else
+            catch (Exception ex)
             {
                 new RetryInformationPopup(
-                    LocalizedStrings.DialogsNoInternetError,
+                    ex is WebException
+                        ? LocalizedStrings.DialogsNoInternetError
+                        : ex.ToString(),
                     () => UpdateAll())
                     .Show();
             }
