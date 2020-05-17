@@ -13,9 +13,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             return new Group
             {
-                Id = group["id"].Value<uint>(),
-                Name = group["name"].Value<string>(),
-                Photo = ImageSource.FromUri(new Uri(group["photo_50"].Value<string>()))
+                Id = group["id"]!.Value<uint>(),
+                Name = group["name"]!.Value<string>(),
+                Photo = ImageSource.FromUri(new Uri(group["photo_50"]!.Value<string>()))
             };
         }
 
@@ -23,7 +23,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             return groups == null
                 ? Array.Empty<Group>()
-                : groups.Select(item => FromJson(item as JObject)).ToArray();
+                : groups.Select(item => FromJson((JObject)item)).ToArray();
         }
     }
 }

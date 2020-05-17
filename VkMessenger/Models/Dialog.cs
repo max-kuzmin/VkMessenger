@@ -10,8 +10,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     public class Dialog : INotifyPropertyChanged
     {
         public CustomObservableCollection<Profile> Profiles { get; }
-        public Group Group { get; }
-        public Chat Chat { get; }
+        public Group? Group { get; }
+        public Chat? Chat { get; }
         public CustomObservableCollection<Message> Messages { get; }
         public DialogType Type { get; }
         public uint UnreadCount { get; private set; }
@@ -25,8 +25,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 return Type switch
                 {
                     DialogType.User => (Profiles.First().Name + " " + Profiles.First().Surname),
-                    DialogType.Group => Group.Name,
-                    DialogType.Chat => Chat.Title,
+                    DialogType.Group => Group!.Name,
+                    DialogType.Chat => Chat!.Title,
                     _ => string.Empty
                 };
             }
@@ -39,14 +39,14 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 return Type switch
                 {
                     DialogType.User => (int)Profiles.First().Id,
-                    DialogType.Chat => (int)Chat.Id,
-                    DialogType.Group => -(int)Group.Id,
+                    DialogType.Chat => (int)Chat!.Id,
+                    DialogType.Group => -(int)Group!.Id,
                     _ => 0
                 };
             }
         }
 
-        public ImageSource Photo
+        public ImageSource? Photo
         {
             get
             {
@@ -61,10 +61,10 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        public Dialog(DialogType type, Group group, Chat chat, uint unreadCount,
-            IReadOnlyCollection<Profile> profiles, IReadOnlyCollection<Message> messages)
+        public Dialog(DialogType type, Group? group, Chat? chat, uint unreadCount,
+            IReadOnlyCollection<Profile>? profiles, IReadOnlyCollection<Message> messages)
         {
             Type = type;
             Group = group;

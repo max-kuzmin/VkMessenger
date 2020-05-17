@@ -52,7 +52,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
             Logger.Debug(json.ToString());
 
-            Authorization.SetPhoto(json["response"][0]["photo_50"].Value<string>());
+            Authorization.SetPhoto(json["response"]!.First()["photo_50"]!.Value<string>());
         }
     }
 }

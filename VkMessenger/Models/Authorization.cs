@@ -12,7 +12,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         private const string UserIdKey = "UserId";
         private const string PhotoKey = "Photo";
 
-        public static string Token
+        public static string? Token
         {
             get => Preference.Contains(TokenKey) ? Preference.Get<string>(TokenKey) : null;
             set { if (value != null) Preference.Set(TokenKey, value); }
@@ -24,7 +24,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             set => Preference.Set(UserIdKey, (int)value);
         }
 
-        public static ImageSource Photo
+        public static ImageSource? Photo
         {
             get
             {
@@ -42,6 +42,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             photoSource = ImageSource.FromUri(new Uri(url));
         }
 
-        private static ImageSource photoSource;
+        private static ImageSource? photoSource;
     }
 }

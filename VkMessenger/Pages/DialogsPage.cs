@@ -35,7 +35,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Called on start. If update unsuccessful show error popup and retry
         /// </summary>
-        private async void UpdateAll(object sender, EventArgs args)
+        private async void UpdateAll(object? sender = null, EventArgs? args = null)
         {
             Appearing -= UpdateAll;
 
@@ -56,7 +56,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 new RetryInformationPopup(
                     LocalizedStrings.DialogsNoInternetError,
-                    () => UpdateAll(null, null))
+                    () => UpdateAll())
                     .Show();
             }
 

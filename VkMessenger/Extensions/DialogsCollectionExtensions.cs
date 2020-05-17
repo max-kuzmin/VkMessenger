@@ -14,7 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// </summary>
         public static async Task<bool> Update(
             this CustomObservableCollection<Dialog> collection,
-            IReadOnlyCollection<int> dialogIds = null)
+            IReadOnlyCollection<int>? dialogIds = null)
         {
             var newDialogs = await DialogsClient.GetDialogs(dialogIds);
             if (newDialogs == null)

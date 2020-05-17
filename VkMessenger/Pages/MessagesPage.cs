@@ -58,7 +58,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Called on start. If update unsuccessful show error popup and retry
         /// </summary>
-        private async void UpdateAll(object s, EventArgs e)
+        private async void UpdateAll(object? s = null, EventArgs? e = null)
         {
             Appearing -= UpdateAll;
 
@@ -78,7 +78,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 new RetryInformationPopup(
                     LocalizedStrings.MessagesNoInternetError,
-                    () => UpdateAll(null, null))
+                    () => UpdateAll())
                     .Show();
             }
 
@@ -150,7 +150,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <summary>
         /// Send message, mark all as read
         /// </summary>
-        private async void OnTextCompleted(object sender, EventArgs args)
+        private async void OnTextCompleted(object? sender = null, EventArgs? args = null)
         {
             await dialog.SetReadWithMessagesAndPublish();
 
@@ -169,7 +169,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 popupEntryView.Text = text;
                 new RetryInformationPopup(
                         LocalizedStrings.SendMessageNoInternetError,
-                        () => OnTextCompleted(null, null))
+                        () => OnTextCompleted())
                     .Show();
             }
         }

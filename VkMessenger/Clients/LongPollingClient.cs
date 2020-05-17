@@ -14,13 +14,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class LongPollingClient
     {
-        public static event EventHandler<MessageEventArgs> OnMessageUpdate;
+        public static event EventHandler<MessageEventArgs>? OnMessageUpdate;
 
-        public static event EventHandler<DialogEventArgs> OnDialogUpdate;
+        public static event EventHandler<DialogEventArgs>? OnDialogUpdate;
 
-        public static event EventHandler<UserStatusEventArgs> OnUserStatusUpdate;
+        public static event EventHandler<UserStatusEventArgs>? OnUserStatusUpdate;
 
-        public static event EventHandler OnFullReset;
+        public static event EventHandler? OnFullReset;
 
         private static TimeSpan currentRequestInterval = LongPolling.RequestInterval;
         private static readonly Timer timer = new Timer(
@@ -41,9 +41,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
             Logger.Debug(json.ToString());
 
-            LongPolling.Key = json["response"]["key"].Value<string>();
-            LongPolling.Server = json["response"]["server"].Value<string>();
-            LongPolling.Ts ??= json["response"]["ts"].Value<uint>();
+            var response = json["response"]!;
+
+            LongPolling.Key = response["key"]!.Value<string>();
+            LongPolling.Server = response["server"]!.Value<string>();
+            LongPolling.Ts ??= response["ts"]!.Value<uint>();
         }
 
         private static async Task<JObject> SendLongRequest()
@@ -64,13 +66,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         private static void ParseLongPollingJson(JObject json)
         {
-            LongPolling.Ts = json["ts"].Value<uint>();
+            LongPolling.Ts = json["ts"]!.Value<uint>();
 
             var messageEventArgs = new MessageEventArgs();
             var dialogEventArgs = new DialogEventArgs();
             var userStatusEventArgs = new UserStatusEventArgs();
 
-            foreach (var jToken in (JArray)json["updates"])
+            foreach (var jToken in (JArray)json["updates"]!)
             {
                 var update = (JArray)jToken;
                 switch (update[0].Value<uint>())
@@ -107,8 +109,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                             userStatusEventArgs.Data.Add(((uint)update[1].Value<int>(), false));
                             break;
                         }
-                    default:
-                        break;
                 }
             }
 

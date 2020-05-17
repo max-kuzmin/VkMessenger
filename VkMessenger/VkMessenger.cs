@@ -23,7 +23,7 @@ namespace ru.MaxKuzmin.VkMessenger
             base.OnCreate();
 
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
-                Logger.Error(e.ExceptionObject as Exception);
+                Logger.Error(e.ExceptionObject);
 
             var config = new Configuration
             {

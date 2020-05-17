@@ -20,10 +20,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
     {
         private static readonly MD5 Md5Hasher = MD5.Create();
 
-        public static async Task<IReadOnlyCollection<Message>> GetMessages(
+        public static async Task<IReadOnlyCollection<Message>?> GetMessages(
             int dialogId,
             uint? offset = null,
-            IReadOnlyCollection<uint> messagesIds = null)
+            IReadOnlyCollection<uint>? messagesIds = null)
         {
             try
             {
@@ -33,9 +33,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     ? await GetMessagesJson(messagesIds)
                     : await GetMessagesJson(dialogId, offset));
 
-                var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
-                var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
-                return FromJsonArray(json["response"]["items"] as JArray, profiles, groups);
+                var response = json["response"]!;
+                var profiles = ProfilesClient.FromJsonArray((JArray)response["profiles"]!);
+                var groups = GroupsClient.FromJsonArray((JArray)response["groups"]!);
+                return FromJsonArray((JArray)response["items"]!, profiles, groups);
             }
             catch (Exception e)
             {
@@ -49,7 +50,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups)
         {
-            return source.Select(item => FromJson(item as JObject, profiles, groups)).ToList();
+            return source.Select(item => FromJson((JObject)item, profiles, groups)).ToList();
         }
 
         public static Message FromJson(
@@ -57,10 +58,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups)
         {
-            var dialogId = (uint)source["from_id"].Value<int>();
-            var messageId = source["id"].Value<uint>();
-            var date = new DateTime(source["date"].Value<uint>(), DateTimeKind.Utc);
-            var fullText = source["text"].Value<string>();
+            var dialogId = (uint)source["from_id"]!.Value<int>();
+            var messageId = source["id"]!.Value<uint>();
+            var date = new DateTime(source["date"]!.Value<uint>(), DateTimeKind.Utc);
+            var fullText = source["text"]!.Value<string>();
 
             var attachmentImages = new List<ImageSource>();
             var attachmentUris = new List<Uri>();
@@ -69,24 +70,24 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var attachmentMessages = (source["fwd_messages"] as JArray)?
                 .Select(i =>
                 (
-                    profiles.Single(e => e.Id == i["from_id"].Value<uint>()),
-                    i["text"].Value<string>()
+                    profiles.Single(e => e.Id == i["from_id"]!.Value<uint>()),
+                    i["text"]!.Value<string>()
                 )).ToArray();
 
             if (source["attachments"] is JArray attachments)
             {
                 foreach (var item in attachments)
                 {
-                    switch (item["type"].Value<string>())
+                    switch (item["type"]!.Value<string>())
                     {
                         case "photo":
                             attachmentImages
-                                .Add(new Uri(item["photo"]["sizes"]
-                                .Single(i => i["type"].Value<string>() == "q")["url"].Value<string>()));
+                                .Add(new Uri(item["photo"]!["sizes"]!
+                                .Single(i => i["type"]!.Value<string>() == "q")["url"]!.Value<string>()));
                             break;
 
                         case "link":
-                            attachmentUris.Add(new Uri(item["link"]["url"].Value<string>()));
+                            attachmentUris.Add(new Uri(item["link"]!["url"]!.Value<string>()));
                             break;
 
                         case "wall":
@@ -106,7 +107,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                             break;
 
                         default:
-                            otherAttachments.Add(item["type"].Value<string>());
+                            otherAttachments.Add(item["type"]!.Value<string>());
                             break;
                     }
                 }

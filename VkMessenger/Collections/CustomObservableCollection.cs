@@ -16,9 +16,9 @@ namespace ru.MaxKuzmin.VkMessenger.Collections
         {
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
+        public virtual event NotifyCollectionChangedEventHandler? CollectionChanged;
 
         protected override void ClearItems()
         {

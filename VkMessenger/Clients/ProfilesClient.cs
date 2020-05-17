@@ -13,11 +13,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             return new Profile
             {
-                Id = profile["id"].Value<uint>(),
-                Name = profile["first_name"].Value<string>(),
-                Surname = profile["last_name"].Value<string>(),
-                Photo = ImageSource.FromUri(new Uri(profile["photo_50"].Value<string>())),
-                Online = profile["online"].Value<uint>() != 0
+                Id = profile["id"]!.Value<uint>(),
+                Name = profile["first_name"]!.Value<string>(),
+                Surname = profile["last_name"]!.Value<string>(),
+                Photo = ImageSource.FromUri(new Uri(profile["photo_50"]!.Value<string>())),
+                Online = profile["online"]!.Value<uint>() != 0
             };
         }
 
@@ -25,7 +25,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             return profiles == null
                 ? Array.Empty<Profile>()
-                : profiles.Select(item => FromJson(item as JObject)).ToArray();
+                : profiles.Select(item => FromJson((JObject)item)).ToArray();
         }
     }
 }

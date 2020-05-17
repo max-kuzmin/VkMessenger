@@ -16,8 +16,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public string Text { get; private set; }
         public bool Read { get; private set; }
         public DateTime Date { get; }
-        public Profile Profile { get; }
-        public Group Group { get; }
+        public Profile? Profile { get; }
+        public Group? Group { get; }
         public string FullText { get; }
         public IReadOnlyCollection<ImageSource> AttachmentImages { get; }
         public IReadOnlyCollection<Uri> AttachmentUris { get; }
@@ -37,31 +37,31 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
-        public ImageSource Photo =>
+        public ImageSource? Photo =>
             Profile?.Photo ??
             Group?.Photo ??
             Authorization.Photo;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public Message(
             uint id,
             string fullText,
             DateTime date,
-            Profile profile,
-            Group group,
-            IReadOnlyCollection<ImageSource> attachmentImages,
-            IReadOnlyCollection<Uri> attachmentUris,
-            IReadOnlyCollection<(Profile Profile, string Text)> attachmentMessages,
+            Profile? profile,
+            Group? group,
+            IReadOnlyCollection<ImageSource>? attachmentImages,
+            IReadOnlyCollection<Uri>? attachmentUris,
+            IReadOnlyCollection<(Profile Profile, string Text)>? attachmentMessages,
             IReadOnlyCollection<string> otherAttachments)
         {
             Id = id;
             Date = date;
             Group = group;
             Profile = profile;
-            AttachmentImages = attachmentImages;
-            AttachmentUris = attachmentUris;
-            AttachmentMessages = attachmentMessages;
+            AttachmentImages = attachmentImages ?? Array.Empty<ImageSource>();
+            AttachmentUris = attachmentUris ?? Array.Empty<Uri>();
+            AttachmentMessages = attachmentMessages ?? Array.Empty<(Profile Profile, string Text)>();
             Read = Profile?.Id == Authorization.UserId;
             FullText = fullText;
 

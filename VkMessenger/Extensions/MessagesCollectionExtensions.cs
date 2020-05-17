@@ -16,7 +16,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             this CustomObservableCollection<Message> collection,
             int dialogId,
             uint? offset = null,
-            IReadOnlyCollection<uint> messagesIds = null)
+            IReadOnlyCollection<uint>? messagesIds = null)
         {
             var newMessages = await MessagesClient.GetMessages(dialogId, offset, messagesIds);
             if (newMessages == null)
