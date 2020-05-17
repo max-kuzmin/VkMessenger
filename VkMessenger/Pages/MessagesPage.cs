@@ -2,12 +2,12 @@
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Extensions;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Models;
 using ru.MaxKuzmin.VkMessenger.pages;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using ru.MaxKuzmin.VkMessenger.Localization;
 using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
@@ -19,7 +19,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private readonly StackLayout verticalLayout = new StackLayout();
         private readonly Dialog dialog;
         private bool shouldScroll;
-        private bool firstTapPerformed = false;
+        private bool firstTapPerformed;
 
         private readonly SwipeGestureRecognizer swipeRecognizer = new SwipeGestureRecognizer
         {
@@ -30,7 +30,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             ItemTemplate = new DataTemplate(typeof(MessageCell)),
             HasUnevenRows = true,
-            Rotation = 180,
+            Rotation = 180
         };
 
         private readonly PopupEntry popupEntryView = new PopupEntry
@@ -90,11 +90,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (!firstTapPerformed)
             {
                 firstTapPerformed = true;
-                Task.Run(async () =>
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(1));
-                    firstTapPerformed = false;
-                });
+                _ = Task.Run(async () =>
+                  {
+                      await Task.Delay(TimeSpan.FromSeconds(1));
+                      firstTapPerformed = false;
+                  });
                 return;
             }
 
@@ -125,11 +125,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 messagesListView.ScrollIfExist(message, ScrollToPosition.MakeVisible);
 
                 // To prevent event activation
-                Task.Run(async () =>
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(0.5));
-                    messagesListView.ItemAppearing += LoadMoreMessages;
-                });
+                _ = Task.Run(async () =>
+                  {
+                      await Task.Delay(TimeSpan.FromSeconds(0.5));
+                      messagesListView.ItemAppearing += LoadMoreMessages;
+                  });
             }
         }
 
@@ -155,20 +155,22 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             await dialog.SetReadWithMessagesAndPublish();
 
             var text = popupEntryView.Text;
-            if (!string.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text))
             {
-                if (await MessagesClient.Send(text, dialog.Id))
-                {
-                    popupEntryView.Text = string.Empty;
-                }
-                else
-                {
-                    popupEntryView.Text = text;
-                    new RetryInformationPopup(
+                return;
+            }
+
+            if (await MessagesClient.Send(text, dialog.Id))
+            {
+                popupEntryView.Text = string.Empty;
+            }
+            else
+            {
+                popupEntryView.Text = text;
+                new RetryInformationPopup(
                         LocalizedStrings.SendMessageNoInternetError,
                         () => OnTextCompleted(null, null))
-                        .Show();
-                }
+                    .Show();
             }
         }
 
@@ -182,7 +184,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             return base.OnBackButtonPressed();
         }
 
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             if (shouldScroll)
             {

@@ -1,9 +1,9 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Collections;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ru.MaxKuzmin.VkMessenger.Collections;
 
 namespace ru.MaxKuzmin.VkMessenger.Extensions
 {

@@ -1,5 +1,5 @@
-﻿using System;
-using ru.MaxKuzmin.VkMessenger.Localization;
+﻿using ru.MaxKuzmin.VkMessenger.Localization;
+using System;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -11,7 +11,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             void CommandToExecute()
             {
-                this.Dismiss();
+                Dismiss();
                 retryAction();
             }
 

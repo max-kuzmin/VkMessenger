@@ -37,33 +37,29 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&lp_version=3" +
                 "&access_token=" + Authorization.Token;
 
-            using (var client = new ProxiedWebClient())
-            {
-                var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
-                Logger.Debug(json.ToString());
+            using var client = new ProxiedWebClient();
+            var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
+            Logger.Debug(json.ToString());
 
-                LongPolling.Key = json["response"]["key"].Value<string>();
-                LongPolling.Server = json["response"]["server"].Value<string>();
-                LongPolling.Ts = LongPolling.Ts ?? json["response"]["ts"].Value<uint>();
-            }
+            LongPolling.Key = json["response"]["key"].Value<string>();
+            LongPolling.Server = json["response"]["server"].Value<string>();
+            LongPolling.Ts ??= json["response"]["ts"].Value<uint>();
         }
 
         private static async Task<JObject> SendLongRequest()
         {
-            using (var client = new ProxiedWebClient())
-            {
-                var url = "https://" + LongPolling.Server +
-                    "?act=a_check" +
-                    "&key=" + LongPolling.Key +
-                    "&ts=" + LongPolling.Ts +
-                    "&wait=" + LongPolling.WaitTime +
-                    "&version=3";
+            using var client = new ProxiedWebClient();
+            var url = "https://" + LongPolling.Server +
+"?act=a_check" +
+"&key=" + LongPolling.Key +
+"&ts=" + LongPolling.Ts +
+"&wait=" + LongPolling.WaitTime +
+"&version=3";
 
-                var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
-                Logger.Debug(json.ToString());
+            var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
+            Logger.Debug(json.ToString());
 
-                return json;
-            }
+            return json;
         }
 
         private static void ParseLongPollingJson(JObject json)
@@ -111,6 +107,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                             userStatusEventArgs.Data.Add(((uint)update[1].Value<int>(), false));
                             break;
                         }
+                    default:
+                        break;
                 }
             }
 

@@ -21,12 +21,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static IReadOnlyCollection<Group> FromJsonArray(JArray groups)
         {
-            if (groups == null)
-            {
-                return Array.Empty<Group>();
-            }
-
-            return groups.Select(item => FromJson(item as JObject)).ToArray();
+            return groups == null
+                ? Array.Empty<Group>()
+                : groups.Select(item => FromJson(item as JObject)).ToArray();
         }
     }
 }

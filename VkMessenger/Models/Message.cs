@@ -1,8 +1,8 @@
-﻿using System;
+﻿using ru.MaxKuzmin.VkMessenger.Localization;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using ru.MaxKuzmin.VkMessenger.Localization;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
@@ -75,7 +75,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 Text = fullText;
             }
 
-            foreach (var profileName in attachmentMessages.Select(e => e.Profile.Name).Distinct())
+            foreach (var _ in attachmentMessages.Select(e => e.Profile.Name).Distinct())
             {
                 Text += $"\n{PaperClip} {LocalizedStrings.Message}";
                 FullScreenAllowed = true;

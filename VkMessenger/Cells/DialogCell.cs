@@ -110,19 +110,21 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static void OnUnreadCountPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is DialogCell cell)
+            if (!(bindable is DialogCell cell))
             {
-                var unreadCount = (uint)newValue;
-                if (unreadCount > 0)
-                {
-                    cell.unreadCount.Text = $"({unreadCount})";
-                    cell.View.BackgroundColor = CustomColors.DarkBlue;
-                }
-                else
-                {
-                    cell.unreadCount.Text = string.Empty;
-                    cell.View.BackgroundColor = Color.Black;
-                }
+                return;
+            }
+
+            var unreadCount = (uint)newValue;
+            if (unreadCount > 0)
+            {
+                cell.unreadCount.Text = $"({unreadCount})";
+                cell.View.BackgroundColor = CustomColors.DarkBlue;
+            }
+            else
+            {
+                cell.unreadCount.Text = string.Empty;
+                cell.View.BackgroundColor = Color.Black;
             }
         }
 

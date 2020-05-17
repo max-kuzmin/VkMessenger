@@ -1,12 +1,12 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Cells;
 using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Collections;
 using ru.MaxKuzmin.VkMessenger.Extensions;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ru.MaxKuzmin.VkMessenger.Collections;
-using ru.MaxKuzmin.VkMessenger.Localization;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 

@@ -48,13 +48,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&fields=photo_50" +
                 "&access_token=" + Authorization.Token;
 
-            using (var client = new ProxiedWebClient())
-            {
-                var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
-                Logger.Debug(json.ToString());
+            using var client = new ProxiedWebClient();
+            var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
+            Logger.Debug(json.ToString());
 
-                Authorization.SetPhoto(json["response"][0]["photo_50"].Value<string>());
-            }
+            Authorization.SetPhoto(json["response"][0]["photo_50"].Value<string>());
         }
     }
 }

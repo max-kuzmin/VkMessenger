@@ -2,12 +2,12 @@ using FFImageLoading;
 using FFImageLoading.Config;
 using FFImageLoading.Forms.Platform;
 using FFImageLoading.Work;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Net;
 using System;
 using System.Globalization;
 using System.Threading;
-using ru.MaxKuzmin.VkMessenger.Localization;
 using Tizen.Applications;
 using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
@@ -78,7 +78,7 @@ namespace ru.MaxKuzmin.VkMessenger
             ImageService.Instance.InvalidateMemoryCache();
         }
 
-        private void SetCulture()
+        private static void SetCulture()
         {
             const string RuCulture = "ru";
             if (SystemSettings.LocaleLanguage.Contains(RuCulture))

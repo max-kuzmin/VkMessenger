@@ -22,17 +22,13 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         {
             get
             {
-                switch (Type)
+                return Type switch
                 {
-                    case DialogType.User:
-                        return Profiles.First().Name + " " + Profiles.First().Surname;
-                    case DialogType.Group:
-                        return Group.Name;
-                    case DialogType.Chat:
-                        return Chat.Title;
-                    default:
-                        return string.Empty;
-                }
+                    DialogType.User => (Profiles.First().Name + " " + Profiles.First().Surname),
+                    DialogType.Group => Group.Name,
+                    DialogType.Chat => Chat.Title,
+                    _ => string.Empty
+                };
             }
         }
 
@@ -40,17 +36,13 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         {
             get
             {
-                switch (Type)
+                return Type switch
                 {
-                    case DialogType.User:
-                        return (int)Profiles.First().Id;
-                    case DialogType.Chat:
-                        return (int)Chat.Id;
-                    case DialogType.Group:
-                        return -(int)Group.Id;
-                    default:
-                        return 0;
-                }
+                    DialogType.User => (int)Profiles.First().Id,
+                    DialogType.Chat => (int)Chat.Id,
+                    DialogType.Group => -(int)Group.Id,
+                    _ => 0
+                };
             }
         }
 

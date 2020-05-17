@@ -23,12 +23,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static IReadOnlyCollection<Profile> FromJsonArray(JArray profiles)
         {
-            if (profiles == null)
-            {
-                return Array.Empty<Profile>();
-            }
-
-            return profiles.Select(item => FromJson(item as JObject)).ToArray();
+            return profiles == null
+                ? Array.Empty<Profile>()
+                : profiles.Select(item => FromJson(item as JObject)).ToArray();
         }
     }
 }

@@ -19,14 +19,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             IReadOnlyCollection<Group> groups,
             IReadOnlyCollection<Message> lastMessages)
         {
-            var result = new List<Dialog>();
-
-            foreach (var item in dialogs)
-            {
-                result.Add(FromJson(item as JObject, profiles, groups, lastMessages));
-            }
-
-            return result;
+            return dialogs
+                .Select(item => FromJson(item as JObject, profiles, groups, lastMessages))
+                .ToList();
         }
 
         private static Dialog FromJson(
@@ -49,38 +44,39 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             switch (dialogType)
             {
                 case DialogType.User:
-                {
-                    var dialogProfiles = new[] { profiles.First(p => p.Id == dialogId) };
-                    result = new Dialog(dialogType, null, null, unreadCount, dialogProfiles, lastMessage);
-                    break;
-                }
+                    {
+                        var dialogProfiles = new[] { profiles.First(p => p.Id == dialogId) };
+                        result = new Dialog(dialogType, null, null, unreadCount, dialogProfiles, lastMessage);
+                        break;
+                    }
                 case DialogType.Group:
-                {
-                    var group = groups.First(g => g.Id == Math.Abs(dialogId));
-                    result = new Dialog(dialogType, group, null, unreadCount, null, lastMessage);
-                    break;
-                }
+                    {
+                        var group = groups.First(g => g.Id == Math.Abs(dialogId));
+                        result = new Dialog(dialogType, group, null, unreadCount, null, lastMessage);
+                        break;
+                    }
                 case DialogType.Chat:
-                {
-                    var chatSettings = conversation["chat_settings"];
-                    var chat = new Chat
                     {
-                        Title = chatSettings["title"].Value<string>(),
-                        Id = (uint)dialogId,
-                        Photo = chatSettings["photo"] != null
-                            ? ImageSource.FromUri(new Uri(chatSettings["photo"]["photo_50"].Value<string>()))
-                            : null
-                    };
+                        var chatSettings = conversation["chat_settings"];
+                        var chat = new Chat
+                        {
+                            Title = chatSettings["title"].Value<string>(),
+                            Id = (uint)dialogId,
+                            Photo = chatSettings["photo"] != null
+                                ? ImageSource.FromUri(new Uri(chatSettings["photo"]["photo_50"].Value<string>()))
+                                : null
+                        };
 
-                    var dialogProfiles = new List<Profile>();
-                    foreach (var id in (JArray)chatSettings["active_ids"])
-                    {
-                        dialogProfiles.Add(profiles.First(p => p.Id == id.Value<uint>()));
+                        var dialogProfiles = ((JArray)chatSettings["active_ids"])
+                            .Select(id => profiles.First(p => p.Id == id.Value<uint>()))
+                            .ToArray();
+
+                        result = new Dialog(dialogType, null, chat, unreadCount, dialogProfiles, lastMessage);
+                        break;
                     }
 
-                    result = new Dialog(dialogType, null, chat, unreadCount, dialogProfiles, lastMessage);
+                default:
                     break;
-                }
             }
 
             return result;
@@ -99,15 +95,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var profiles = ProfilesClient.FromJsonArray(json["response"]["profiles"] as JArray);
                 var groups = GroupsClient.FromJsonArray(json["response"]["groups"] as JArray);
 
-                var lastMessagesIds = new List<uint>();
-                foreach (var jToken in json["response"]["items"])
-                {
-                    var item = (JObject)jToken;
-                    if (!item.ContainsKey("last_message"))
-                    {
-                        lastMessagesIds.Add(item["last_message_id"].Value<uint>());
-                    }
-                }
+                var lastMessagesIds = json["response"]["items"]
+                    .Select(jToken => (JObject)jToken)
+                    .Where(e => !e.ContainsKey("last_message"))
+                    .Select(e => e["last_message_id"].Value<uint>()).ToList();
+
                 var lastMessages = lastMessagesIds.Any()
                     ? await MessagesClient.GetMessages(0, 0, lastMessagesIds)
                     : Array.Empty<Message>();
@@ -129,12 +121,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&extended=1" +
                 "&access_token=" + Authorization.Token;
 
-            using (var client = new ProxiedWebClient())
-            {
-                var json = await client.DownloadStringTaskAsync(url);
-                Logger.Debug(json);
-                return json;
-            }
+            using var client = new ProxiedWebClient();
+            var json = await client.DownloadStringTaskAsync(url);
+            Logger.Debug(json);
+            return json;
         }
 
         public static async Task<bool> MarkAsRead(int dialogId)
@@ -147,12 +137,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     "&peer_id=" + dialogId +
                     "&access_token=" + Authorization.Token;
 
-                using (var client = new ProxiedWebClient())
-                {
-                    var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
-                    Logger.Debug(json.ToString());
-                    return json["response"].Value<int>() == 1;
-                }
+                using var client = new ProxiedWebClient();
+                var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
+                Logger.Debug(json.ToString());
+                return json["response"].Value<int>() == 1;
             }
             catch (Exception e)
             {
@@ -170,12 +158,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&peer_ids=" + dialogIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
                 "&access_token=" + Authorization.Token;
 
-            using (var client = new ProxiedWebClient())
-            {
-                var json = await client.DownloadStringTaskAsync(url);
-                Logger.Debug(json);
-                return json;
-            }
+            using var client = new ProxiedWebClient();
+            var json = await client.DownloadStringTaskAsync(url);
+            Logger.Debug(json);
+            return json;
         }
     }
 }

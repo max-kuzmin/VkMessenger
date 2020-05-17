@@ -61,39 +61,43 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static void OnSenderIdPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is MessageCell cell)
+            if (!(bindable is MessageCell cell))
             {
-                var dialogId = (int)newValue;
-                if (dialogId != Authorization.UserId)
-                {
-                    cell.wrapperLayout.LowerChild(cell.photo);
-                    cell.photo.HorizontalOptions = LayoutOptions.End;
-                    cell.text.HorizontalOptions = LayoutOptions.FillAndExpand;
-                    cell.text.HorizontalTextAlignment = TextAlignment.Start;
-                    cell.View.BackgroundColor = CustomColors.DarkBlue;
-                }
-                else
-                {
-                    cell.wrapperLayout.RaiseChild(cell.photo);
-                    cell.photo.HorizontalOptions = LayoutOptions.Start;
-                    cell.text.HorizontalOptions = LayoutOptions.FillAndExpand;
-                    cell.text.HorizontalTextAlignment = TextAlignment.End;
-                }
+                return;
+            }
+
+            var dialogId = (int)newValue;
+            if (dialogId != Authorization.UserId)
+            {
+                cell.wrapperLayout.LowerChild(cell.photo);
+                cell.photo.HorizontalOptions = LayoutOptions.End;
+                cell.text.HorizontalOptions = LayoutOptions.FillAndExpand;
+                cell.text.HorizontalTextAlignment = TextAlignment.Start;
+                cell.View.BackgroundColor = CustomColors.DarkBlue;
+            }
+            else
+            {
+                cell.wrapperLayout.RaiseChild(cell.photo);
+                cell.photo.HorizontalOptions = LayoutOptions.Start;
+                cell.text.HorizontalOptions = LayoutOptions.FillAndExpand;
+                cell.text.HorizontalTextAlignment = TextAlignment.End;
             }
         }
 
         private static void OnReadPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is MessageCell cell)
+            if (!(bindable is MessageCell cell))
             {
-                if ((bool)newValue)
-                {
-                    cell.View.BackgroundColor = Color.Black;
-                }
-                else
-                {
-                    cell.View.BackgroundColor = CustomColors.DarkBlue;
-                }
+                return;
+            }
+
+            if ((bool)newValue)
+            {
+                cell.View.BackgroundColor = Color.Black;
+            }
+            else
+            {
+                cell.View.BackgroundColor = CustomColors.DarkBlue;
             }
         }
     }

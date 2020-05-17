@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Extensions;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
 using ru.MaxKuzmin.VkMessenger.Net;
@@ -10,7 +11,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ru.MaxKuzmin.VkMessenger.Localization;
 using Xamarin.Forms;
 using Group = ru.MaxKuzmin.VkMessenger.Models.Group;
 
@@ -147,12 +147,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&peer_id=" + dialogId +
                 "&access_token=" + Authorization.Token;
 
-            using (var client = new ProxiedWebClient())
-            {
-                var json = await client.DownloadStringTaskAsync(url);
-                Logger.Debug(json);
-                return json;
-            }
+            using var client = new ProxiedWebClient();
+            var json = await client.DownloadStringTaskAsync(url);
+            Logger.Debug(json);
+            return json;
         }
 
         public static async Task<bool> Send(string text, int dialogId)
@@ -167,12 +165,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     "&message=" + text +
                     "&access_token=" + Authorization.Token;
 
-                using (var client = new ProxiedWebClient())
-                {
-                    var json = await client.DownloadStringTaskAsync(url);
-                    Logger.Debug(json);
-                    return true;
-                }
+                using var client = new ProxiedWebClient();
+                var json = await client.DownloadStringTaskAsync(url);
+                Logger.Debug(json);
+                return true;
             }
             catch (Exception e)
             {
@@ -190,12 +186,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&message_ids=" + messagesIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
                 "&access_token=" + Authorization.Token;
 
-            using (var client = new ProxiedWebClient())
-            {
-                var json = await client.DownloadStringTaskAsync(url);
-                Logger.Debug(json);
-                return json;
-            }
+            using var client = new ProxiedWebClient();
+            var json = await client.DownloadStringTaskAsync(url);
+            Logger.Debug(json);
+            return json;
         }
     }
 }
