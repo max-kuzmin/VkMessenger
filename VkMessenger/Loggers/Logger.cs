@@ -28,11 +28,11 @@ namespace ru.MaxKuzmin.VkMessenger.Loggers
 #else
     public static class Logger
     {
-        public static void Info(string text, string file = null, string caller = null, int line = 0) { }
+        public static void Info(string text, string? file = null, string? caller = null, int line = 0) { }
 
-        public static void Debug(string text, string file = null, string caller = null, int line = 0) { }
+        public static void Debug(string text, string? file = null, string? caller = null, int line = 0) { }
 
-        public static void Error(Exception e, string file = null, string caller = null, int line = 0) { }
+        public static void Error(object e, string? file = null, string? caller = null, int line = 0) { }
     }
 #endif
 }
