@@ -127,7 +127,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 messagesListView.ItemAppearing -= LoadMoreMessages;
 
                 await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count);
-                messagesListView.ScrollIfExist(message, ScrollToPosition.MakeVisible);
+                messagesListView.ScrollIfExist(message, ScrollToPosition.Center);
 
                 // To prevent event activation
                 _ = Task.Run(async () =>
