@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
@@ -76,19 +77,19 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
             foreach (var profileName in attachmentMessages.Select(e => e.Profile.Name).Distinct())
             {
-                Text += $"\n{PaperClip} Message";
+                Text += $"\n{PaperClip} {LocalizedStrings.Message}";
                 FullScreenAllowed = true;
             }
 
             if (attachmentUris.Any())
             {
-                Text += $"\n{PaperClip} Link";
+                Text += $"\n{PaperClip} {LocalizedStrings.Link}";
                 FullScreenAllowed = true;
             }
 
             if (attachmentImages.Any())
             {
-                Text += $"\n{PaperClip} Image";
+                Text += $"\n{PaperClip} {LocalizedStrings.Image}";
                 FullScreenAllowed = true;
             }
 

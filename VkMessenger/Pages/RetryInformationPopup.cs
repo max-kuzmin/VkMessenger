@@ -1,4 +1,5 @@
 ﻿using System;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -17,7 +18,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             Text = message;
             BottomButton = new MenuItem
             {
-                Text = "Retry",
+                Text = LocalizedStrings.Retry,
                 Command = new Command(CommandToExecute)
             };
         }

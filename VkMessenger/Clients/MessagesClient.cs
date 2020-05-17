@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using Xamarin.Forms;
 using Group = ru.MaxKuzmin.VkMessenger.Models.Group;
 
@@ -89,19 +90,19 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                             break;
 
                         case "wall":
-                            otherAttachments.Add("Wall post");
+                            otherAttachments.Add(LocalizedStrings.WallPost);
                             break;
 
                         case "video":
-                            otherAttachments.Add("Video");
+                            otherAttachments.Add(LocalizedStrings.Video);
                             break;
 
                         case "doc":
-                            otherAttachments.Add("File");
+                            otherAttachments.Add(LocalizedStrings.File);
                             break;
 
                         case "album":
-                            otherAttachments.Add("Album");
+                            otherAttachments.Add(LocalizedStrings.Album);
                             break;
 
                         default:

@@ -3,7 +3,7 @@ using Tizen.Network.Connection;
 
 namespace ru.MaxKuzmin.VkMessenger.Net
 {
-    public class ProxiedWebClient : WebClient
+    public sealed class ProxiedWebClient : WebClient
     {
         public ProxiedWebClient()
         {

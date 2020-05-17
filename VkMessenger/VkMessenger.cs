@@ -5,7 +5,11 @@ using FFImageLoading.Work;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Net;
 using System;
+using System.Globalization;
+using System.Threading;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using Tizen.Applications;
+using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Tizen;
@@ -54,6 +58,8 @@ namespace ru.MaxKuzmin.VkMessenger
             };
             ImageService.Instance.Initialize(config);
 
+            SetCulture();
+
             LoadApplication(new App());
         }
 
@@ -70,6 +76,18 @@ namespace ru.MaxKuzmin.VkMessenger
         {
             base.OnLowMemory(e);
             ImageService.Instance.InvalidateMemoryCache();
+        }
+
+        private void SetCulture()
+        {
+            const string RuCulture = "ru";
+            if (SystemSettings.LocaleLanguage.Contains(RuCulture))
+            {
+                var culture = new CultureInfo(RuCulture);
+                Thread.CurrentThread.CurrentCulture = culture;
+                Thread.CurrentThread.CurrentUICulture = culture;
+                LocalizedStrings.Culture = culture;
+            }
         }
     }
 }

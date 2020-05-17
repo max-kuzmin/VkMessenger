@@ -7,7 +7,7 @@ using Tizen.Network.Connection;
 
 namespace ru.MaxKuzmin.VkMessenger.Net
 {
-    public class ProxiedDataResolverFactory : DataResolverFactory
+    public sealed class ProxiedDataResolverFactory : DataResolverFactory
     {
         public override IDataResolver GetResolver(string identifier, ImageSource source, TaskParameter parameters, Configuration configuration)
         {

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ru.MaxKuzmin.VkMessenger.Collections;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -38,7 +39,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             Appearing -= UpdateAll;
 
-            var refreshingPopup = new InformationPopup { Text = "Loading dialogs..." };
+            var refreshingPopup = new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
             refreshingPopup.Show();
 
 
@@ -54,7 +55,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             else
             {
                 new RetryInformationPopup(
-                    "Can't load dialogs. No internet connection",
+                    LocalizedStrings.DialogsNoInternetError,
                     () => UpdateAll(null, null))
                     .Show();
             }
