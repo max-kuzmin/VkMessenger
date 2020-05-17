@@ -30,7 +30,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             ItemTemplate = new DataTemplate(typeof(MessageCell)),
             HasUnevenRows = true,
-            Rotation = 180
+            Rotation = 180,
+            BarColor = Color.Transparent
         };
 
         private readonly PopupEntry popupEntryView = new PopupEntry
