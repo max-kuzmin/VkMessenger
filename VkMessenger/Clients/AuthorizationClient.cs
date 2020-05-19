@@ -4,6 +4,7 @@ using ru.MaxKuzmin.VkMessenger.Net;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 using Authorization = ru.MaxKuzmin.VkMessenger.Models.Authorization;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
@@ -37,6 +38,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 return true;
             }
             else return false;
+        }
+
+        public static void CleanUserAndExit()
+        {
+            Authorization.Token = null;
+            Application.Current.Quit();
         }
 
         private static async Task GetPhoto()

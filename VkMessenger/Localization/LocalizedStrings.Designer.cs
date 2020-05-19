@@ -97,6 +97,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid session. Please, retry login.
+        /// </summary>
+        internal static string InvalidSessionError {
+            get {
+                return ResourceManager.GetString("InvalidSessionError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Link.
         /// </summary>
         internal static string Link {
@@ -138,6 +147,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         internal static string MessagesNoInternetError {
             get {
                 return ResourceManager.GetString("MessagesNoInternetError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        internal static string Ok {
+            get {
+                return ResourceManager.GetString("Ok", resourceCulture);
             }
         }
         

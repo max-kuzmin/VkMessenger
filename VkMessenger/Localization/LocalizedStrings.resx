@@ -137,4 +137,10 @@
 	<data name="Retry" xml:space="preserve">
     	<value>Retry</value>
   	</data>
+	<data name="Ok" xml:space="preserve">
+    	<value>OK</value>
+  	</data>
+	<data name="InvalidSessionError" xml:space="preserve">
+    	<value>Invalid session. Please, retry login</value>
+  	</data>
 </root>

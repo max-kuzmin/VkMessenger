@@ -15,7 +15,17 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public static string? Token
         {
             get => Preference.Contains(TokenKey) ? Preference.Get<string>(TokenKey) : null;
-            set { if (value != null) Preference.Set(TokenKey, value); }
+            set
+            {
+                if (value != null)
+                {
+                    Preference.Set(TokenKey, value);
+                }
+                else
+                {
+                    Preference.Remove(TokenKey);
+                }
+            }
         }
 
         public static uint UserId

@@ -137,4 +137,10 @@
 	<data name="Retry" xml:space="preserve">
     	<value>Повторить</value>
   	</data>
+	<data name="Ok" xml:space="preserve">
+    	<value>ОК</value>
+  	</data>
+	<data name="InvalidSessionError" xml:space="preserve">
+    	<value>Невалидная сессия. Пожалуйста, повторите логин</value>
+  	</data>
 </root>

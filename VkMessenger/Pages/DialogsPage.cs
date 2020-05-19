@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using ru.MaxKuzmin.VkMessenger.Exceptions;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -54,12 +55,27 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds.ToArray());
                 LongPollingClient.OnUserStatusUpdate += (s, e) => dialogs.SetOnline(e.Data);
             }
+            catch (WebException)
+            {
+                new CustomPopup(
+                    LocalizedStrings.DialogsNoInternetError, 
+                    LocalizedStrings.Retry, 
+                    () => UpdateAll())
+                    .Show();
+            }
+            catch (InvalidSessionException)
+            {
+                new CustomPopup(
+                        LocalizedStrings.InvalidSessionError, 
+                        LocalizedStrings.Ok, 
+                        AuthorizationClient.CleanUserAndExit)
+                    .Show();
+            }
             catch (Exception ex)
             {
-                new RetryInformationPopup(
-                    ex is WebException
-                        ? LocalizedStrings.DialogsNoInternetError
-                        : ex.ToString(),
+                new CustomPopup(
+                    ex.ToString(),
+                    LocalizedStrings.Retry,
                     () => UpdateAll())
                     .Show();
             }

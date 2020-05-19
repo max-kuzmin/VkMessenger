@@ -1,24 +1,23 @@
-﻿using ru.MaxKuzmin.VkMessenger.Localization;
-using System;
+﻿using System;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    public class RetryInformationPopup : InformationPopup
+    public class CustomPopup : InformationPopup
     {
-        public RetryInformationPopup(string message, Action retryAction)
+        public CustomPopup(string message, string buttonText, Action action)
         {
             void CommandToExecute()
             {
                 Dismiss();
-                retryAction();
+                action();
             }
 
             Text = message;
             BottomButton = new MenuItem
             {
-                Text = LocalizedStrings.Retry,
+                Text = buttonText,
                 Command = new Command(CommandToExecute)
             };
         }

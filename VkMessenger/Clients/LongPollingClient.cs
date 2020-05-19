@@ -52,11 +52,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             using var client = new ProxiedWebClient();
             var url = "https://" + LongPolling.Server +
-"?act=a_check" +
-"&key=" + LongPolling.Key +
-"&ts=" + LongPolling.Ts +
-"&wait=" + LongPolling.WaitTime +
-"&version=3";
+                "?act=a_check" +
+                "&key=" + LongPolling.Key +
+                "&ts=" + LongPolling.Ts +
+                "&wait=" + LongPolling.WaitTime +
+                "&version=3";
 
             var json = JObject.Parse(await client.DownloadStringTaskAsync(url));
             Logger.Debug(json.ToString());

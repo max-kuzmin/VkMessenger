@@ -151,6 +151,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using var client = new ProxiedWebClient();
             var json = await client.DownloadStringTaskAsync(url);
             Logger.Debug(json);
+            ExceptionHelpers.ThrowIfInvalidSession(json);
             return json;
         }
 
@@ -189,6 +190,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using var client = new ProxiedWebClient();
             var json = await client.DownloadStringTaskAsync(url);
             Logger.Debug(json);
+            ExceptionHelpers.ThrowIfInvalidSession(json);
             return json;
         }
     }

@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using ru.MaxKuzmin.VkMessenger.Exceptions;
 using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
@@ -77,13 +78,28 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 popupEntryView.Completed += OnTextCompleted;
                 LongPollingClient.OnMessageUpdate += OnMessageUpdate;
             }
+            catch (WebException)
+            {
+                new CustomPopup(
+                        LocalizedStrings.MessagesNoInternetError, 
+                        LocalizedStrings.Retry, 
+                        () => UpdateAll())
+                    .Show();
+            }
+            catch (InvalidSessionException)
+            {
+                new CustomPopup(
+                        LocalizedStrings.InvalidSessionError, 
+                        LocalizedStrings.Ok, 
+                        AuthorizationClient.CleanUserAndExit)
+                    .Show();
+            }
             catch (Exception ex)
             {
-                new RetryInformationPopup(
-                    ex is WebException
-                        ? LocalizedStrings.MessagesNoInternetError
-                        : ex.ToString(),
-                    () => UpdateAll())
+                new CustomPopup(
+                        ex.ToString(),
+                        LocalizedStrings.Retry,
+                        () => UpdateAll())
                     .Show();
             }
 
@@ -170,14 +186,28 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 await MessagesClient.Send(text, dialog.Id);
                 popupEntryView.Text = string.Empty;
             }
+            catch (WebException)
+            {
+                new CustomPopup(
+                        LocalizedStrings.SendMessageNoInternetError, 
+                        LocalizedStrings.Retry, 
+                        () => OnTextCompleted())
+                    .Show();
+            }
+            catch (InvalidSessionException)
+            {
+                new CustomPopup(
+                        LocalizedStrings.InvalidSessionError, 
+                        LocalizedStrings.Ok, 
+                        AuthorizationClient.CleanUserAndExit)
+                    .Show();
+            }
             catch (Exception ex)
             {
-                popupEntryView.Text = text;
-                new RetryInformationPopup(
-                    ex is WebException
-                        ? LocalizedStrings.SendMessageNoInternetError
-                        : ex.ToString(),
-                    () => OnTextCompleted())
+                new CustomPopup(
+                        ex.ToString(),
+                        LocalizedStrings.Retry,
+                        () => UpdateAll())
                     .Show();
             }
         }
