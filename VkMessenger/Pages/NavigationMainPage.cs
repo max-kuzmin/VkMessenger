@@ -1,4 +1,6 @@
-﻿using ru.MaxKuzmin.VkMessenger.Clients;
+﻿using System;
+using System.Linq;
+using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
 
@@ -12,7 +14,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             LongPollingClient.OnFullReset += async (s, e) =>
             {
+                foreach (var page in Navigation.NavigationStack)
+                {
+                    if (page is IDisposable disposablePage)
+                    {
+                        disposablePage.Dispose();
+                    }
+                }
+
                 Navigation.InsertPageBefore(new DialogsPage(), Navigation.NavigationStack[0]);
+
                 await PopToRootAsync();
             };
 

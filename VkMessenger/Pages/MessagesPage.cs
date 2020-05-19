@@ -16,7 +16,7 @@ using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    public class MessagesPage : CirclePage
+    public class MessagesPage : CirclePage, IDisposable
     {
         private readonly StackLayout verticalLayout = new StackLayout();
         private readonly Dialog dialog;
@@ -244,6 +244,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             popupEntryView.IsPopupOpened = true;
 
             await dialog.SetReadWithMessagesAndPublish();
+        }
+
+        public void Dispose()
+        {
+            LongPollingClient.OnMessageUpdate -= OnMessageUpdate;
         }
     }
 }

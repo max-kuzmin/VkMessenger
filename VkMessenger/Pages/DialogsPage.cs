@@ -8,13 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Exceptions;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    public class DialogsPage : CirclePage
+    public class DialogsPage : CirclePage, IDisposable
     {
         private readonly Dictionary<int, MessagesPage> messagesPages = new Dictionary<int, MessagesPage>();
         private readonly CustomObservableCollection<Dialog> dialogs = new CustomObservableCollection<Dialog>();
@@ -51,9 +52,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 dialogsListView.ScrollIfExist(dialogs.FirstOrDefault(), ScrollToPosition.Center);
 
                 dialogsListView.ItemTapped += OnDialogTapped;
-                LongPollingClient.OnMessageUpdate += async (s, e) => await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
-                LongPollingClient.OnDialogUpdate += async (s, e) => await dialogs.Update(e.DialogIds.ToArray());
-                LongPollingClient.OnUserStatusUpdate += (s, e) => dialogs.SetOnline(e.Data);
+                LongPollingClient.OnMessageUpdate += OnMessageUpdate;
+                LongPollingClient.OnDialogUpdate += OnDialogUpdate;
+                LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
             }
             catch (WebException)
             {
@@ -83,6 +84,21 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             refreshingPopup.Dismiss();
         }
 
+        private void OnUserStatusUpdate(object s, UserStatusEventArgs e)
+        {
+            dialogs.SetOnline(e.Data);
+        }
+
+        private async void OnDialogUpdate(object s, DialogEventArgs e)
+        {
+            await dialogs.Update(e.DialogIds.ToArray());
+        }
+
+        private async void OnMessageUpdate(object s, MessageEventArgs e)
+        {
+            await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
+        }
+
         /// <summary>
         /// Open messages page, mark dialog as read
         /// </summary>
@@ -106,5 +122,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         }
 
         protected override bool OnBackButtonPressed() => true;
+
+        public void Dispose()
+        {
+            LongPollingClient.OnMessageUpdate -= OnMessageUpdate;
+            LongPollingClient.OnDialogUpdate -= OnDialogUpdate;
+            LongPollingClient.OnUserStatusUpdate -= OnUserStatusUpdate;
+        }
     }
 }
