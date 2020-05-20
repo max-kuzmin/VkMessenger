@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;

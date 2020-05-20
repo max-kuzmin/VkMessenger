@@ -1,6 +1,8 @@
-﻿using System;
+﻿#if DEBUG
+using System;
 using System.Runtime.CompilerServices;
 using Tizen;
+#endif
 
 namespace ru.MaxKuzmin.VkMessenger.Loggers
 {
