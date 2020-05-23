@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Exceptions;
 using Tizen.System;
@@ -93,13 +94,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OnDialogUpdate(object s, DialogEventArgs e)
         {
             await dialogs.Update(e.DialogIds.ToArray());
-            new Feedback().Play(FeedbackType.Vibration, "Tap");
+            _ = Task.Run(() => new Feedback().Play(FeedbackType.Vibration, "Tap"));
         }
 
         private async void OnMessageUpdate(object s, MessageEventArgs e)
         {
             await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
-            new Feedback().Play(FeedbackType.Vibration, "Tap");
+            _ = Task.Run(() => new Feedback().Play(FeedbackType.Vibration, "Tap"));
         }
 
         /// <summary>

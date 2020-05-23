@@ -60,7 +60,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var dialogId = (uint)source["from_id"]!.Value<int>();
             var messageId = source["id"]!.Value<uint>();
-            var date = new DateTime(source["date"]!.Value<uint>(), DateTimeKind.Utc);
+            var date = DateTimeOffset
+                .FromUnixTimeSeconds(source["date"]!.Value<uint>()).UtcDateTime
+                .Add(TimeZoneInfo.Local.BaseUtcOffset);
             var fullText = source["text"]!.Value<string>();
 
             var attachmentImages = new List<ImageSource>();

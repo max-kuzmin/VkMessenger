@@ -167,8 +167,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (items.Any())
             {
                 await dialog.Messages.Update(dialog.Id, messagesIds: items);
-                messagesListView.ScrollIfExist(dialog.Messages.First(), ScrollToPosition.Center);
-                new Feedback().Play(FeedbackType.Vibration, "Tap");
+                _ = Task.Run(() => new Feedback().Play(FeedbackType.Vibration, "Tap"));
             }
         }
 

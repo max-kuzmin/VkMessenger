@@ -16,6 +16,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public string Text { get; private set; }
         public bool Read { get; private set; }
         public DateTime Date { get; }
+        public string TimeFormatted { get; }
         public Profile? Profile { get; }
         public Group? Group { get; }
         public string FullText { get; }
@@ -64,6 +65,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             AttachmentMessages = attachmentMessages ?? Array.Empty<(Profile Profile, string Text)>();
             Read = Profile?.Id == Authorization.UserId;
             FullText = fullText;
+            TimeFormatted = date.ToString("HH:mm");
 
             if (fullText.Length > MaxLength)
             {
