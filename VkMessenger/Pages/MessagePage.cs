@@ -1,4 +1,5 @@
-﻿using FFImageLoading.Forms;
+﻿using System.Linq;
+using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms;
@@ -49,7 +50,10 @@ namespace ru.MaxKuzmin.VkMessenger.pages
         {
             NavigationPage.SetHasNavigationBar(this, false);
 
-            wrapperLayout.Children.Add(CreateLabel(message.FullText, true));
+            if (message.AttachmentUris.Any(e => e.ToString() != message.FullText))
+            {
+                wrapperLayout.Children.Add(CreateLabel(message.FullText, true));
+            }
 
             foreach (var (profile, msg) in message.AttachmentMessages)
             {

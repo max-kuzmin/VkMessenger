@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Exceptions;
+using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -92,11 +93,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OnDialogUpdate(object s, DialogEventArgs e)
         {
             await dialogs.Update(e.DialogIds.ToArray());
+            new Feedback().Play(FeedbackType.Vibration, "Tap");
         }
 
         private async void OnMessageUpdate(object s, MessageEventArgs e)
         {
             await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
+            new Feedback().Play(FeedbackType.Vibration, "Tap");
         }
 
         /// <summary>

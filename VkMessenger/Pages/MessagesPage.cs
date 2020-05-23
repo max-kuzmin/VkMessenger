@@ -81,16 +81,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             catch (WebException)
             {
                 new CustomPopup(
-                        LocalizedStrings.MessagesNoInternetError, 
-                        LocalizedStrings.Retry, 
+                        LocalizedStrings.MessagesNoInternetError,
+                        LocalizedStrings.Retry,
                         () => UpdateAll())
                     .Show();
             }
             catch (InvalidSessionException)
             {
                 new CustomPopup(
-                        LocalizedStrings.InvalidSessionError, 
-                        LocalizedStrings.Ok, 
+                        LocalizedStrings.InvalidSessionError,
+                        LocalizedStrings.Ok,
                         AuthorizationClient.CleanUserAndExit)
                     .Show();
             }
@@ -139,11 +139,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var message = (Message)e.Item;
             if (dialog.Messages.Count >= 20 && dialog.Messages.All(i => i.Id >= message.Id))
             {
-                // Temporary "load more" event
+                // Temporary disable "load more" event
                 messagesListView.ItemAppearing -= LoadMoreMessages;
 
                 await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count);
-                messagesListView.ScrollIfExist(message, ScrollToPosition.Center);
 
                 // To prevent event activation
                 _ = Task.Run(async () =>
@@ -159,11 +158,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async void OnMessageUpdate(object sender, MessageEventArgs args)
         {
-            var items = args.Data.Where(e => e.DialogId == dialog.Id).Select(e => e.MessageId).ToArray();
+            var items = args.Data
+                .Where(e => e.DialogId == dialog.Id)
+                .Select(e => e.MessageId)
+                .Reverse()
+                .ToArray();
 
             if (items.Any())
             {
                 await dialog.Messages.Update(dialog.Id, messagesIds: items);
+                messagesListView.ScrollIfExist(dialog.Messages.First(), ScrollToPosition.Center);
                 new Feedback().Play(FeedbackType.Vibration, "Tap");
             }
         }
@@ -189,16 +193,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             catch (WebException)
             {
                 new CustomPopup(
-                        LocalizedStrings.SendMessageNoInternetError, 
-                        LocalizedStrings.Retry, 
+                        LocalizedStrings.SendMessageNoInternetError,
+                        LocalizedStrings.Retry,
                         () => OnTextCompleted())
                     .Show();
             }
             catch (InvalidSessionException)
             {
                 new CustomPopup(
-                        LocalizedStrings.InvalidSessionError, 
-                        LocalizedStrings.Ok, 
+                        LocalizedStrings.InvalidSessionError,
+                        LocalizedStrings.Ok,
                         AuthorizationClient.CleanUserAndExit)
                     .Show();
             }
