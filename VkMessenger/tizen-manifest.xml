@@ -2,8 +2,8 @@
 <manifest package="ru.MaxKuzmin.VkMessenger" version="1.2.0" api-version="4" xmlns="http://tizen.org/ns/packages">
     <author>Max Kuzmin</author>
     <description>VkMessenger for Samsung smart watches</description>
-    <description xml:lang="en-us">VkMessenger for Samsung smart watches</description>
     <description xml:lang="ru-ru">Мессенджер ВКонтакте для смарт-часов Samsung</description>
+    <description xml:lang="en-us">VK Messenger for Samsung smart watches</description>
     <profile name="wearable" />
     <ui-application appid="ru.MaxKuzmin.VkMessenger" exec="VkMessenger.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" launch_mode="single">
         <label>VkMessenger</label>

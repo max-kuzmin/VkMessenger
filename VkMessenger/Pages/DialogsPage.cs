@@ -125,8 +125,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             await dialog.SetReadWithMessagesAndPublish();
         }
 
-        protected override bool OnBackButtonPressed() => true;
-
         public void Dispose()
         {
             LongPollingClient.OnMessageUpdate -= OnMessageUpdate;
