@@ -58,7 +58,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups)
         {
-            var dialogId = (uint)source["from_id"]!.Value<int>();
+            var dialogId = (uint)Math.Abs(source["from_id"]!.Value<int>());
             var messageId = source["id"]!.Value<uint>();
             var date = DateTimeOffset
                 .FromUnixTimeSeconds(source["date"]!.Value<uint>()).UtcDateTime
@@ -72,7 +72,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var attachmentMessages = (source["fwd_messages"] as JArray)?
                 .Select(i =>
                 (
-                    profiles.Single(e => e.Id == i["from_id"]!.Value<uint>()),
+                    (Profile?)profiles.SingleOrDefault(e => e.Id == i["from_id"]!.Value<int>()),
                     i["text"]!.Value<string>()
                 )).ToArray();
 

@@ -63,7 +63,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         var chat = new Chat
                         {
                             Title = chatSettings["title"]!.Value<string>(),
-                            Id = (uint)dialogId,
+                            Id = (uint)Math.Abs(dialogId),
                             Photo = chatSettings["photo"] != null
                                 ? ImageSource.FromUri(new Uri(chatSettings["photo"]!["photo_50"]!.Value<string>()))
                                 : null

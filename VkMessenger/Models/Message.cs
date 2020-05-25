@@ -22,7 +22,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public string FullText { get; }
         public IReadOnlyCollection<ImageSource> AttachmentImages { get; }
         public IReadOnlyCollection<Uri> AttachmentUris { get; }
-        public IReadOnlyCollection<(Profile Profile, string Text)> AttachmentMessages { get; }
+        public IReadOnlyCollection<(Profile? Profile, string Text)> AttachmentMessages { get; }
         public bool FullScreenAllowed { get; }
 
         public int SenderId
@@ -53,7 +53,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Group? group,
             IReadOnlyCollection<ImageSource>? attachmentImages,
             IReadOnlyCollection<Uri>? attachmentUris,
-            IReadOnlyCollection<(Profile Profile, string Text)>? attachmentMessages,
+            IReadOnlyCollection<(Profile? Profile, string Text)>? attachmentMessages,
             IReadOnlyCollection<string> otherAttachments)
         {
             Id = id;
@@ -62,7 +62,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Profile = profile;
             AttachmentImages = attachmentImages ?? Array.Empty<ImageSource>();
             AttachmentUris = attachmentUris ?? Array.Empty<Uri>();
-            AttachmentMessages = attachmentMessages ?? Array.Empty<(Profile Profile, string Text)>();
+            AttachmentMessages = attachmentMessages ?? Array.Empty<(Profile? Profile, string Text)>();
             Read = Profile?.Id == Authorization.UserId;
             FullText = fullText;
             TimeFormatted = date.ToString("HH:mm");
@@ -77,19 +77,19 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 Text = fullText;
             }
 
-            foreach (var _ in attachmentMessages.Select(e => e.Profile.Name).Distinct())
+            if (AttachmentMessages.Any())
             {
                 Text += $"\n{PaperClip} {LocalizedStrings.Message}";
                 FullScreenAllowed = true;
             }
 
-            if (attachmentUris.Any())
+            if (AttachmentUris.Any())
             {
                 Text += $"\n{PaperClip} {LocalizedStrings.Link}";
                 FullScreenAllowed = true;
             }
 
-            if (attachmentImages.Any())
+            if (AttachmentImages.Any())
             {
                 Text += $"\n{PaperClip} {LocalizedStrings.Image}";
                 FullScreenAllowed = true;

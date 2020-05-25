@@ -50,15 +50,19 @@ namespace ru.MaxKuzmin.VkMessenger.pages
         {
             NavigationPage.SetHasNavigationBar(this, false);
 
+            var firstElement = true;
+
             if (message.AttachmentUris.Any(e => e.ToString() != message.FullText))
             {
-                wrapperLayout.Children.Add(CreateLabel(message.FullText, true));
+                wrapperLayout.Children.Add(CreateLabel(message.FullText, firstElement));
+                firstElement = false;
             }
 
             foreach (var (profile, msg) in message.AttachmentMessages)
             {
-                var text = $"{profile.Name}:\n\"{msg}\"";
-                wrapperLayout.Children.Add(CreateLabel(text, false));
+                var text = $"Пересланное сообщение{(profile?.Name != null ? " от " + profile.Name : string.Empty)}:\n\"{msg}\"";
+                wrapperLayout.Children.Add(CreateLabel(text, firstElement));
+                firstElement = false;
             }
 
             foreach (var item in message.AttachmentUris)

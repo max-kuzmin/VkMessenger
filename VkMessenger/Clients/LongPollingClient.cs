@@ -101,12 +101,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         }
                     case 8:
                         {
-                            userStatusEventArgs.Data.Add(((uint)update[1].Value<int>(), true));
+                            userStatusEventArgs.Data.Add(((uint)Math.Abs(update[1].Value<int>()), true));
                             break;
                         }
                     case 9:
                         {
-                            userStatusEventArgs.Data.Add(((uint)update[1].Value<int>(), false));
+                            userStatusEventArgs.Data.Add(((uint)Math.Abs(update[1].Value<int>()), false));
                             break;
                         }
                 }

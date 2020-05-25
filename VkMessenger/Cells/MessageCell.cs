@@ -83,8 +83,8 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 return;
             }
 
-            var dialogId = (int)newValue;
-            if (dialogId != Authorization.UserId)
+            var senderId = (int)newValue;
+            if (senderId != Authorization.UserId)
             {
                 cell.wrapperLayout.LowerChild(cell.photoWrapperLayout);
                 cell.photo.HorizontalOptions = LayoutOptions.End;
