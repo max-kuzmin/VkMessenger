@@ -1,5 +1,4 @@
 ﻿#if DEBUG
-using System;
 using System.Runtime.CompilerServices;
 using Tizen;
 #endif

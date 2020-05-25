@@ -1,6 +1,6 @@
-﻿using System;
-using ru.MaxKuzmin.VkMessenger.Clients;
+﻿using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Models;
+using System;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages

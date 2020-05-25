@@ -1,6 +1,8 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Cells;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Collections;
+using ru.MaxKuzmin.VkMessenger.Events;
+using ru.MaxKuzmin.VkMessenger.Exceptions;
 using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Models;
@@ -9,8 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using ru.MaxKuzmin.VkMessenger.Events;
-using ru.MaxKuzmin.VkMessenger.Exceptions;
 using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
@@ -61,16 +61,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             catch (WebException)
             {
                 new CustomPopup(
-                    LocalizedStrings.DialogsNoInternetError, 
-                    LocalizedStrings.Retry, 
+                    LocalizedStrings.DialogsNoInternetError,
+                    LocalizedStrings.Retry,
                     () => UpdateAll())
                     .Show();
             }
             catch (InvalidSessionException)
             {
                 new CustomPopup(
-                        LocalizedStrings.InvalidSessionError, 
-                        LocalizedStrings.Ok, 
+                        LocalizedStrings.InvalidSessionError,
+                        LocalizedStrings.Ok,
                         AuthorizationClient.CleanUserAndExit)
                     .Show();
             }

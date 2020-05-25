@@ -1,6 +1,6 @@
-﻿using System.Linq;
-using FFImageLoading.Forms;
+﻿using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Models;
+using System.Linq;
 using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
@@ -54,6 +54,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
 
             if (message.AttachmentUris.Any(e => e.ToString() != message.FullText))
             {
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 wrapperLayout.Children.Add(CreateLabel(message.FullText, firstElement));
                 firstElement = false;
             }

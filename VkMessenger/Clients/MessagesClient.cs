@@ -72,6 +72,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var attachmentMessages = (source["fwd_messages"] as JArray)?
                 .Select(i =>
                 (
+                    // ReSharper disable once RedundantCast
                     (Profile?)profiles.SingleOrDefault(e => e.Id == i["from_id"]!.Value<int>()),
                     i["text"]!.Value<string>()
                 )).ToArray();
