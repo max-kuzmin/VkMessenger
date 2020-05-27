@@ -1,4 +1,5 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -18,6 +19,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void LoginCallback(object sender, WebNavigatedEventArgs e)
         {
+            if (e.Result != WebNavigationResult.Success)
+            {
+                new CustomPopup(
+                        LocalizedStrings.AuthNoInternetError,
+                        LocalizedStrings.Retry,
+                        () => loginWebView.Source = AuthorizationClient.GetAuthorizeUri())
+                    .Show();
+                return;
+            }
+
             loginWebView.Eval(@"
                 function hide(elem) {
                     var elems = document.getElementsByClassName(elem);

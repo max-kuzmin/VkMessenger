@@ -70,6 +70,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t load authorization page. No internet connection.
+        /// </summary>
+        internal static string AuthNoInternetError {
+            get {
+                return ResourceManager.GetString("AuthNoInternetError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t load dialogs. No internet connection.
         /// </summary>
         internal static string DialogsNoInternetError {
