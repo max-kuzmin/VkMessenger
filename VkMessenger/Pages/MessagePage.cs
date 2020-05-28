@@ -26,21 +26,21 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             Text = text
         };
 
-        private static Label CreateUri(string text) => new Label
+        private static Label CreateUri(string text, bool marginTop) => new Label
         {
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             LineBreakMode = LineBreakMode.WordWrap,
             HorizontalTextAlignment = TextAlignment.Center,
             VerticalTextAlignment = TextAlignment.Center,
-            Margin = new Thickness(30, 10, 30, 0),
+            Margin = new Thickness(30, marginTop ? 70 : 10, 30, 0),
             TextColor = CustomColors.BrightBlue,
             TextDecorations = TextDecorations.Underline,
             Text = text
         };
 
-        private static CachedImage CreateImage(ImageSource source) => new CachedImage
+        private static CachedImage CreateImage(ImageSource source, bool marginTop) => new CachedImage
         {
-            Margin = new Thickness(0, 10, 0, 0),
+            Margin = new Thickness(0, marginTop ? 70 : 10, 0, 0),
             LoadingPlaceholder = ImageSource.FromFile(
                 Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/Placeholder.png"),
             Source = source
@@ -68,7 +68,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
 
             foreach (var item in message.AttachmentUris)
             {
-                var uri = CreateUri(item.ToString());
+                var uri = CreateUri(item.ToString(), firstElement);
                 wrapperLayout.Children.Add(uri);
 
                 var tapGestureRecognizer = new TapGestureRecognizer();
@@ -79,12 +79,14 @@ namespace ru.MaxKuzmin.VkMessenger.pages
                         Uri = item.ToString()
                     });
                 uri.GestureRecognizers.Add(tapGestureRecognizer);
+                firstElement = false;
             }
 
             foreach (var item in message.AttachmentImages)
             {
-                var image = CreateImage(item);
+                var image = CreateImage(item, firstElement);
                 wrapperLayout.Children.Add(image);
+                firstElement = false;
             }
 
             var emptyLabel = new Label { Margin = new Thickness(0, 0, 0, 70) };
