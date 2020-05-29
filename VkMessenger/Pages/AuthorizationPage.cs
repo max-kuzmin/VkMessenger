@@ -19,7 +19,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void LoginCallback(object sender, WebNavigatedEventArgs e)
         {
-            if (e.Result != WebNavigationResult.Success)
+            if (e.Result == WebNavigationResult.Failure)
             {
                 new CustomPopup(
                         LocalizedStrings.AuthNoInternetError,
