@@ -14,12 +14,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             NavigationPage.SetHasNavigationBar(this, false);
             BackgroundColor = Color.White;
             Content = loginWebView;
-            loginWebView.Navigated += LoginCallback;
+            loginWebView.Navigated += OnNavigated;
         }
 
-        private async void LoginCallback(object sender, WebNavigatedEventArgs e)
+        private async void OnNavigated(object sender, WebNavigatedEventArgs e)
         {
-            if (e.Result == WebNavigationResult.Failure)
+            if (e.Result != WebNavigationResult.Success)
             {
                 new CustomPopup(
                         LocalizedStrings.AuthNoInternetError,
@@ -42,8 +42,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
                 function hideAll() {
                     if (document.getElementsByClassName('button').length === 0) {
-                        document.body.innerText = 'Loading...';
+                        document.body.innerText = '" + LocalizedStrings.PleaseWait + @"';
                         document.body.style.textAlign = 'center';
+                        document.body.style.paddingTop = '150px';
                     }
 
                     hide('mh_btn_label');
@@ -65,7 +66,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var url = ((UrlWebViewSource)loginWebView.Source).Url;
             if (await AuthorizationClient.SetUserFromUrl(url))
             {
-                loginWebView.Navigated -= LoginCallback;
+                loginWebView.Navigated -= OnNavigated;
                 Navigation.InsertPageBefore(new DialogsPage(), Navigation.NavigationStack[0]);
                 await Navigation.PopToRootAsync();
             }

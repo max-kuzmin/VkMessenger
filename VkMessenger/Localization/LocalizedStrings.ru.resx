@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+	<xsd:schema id="root" 
+		xmlns="" 
+		xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+		xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
 		<xsd:element name="root" msdata:IsDataSet="true">
 			<xsd:complexType>
 				<xsd:choice maxOccurs="unbounded">
@@ -39,52 +42,55 @@
 	<resheader name="writer">
 		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
 	</resheader>
-  	<data name="LoadingDialogs" xml:space="preserve">
-    	<value>Загрузка диалогов...</value>
-  	</data>
-  	<data name="LoadingMessages" xml:space="preserve">
-    	<value>Загрузка сообщений...</value>
-  	</data>
+	<data name="LoadingDialogs" xml:space="preserve">
+		<value>Загрузка диалогов...</value>
+	</data>
+	<data name="LoadingMessages" xml:space="preserve">
+		<value>Загрузка сообщений...</value>
+	</data>
 	<data name="WallPost" xml:space="preserve">
-    	<value>Запись со стены</value>
-  	</data>
+		<value>Запись со стены</value>
+	</data>
 	<data name="Video" xml:space="preserve">
-    	<value>Видео</value>
-  	</data>
+		<value>Видео</value>
+	</data>
 	<data name="File" xml:space="preserve">
-    	<value>Файл</value>
-  	</data>
+		<value>Файл</value>
+	</data>
 	<data name="Album" xml:space="preserve">
-    	<value>Альбом</value>
-  	</data>
+		<value>Альбом</value>
+	</data>
 	<data name="Message" xml:space="preserve">
-    	<value>Сообщение</value>
-  	</data>
+		<value>Сообщение</value>
+	</data>
 	<data name="Link" xml:space="preserve">
-    	<value>Ссылка</value>
-  	</data>
+		<value>Ссылка</value>
+	</data>
 	<data name="Image" xml:space="preserve">
-    	<value>Фото</value>
-  	</data>
+		<value>Фото</value>
+	</data>
 	<data name="DialogsNoInternetError" xml:space="preserve">
-    	<value>Невозможно загрузить диалоги. Нет интернет соединения</value>
-  	</data>
+		<value>Невозможно загрузить диалоги. Нет интернет соединения</value>
+	</data>
 	<data name="MessagesNoInternetError" xml:space="preserve">
-    	<value>Невозможно загрузить сообщения. Нет интернет соединения</value>
-  	</data>
+		<value>Невозможно загрузить сообщения. Нет интернет соединения</value>
+	</data>
 	<data name="SendMessageNoInternetError" xml:space="preserve">
-    	<value>Невозможно отправить сообщение. Нет интернет соединения</value>
-  	</data>
+		<value>Невозможно отправить сообщение. Нет интернет соединения</value>
+	</data>
 	<data name="Retry" xml:space="preserve">
-    	<value>Повторить</value>
-  	</data>
+		<value>Повторить</value>
+	</data>
 	<data name="Ok" xml:space="preserve">
-    	<value>ОК</value>
-  	</data>
+		<value>ОК</value>
+	</data>
 	<data name="InvalidSessionError" xml:space="preserve">
-    	<value>Невалидная сессия. Пожалуйста, повторите логин</value>
-  	</data>
+		<value>Невалидная сессия. Пожалуйста, повторите логин</value>
+	</data>
 	<data name="AuthNoInternetError" xml:space="preserve">
-    	<value>Невозможно загрузить страницу авторизации. Нет интернет соединения</value>
-  	</data>
+		<value>Невозможно загрузить страницу авторизации. Нет интернет соединения</value>
+	</data>
+	<data name="PleaseWait" xml:space="preserve">
+		<value>Пожалуйста, подождите</value>
+	</data>
 </root>

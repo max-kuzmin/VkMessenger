@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+	<xsd:schema id="root" 
+		xmlns="" 
+		xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+		xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
 		<xsd:element name="root" msdata:IsDataSet="true">
 			<xsd:complexType>
 				<xsd:choice maxOccurs="unbounded">
@@ -40,51 +43,54 @@
 		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
 	</resheader>
 	<data name="LoadingDialogs" xml:space="preserve">
-    	<value>Loading dialogs...</value>
-  	</data>
-  	<data name="LoadingMessages" xml:space="preserve">
-    	<value>Loading messages...</value>
-  	</data>
+		<value>Loading dialogs...</value>
+	</data>
+	<data name="LoadingMessages" xml:space="preserve">
+		<value>Loading messages...</value>
+	</data>
 	<data name="WallPost" xml:space="preserve">
-    	<value>Wall post</value>
-  	</data>
+		<value>Wall post</value>
+	</data>
 	<data name="Video" xml:space="preserve">
-    	<value>Video</value>
-  	</data>
+		<value>Video</value>
+	</data>
 	<data name="File" xml:space="preserve">
-    	<value>File</value>
-  	</data>
+		<value>File</value>
+	</data>
 	<data name="Album" xml:space="preserve">
-    	<value>Album</value>
-  	</data>
+		<value>Album</value>
+	</data>
 	<data name="Message" xml:space="preserve">
-    	<value>Message</value>
-  	</data>
+		<value>Message</value>
+	</data>
 	<data name="Link" xml:space="preserve">
-    	<value>Link</value>
-  	</data>
+		<value>Link</value>
+	</data>
 	<data name="Image" xml:space="preserve">
-    	<value>Image</value>
-  	</data>
+		<value>Image</value>
+	</data>
 	<data name="DialogsNoInternetError" xml:space="preserve">
-    	<value>Can't load dialogs. No internet connection</value>
-  	</data>
+		<value>Can't load dialogs. No internet connection</value>
+	</data>
 	<data name="MessagesNoInternetError" xml:space="preserve">
-    	<value>Can't load messages. No internet connection</value>
-  	</data>
+		<value>Can't load messages. No internet connection</value>
+	</data>
 	<data name="SendMessageNoInternetError" xml:space="preserve">
-    	<value>Can't send message. No internet connection</value>
-  	</data>
+		<value>Can't send message. No internet connection</value>
+	</data>
 	<data name="Retry" xml:space="preserve">
-    	<value>Retry</value>
-  	</data>
+		<value>Retry</value>
+	</data>
 	<data name="Ok" xml:space="preserve">
-    	<value>OK</value>
-  	</data>
+		<value>OK</value>
+	</data>
 	<data name="InvalidSessionError" xml:space="preserve">
-    	<value>Invalid session. Please, retry login</value>
-  	</data>
+		<value>Invalid session. Please, retry login</value>
+	</data>
 	<data name="AuthNoInternetError" xml:space="preserve">
-    	<value>Can't load authorization page. No internet connection</value>
-  	</data>
+		<value>Can't load authorization page. No internet connection</value>
+	</data>
+	<data name="PleaseWait" xml:space="preserve">
+		<value>Please, wait</value>
+	</data>
 </root>

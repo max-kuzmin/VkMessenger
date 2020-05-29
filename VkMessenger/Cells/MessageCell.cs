@@ -39,7 +39,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         private readonly StackLayout photoWrapperLayout = new StackLayout
         {
             Orientation = StackOrientation.Vertical,
-            VerticalOptions = LayoutOptions.FillAndExpand
+            VerticalOptions = LayoutOptions.CenterAndExpand
         };
 
         private readonly StackLayout outerLayout = new StackLayout();
