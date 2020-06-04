@@ -3,6 +3,7 @@ using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ru.MaxKuzmin.VkMessenger.Loggers;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
@@ -23,9 +24,17 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static IReadOnlyCollection<Profile> FromJsonArray(JArray profiles)
         {
-            return profiles == null
-                ? Array.Empty<Profile>()
-                : profiles.Select(item => FromJson((JObject)item)).ToArray();
+            try
+            {
+                return profiles == null
+                    ? Array.Empty<Profile>()
+                    : profiles.Select(item => FromJson((JObject) item)).ToArray();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                throw;
+            }
         }
     }
 }

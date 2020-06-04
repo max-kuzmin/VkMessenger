@@ -98,8 +98,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 new CustomPopup(
                         ex.ToString(),
-                        LocalizedStrings.Retry,
-                        () => UpdateAll())
+                        LocalizedStrings.Ok,
+                        Application.Current.Quit)
                     .Show();
             }
 
@@ -209,8 +209,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 new CustomPopup(
                         ex.ToString(),
-                        LocalizedStrings.Retry,
-                        () => UpdateAll())
+                        LocalizedStrings.Ok,
+                        Application.Current.Quit)
                     .Show();
             }
         }

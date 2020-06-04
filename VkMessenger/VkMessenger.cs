@@ -3,7 +3,6 @@ using FFImageLoading.Config;
 using FFImageLoading.Forms.Platform;
 using FFImageLoading.Work;
 using ru.MaxKuzmin.VkMessenger.Localization;
-using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Net;
 using System;
 using System.Globalization;
@@ -21,9 +20,6 @@ namespace ru.MaxKuzmin.VkMessenger
         protected override void OnCreate()
         {
             base.OnCreate();
-
-            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
-                Logger.Error(e.ExceptionObject);
 
             var config = new Configuration
             {

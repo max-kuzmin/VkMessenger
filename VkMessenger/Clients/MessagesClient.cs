@@ -58,87 +58,96 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups)
         {
-            var dialogId = (uint)Math.Abs(source["from_id"]!.Value<int>());
-            var messageId = source["id"]!.Value<uint>();
-            var date = DateTimeOffset
-                .FromUnixTimeSeconds(source["date"]!.Value<uint>()).UtcDateTime
-                .Add(TimeZoneInfo.Local.BaseUtcOffset);
-            var fullText = source["text"]!.Value<string>();
-
-            var attachmentImages = new List<ImageSource>();
-            var attachmentUris = new List<Uri>();
-            var otherAttachments = new List<string>();
-
-            var attachmentMessages = (source["fwd_messages"] as JArray)?
-                .Select(i =>
-                (
-                    // ReSharper disable once RedundantCast
-                    (Profile?)profiles.SingleOrDefault(e => e.Id == i["from_id"]!.Value<int>()),
-                    i["text"]!.Value<string>()
-                )).ToArray();
-
-            if (source["attachments"] is JArray attachments)
+            try
             {
-                foreach (var item in attachments)
+                var dialogId = (uint)Math.Abs(source["from_id"]!.Value<int>());
+                var messageId = source["id"]!.Value<uint>();
+                var date = DateTimeOffset
+                    .FromUnixTimeSeconds(source["date"]!.Value<uint>()).UtcDateTime
+                    .Add(TimeZoneInfo.Local.BaseUtcOffset);
+                var fullText = source["text"]!.Value<string>();
+
+                var attachmentImages = new List<ImageSource>();
+                var attachmentUris = new List<Uri>();
+                var otherAttachments = new List<string>();
+
+                var attachmentMessages = (source["fwd_messages"] as JArray)?
+                    .Select(i =>
+                    (
+                        // ReSharper disable once RedundantCast
+                        (Profile?)profiles.SingleOrDefault(e => e.Id == i["from_id"]!.Value<int>()),
+                        i["text"]!.Value<string>()
+                    )).ToArray();
+
+                if (source["attachments"] is JArray attachments)
                 {
-                    switch (item["type"]!.Value<string>())
+                    foreach (var item in attachments)
                     {
-                        case "photo":
-                            attachmentImages
-                                .Add(new Uri(item["photo"]!["sizes"]!
-                                .Single(i => i["type"]!.Value<string>() == "q")["url"]!.Value<string>()));
-                            break;
+                        switch (item["type"]!.Value<string>())
+                        {
+                            case "photo":
+                                attachmentImages
+                                    .Add(new Uri(item["photo"]!["sizes"]!
+                                        .Single(i => i["type"]!.Value<string>() == "q")["url"]!.Value<string>()));
+                                break;
 
-                        case "link":
-                            attachmentUris.Add(new Uri(item["link"]!["url"]!.Value<string>()));
-                            break;
+                            case "link":
+                                attachmentUris.Add(new Uri(item["link"]!["url"]!.Value<string>()));
+                                break;
 
-                        case "wall":
-                            otherAttachments.Add(LocalizedStrings.WallPost);
-                            break;
+                            case "wall":
+                                otherAttachments.Add(LocalizedStrings.WallPost);
+                                break;
 
-                        case "video":
-                            otherAttachments.Add(LocalizedStrings.Video);
-                            break;
+                            case "video":
+                                otherAttachments.Add(LocalizedStrings.Video);
+                                break;
 
-                        case "doc":
-                            otherAttachments.Add(LocalizedStrings.File);
-                            break;
+                            case "doc":
+                                otherAttachments.Add(LocalizedStrings.File);
+                                break;
 
-                        case "album":
-                            otherAttachments.Add(LocalizedStrings.Album);
-                            break;
+                            case "album":
+                                otherAttachments.Add(LocalizedStrings.Album);
+                                break;
 
-                        default:
-                            otherAttachments.Add(item["type"]!.Value<string>());
-                            break;
+                            default:
+                                otherAttachments.Add(item["type"]!.Value<string>());
+                                break;
+                        }
                     }
                 }
-            }
 
-
-            if (!attachmentUris.Any())
-            {
-                var matches = Regex.Matches(fullText, @"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
-                foreach (Match match in matches)
+                if (!attachmentUris.Any())
                 {
-                    if (Uri.TryCreate(match.Value, UriKind.Absolute, out Uri parsed))
+                    var matches = Regex.Matches(fullText,
+                        @"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
+                    foreach (Match match in matches)
                     {
-                        attachmentUris.Add(parsed);
+                        if (Uri.TryCreate(match.Value, UriKind.Absolute, out Uri parsed))
+                        {
+                            attachmentUris.Add(parsed);
+                        }
                     }
                 }
-            }
 
-            return new Message(
-                messageId,
-                fullText,
-                date,
-                profiles?.FirstOrDefault(p => p.Id == dialogId),
-                groups?.FirstOrDefault(p => p.Id == dialogId),
-                attachmentImages,
-                attachmentUris,
-                attachmentMessages,
-                otherAttachments);
+                return new Message(
+                    messageId,
+                    fullText,
+                    date,
+                    profiles?.FirstOrDefault(p => p.Id == dialogId),
+                    groups?.FirstOrDefault(p => p.Id == dialogId),
+                    attachmentImages,
+                    attachmentUris,
+                    attachmentMessages,
+                    otherAttachments);
+
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                throw;
+            }
         }
 
         private static async Task<string> GetMessagesJson(int dialogId, uint? offset = null)

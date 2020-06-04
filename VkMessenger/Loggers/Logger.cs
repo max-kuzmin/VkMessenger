@@ -1,6 +1,8 @@
 ﻿#if DEBUG
 using System.Runtime.CompilerServices;
 using Tizen;
+#else
+using ru.MaxKuzmin.VkMessenger.Clients;
 #endif
 
 namespace ru.MaxKuzmin.VkMessenger.Loggers
@@ -33,7 +35,10 @@ namespace ru.MaxKuzmin.VkMessenger.Loggers
 
         public static void Debug(string text, string? file = null, string? caller = null, int line = 0) { }
 
-        public static void Error(object e, string? file = null, string? caller = null, int line = 0) { }
+        public static void Error(object e, string? file = null, string? caller = null, int line = 0)
+        {
+            CrashReporterClient.SendAsync(e.ToString()).Wait();
+        }
     }
 #endif
 }

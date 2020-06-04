@@ -47,7 +47,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var refreshingPopup = new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
             refreshingPopup.Show();
 
-
             try
             {
                 await dialogs.Update();
@@ -78,8 +77,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 new CustomPopup(
                     ex.ToString(),
-                    LocalizedStrings.Retry,
-                    () => UpdateAll())
+                    LocalizedStrings.Ok,
+                    Application.Current.Quit)
                     .Show();
             }
 

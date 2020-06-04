@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Net;
 using System.Linq;
@@ -27,17 +28,25 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static async Task<bool> SetUserFromUrl(string url)
         {
-            var token = string.Concat(Regex.Match(url, @"access_token=(\d|\w)*").Value.Skip(13));
-            var userIdString = string.Concat(Regex.Match(url, @"user_id=\d*").Value.Skip(8));
-
-            if (token.Length == TokenLength && uint.TryParse(userIdString, out var userId))
+            try
             {
-                Authorization.Token = token;
-                Authorization.UserId = userId;
-                await GetPhoto();
-                return true;
+                var token = string.Concat(Regex.Match(url, @"access_token=(\d|\w)*").Value.Skip(13));
+                var userIdString = string.Concat(Regex.Match(url, @"user_id=\d*").Value.Skip(8));
+
+                if (token.Length == TokenLength && uint.TryParse(userIdString, out var userId))
+                {
+                    Authorization.Token = token;
+                    Authorization.UserId = userId;
+                    await GetPhoto();
+                    return true;
+                }
+                else return false;
             }
-            else return false;
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                throw;
+            }
         }
 
         public static void CleanUserAndExit()
