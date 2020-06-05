@@ -8,6 +8,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     public class AuthorizationPage : CirclePage
     {
         private readonly WebView loginWebView = new WebView();
+        private InformationPopup? refreshingPopup;
 
         public AuthorizationPage()
         {
@@ -19,15 +20,18 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OnNavigated(object sender, WebNavigatedEventArgs e)
         {
-            if (e.Result == WebNavigationResult.Failure)
+            if (e.Result == WebNavigationResult.Failure && refreshingPopup != null)
             {
                 new CustomPopup(
                         LocalizedStrings.AuthNoInternetError,
                         LocalizedStrings.Retry,
-                        () => loginWebView.Source = AuthorizationClient.GetAuthorizeUri())
+                        OnAppearing)
                     .Show();
                 return;
             }
+
+            refreshingPopup?.Dismiss();
+            refreshingPopup = null;
 
             loginWebView.Eval(@"
                 function hide(elem) {
@@ -59,7 +63,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     white('vk__page');
                 }
 
-                window.addEventListener('load', (e) => hideAll());
+                window.addEventListener('load', e => hideAll());
                 hideAll();
              ");
 
@@ -74,6 +78,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         protected override void OnAppearing()
         {
+            refreshingPopup?.Dismiss();
+            refreshingPopup = new InformationPopup
+            {
+                Text = LocalizedStrings.LoadingAuthPage
+            };
+            refreshingPopup.Show();
             loginWebView.Source = AuthorizationClient.GetAuthorizeUri();
             base.OnAppearing();
         }

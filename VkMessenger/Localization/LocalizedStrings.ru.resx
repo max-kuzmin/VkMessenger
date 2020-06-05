@@ -93,4 +93,7 @@
 	<data name="PleaseWait" xml:space="preserve">
 		<value>Пожалуйста, подождите</value>
 	</data>
+	<data name="LoadingAuthPage" xml:space="preserve">
+		<value>Загрузка страницы авторизации...</value>
+	</data>
 </root>

@@ -124,6 +124,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Loading authorization page....
+        /// </summary>
+        internal static string LoadingAuthPage {
+            get {
+                return ResourceManager.GetString("LoadingAuthPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Loading dialogs....
         /// </summary>
         internal static string LoadingDialogs {

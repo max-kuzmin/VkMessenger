@@ -93,4 +93,7 @@
 	<data name="PleaseWait" xml:space="preserve">
 		<value>Please, wait</value>
 	</data>
+	<data name="LoadingAuthPage" xml:space="preserve">
+		<value>Loading authorization page...</value>
+	</data>
 </root>
