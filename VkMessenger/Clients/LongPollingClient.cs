@@ -96,17 +96,17 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     case 51:
                     case 52:
                         {
-                            dialogEventArgs.DialogIds.Add(update[1].Value<int>());
+                            dialogEventArgs.DialogIds.Add(update[1].Value<int>()); // dialogs with groups have negative ids
                             break;
                         }
                     case 8:
                         {
-                            userStatusEventArgs.Data.Add(((uint)Math.Abs(update[1].Value<int>()), true));
+                            userStatusEventArgs.Data.Add((update[1].Value<uint>(), true));
                             break;
                         }
                     case 9:
                         {
-                            userStatusEventArgs.Data.Add(((uint)Math.Abs(update[1].Value<int>()), false));
+                            userStatusEventArgs.Data.Add((update[1].Value<uint>(), false));
                             break;
                         }
                 }

@@ -32,6 +32,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
+        /// <summary>
+        /// Dialogs with users and chats have positive id, dialogs with groups - negative id
+        /// </summary>
         public int Id
         {
             get

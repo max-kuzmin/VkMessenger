@@ -142,7 +142,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 // Temporary disable "load more" event
                 messagesListView.ItemAppearing -= LoadMoreMessages;
 
-                await dialog.Messages.Update(dialog.Id, (uint)Math.Abs(dialog.Messages.Count));
+                await dialog.Messages.Update(dialog.Id, (uint)dialog.Messages.Count);
 
                 // To prevent event activation
                 _ = Task.Run(async () =>

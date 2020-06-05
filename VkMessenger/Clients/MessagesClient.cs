@@ -60,7 +60,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
-                var dialogId = (uint)Math.Abs(source["from_id"]!.Value<int>());
+                var peerId = (uint)Math.Abs(source["from_id"]!.Value<int>()); // dialogs with groups have negative ids
                 var messageId = source["id"]!.Value<uint>();
                 var date = DateTimeOffset
                     .FromUnixTimeSeconds(source["date"]!.Value<uint>()).UtcDateTime
@@ -135,8 +135,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     messageId,
                     fullText,
                     date,
-                    profiles?.FirstOrDefault(p => p.Id == dialogId),
-                    groups?.FirstOrDefault(p => p.Id == dialogId),
+                    profiles?.FirstOrDefault(p => p.Id == peerId),
+                    groups?.FirstOrDefault(p => p.Id == peerId),
                     attachmentImages,
                     attachmentUris,
                     attachmentMessages,

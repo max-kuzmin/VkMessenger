@@ -31,7 +31,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             IReadOnlyCollection<Message> lastMessages)
         {
             var conversation = dialog["conversation"] ?? dialog;
-            var dialogId = conversation["peer"]!["id"]!.Value<int>();
+            var peerId = (uint)Math.Abs(conversation["peer"]!["id"]!.Value<int>()); // dialogs with groups have negative ids
             var dialogType = Enum.Parse<DialogType>(conversation["peer"]!["type"]!.Value<string>(), true);
             var unreadCount = conversation["unread_count"]?.Value<uint>() ?? 0u;
 
@@ -47,13 +47,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 case DialogType.User:
                     {
-                        var dialogProfiles = new[] { profiles.First(p => p.Id == dialogId) };
+                        var dialogProfiles = new[] { profiles.First(p => p.Id == peerId) };
                         result = new Dialog(dialogType, null, null, unreadCount, dialogProfiles, lastMessage);
                         break;
                     }
                 case DialogType.Group:
                     {
-                        var group = groups.First(g => g.Id == Math.Abs(dialogId));
+                        var group = groups.First(g => g.Id == peerId);
                         result = new Dialog(dialogType, group, null, unreadCount, null, lastMessage);
                         break;
                     }
@@ -63,14 +63,15 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         var chat = new Chat
                         {
                             Title = chatSettings["title"]!.Value<string>(),
-                            Id = (uint)Math.Abs(dialogId),
+                            Id = peerId,
                             Photo = chatSettings["photo"] != null
                                 ? ImageSource.FromUri(new Uri(chatSettings["photo"]!["photo_50"]!.Value<string>()))
                                 : null
                         };
 
+                        //TODO: active_ids are negative sometimes
                         var dialogProfiles = ((JArray)chatSettings["active_ids"]!)
-                            .Select(id => profiles.First(p => p.Id == id.Value<uint>()))
+                            .Select(id => profiles.First(p => p.Id == id.Value<int>()))
                             .ToArray();
 
                         result = new Dialog(dialogType, null, chat, unreadCount, dialogProfiles, lastMessage);

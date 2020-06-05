@@ -37,7 +37,7 @@ namespace ru.MaxKuzmin.VkMessenger.Loggers
 
         public static void Error(object e, string? file = null, string? caller = null, int line = 0)
         {
-            CrashReporterClient.SendAsync(e.ToString()).Wait();
+            _ = CrashReporterClient.SendAsync(e.ToString());
         }
     }
 #endif

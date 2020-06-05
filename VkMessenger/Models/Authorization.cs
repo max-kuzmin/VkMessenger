@@ -30,7 +30,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public static uint UserId
         {
-            get => Preference.Contains(UserIdKey) ? (uint)Math.Abs(Preference.Get<int>(UserIdKey)) : 0u;
+            get => Preference.Contains(UserIdKey) ? (uint)Preference.Get<int>(UserIdKey) : 0u;
             set => Preference.Set(UserIdKey, (int)value);
         }
 
