@@ -46,10 +46,10 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
-        public static void SetPhoto(string url)
+        public static void SetPhoto(Uri url)
         {
-            Preference.Set(PhotoKey, url);
-            photoSource = ImageSource.FromUri(new Uri(url));
+            Preference.Set(PhotoKey, url.ToString());
+            photoSource = ImageSource.FromUri(url);
         }
 
         private static ImageSource? photoSource;

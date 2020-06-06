@@ -1,38 +1,29 @@
-﻿using Newtonsoft.Json.Linq;
-using ru.MaxKuzmin.VkMessenger.Models;
+﻿using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ru.MaxKuzmin.VkMessenger.Loggers;
+using ru.MaxKuzmin.VkMessenger.Dtos;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
     public static class GroupsClient
     {
-        private static Group FromJson(JObject group)
+        private static Group FromDto(GroupDto group)
         {
             return new Group
             {
-                Id = group["id"]!.Value<int>(),
-                Name = group["name"]!.Value<string>(),
-                Photo = ImageSource.FromUri(new Uri(group["photo_50"]!.Value<string>()))
+                Id = group.id,
+                Name = group.name,
+                Photo = ImageSource.FromUri(group.photo_50)
             };
         }
 
-        public static IReadOnlyCollection<Group> FromJsonArray(JArray groups)
+        public static IReadOnlyCollection<Group> FromDtoArray(GroupDto[]? groups)
         {
-            try
-            {
-                return groups == null
-                    ? Array.Empty<Group>()
-                    : groups.Select(item => FromJson((JObject) item)).ToArray();
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                throw;
-            }
+            return groups == null
+                ? Array.Empty<Group>()
+                : groups.Select(FromDto).ToArray();
         }
     }
 }

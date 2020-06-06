@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using ru.MaxKuzmin.VkMessenger.Extensions;
+﻿using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
@@ -11,6 +10,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using ru.MaxKuzmin.VkMessenger.Dtos;
 using Xamarin.Forms;
 using Group = ru.MaxKuzmin.VkMessenger.Models.Group;
 
@@ -19,6 +20,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
     public static class MessagesClient
     {
         private static readonly MD5 Md5Hasher = MD5.Create();
+
+        private const string LinkRegex =
+            @"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)";
 
         public static async Task<IReadOnlyCollection<Message>> GetMessages(
             int dialogId,
@@ -29,14 +33,14 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 Logger.Info($"Updating messages {messagesIds.ToJson()} in dialog {dialogId}");
 
-                var json = JObject.Parse(messagesIds != null
+                var json = JsonConvert.DeserializeObject<JsonDto<MessagesResponseDto>>(messagesIds != null
                     ? await GetMessagesJson(messagesIds)
                     : await GetMessagesJson(dialogId, offset));
 
-                var response = json["response"]!;
-                var profiles = ProfilesClient.FromJsonArray((JArray)response["profiles"]!);
-                var groups = GroupsClient.FromJsonArray((JArray)response["groups"]!);
-                return FromJsonArray((JArray)response["items"]!, profiles, groups);
+                var response = json.response;
+                var profiles = ProfilesClient.FromDtoArray(response.profiles);
+                var groups = GroupsClient.FromDtoArray(response.groups);
+                return FromDtoArray(response.items, profiles, groups);
             }
             catch (Exception e)
             {
@@ -45,54 +49,49 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private static List<Message> FromJsonArray(
-            JArray source,
+        private static List<Message> FromDtoArray(
+            MessageDto[] messages,
             IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups)
         {
-            return source.Select(item => FromJson((JObject)item, profiles, groups)).ToList();
+            return messages.Select(item => FromDto(item, profiles, groups)).ToList();
         }
 
-        public static Message FromJson(
-            JObject source,
+        public static Message FromDto(
+            MessageDto message,
             IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups)
         {
             try
             {
-                var peerId = Math.Abs(source["from_id"]!.Value<int>()); // dialogs with groups have negative ids
-                var messageId = source["id"]!.Value<int>();
                 var date = DateTimeOffset
-                    .FromUnixTimeSeconds(source["date"]!.Value<int>()).UtcDateTime
+                    .FromUnixTimeSeconds(message.date).UtcDateTime
                     .Add(TimeZoneInfo.Local.BaseUtcOffset);
-                var fullText = source["text"]!.Value<string>();
+                var fullText = message.text;
 
                 var attachmentImages = new List<ImageSource>();
                 var attachmentUris = new List<Uri>();
                 var otherAttachments = new List<string>();
 
-                var attachmentMessages = (source["fwd_messages"] as JArray)?
+                var attachmentMessages = message.fwd_messages?
                     .Select(i =>
                     (
-                        // ReSharper disable once RedundantCast
-                        (Profile?)profiles.SingleOrDefault(e => e.Id == i["from_id"]!.Value<int>()),
-                        i["text"]!.Value<string>()
+                        (Profile?)profiles.SingleOrDefault(e => e.Id == i.from_id),
+                        i.text
                     )).ToArray();
 
-                if (source["attachments"] is JArray attachments)
+                if (message.attachments?.Any() == true)
                 {
-                    foreach (var item in attachments)
+                    foreach (var item in message.attachments)
                     {
-                        switch (item["type"]!.Value<string>())
+                        switch (item.type)
                         {
                             case "photo":
-                                attachmentImages
-                                    .Add(new Uri(item["photo"]!["sizes"]!
-                                        .Single(i => i["type"]!.Value<string>() == "q")["url"]!.Value<string>()));
+                                attachmentImages.Add(item.photo!.sizes.Single(i => i.type == "q").url);
                                 break;
 
                             case "link":
-                                attachmentUris.Add(new Uri(item["link"]!["url"]!.Value<string>()));
+                                attachmentUris.Add(item.link!.url);
                                 break;
 
                             case "wall":
@@ -112,7 +111,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                                 break;
 
                             default:
-                                otherAttachments.Add(item["type"]!.Value<string>());
+                                otherAttachments.Add(item.type);
                                 break;
                         }
                     }
@@ -120,8 +119,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 if (!attachmentUris.Any())
                 {
-                    var matches = Regex.Matches(fullText,
-                        @"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
+                    var matches = Regex.Matches(fullText, LinkRegex);
                     foreach (Match match in matches)
                     {
                         if (Uri.TryCreate(match.Value, UriKind.Absolute, out Uri parsed))
@@ -132,11 +130,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 }
 
                 return new Message(
-                    messageId,
+                    message.id,
                     fullText,
                     date,
-                    profiles?.FirstOrDefault(p => p.Id == peerId),
-                    groups?.FirstOrDefault(p => p.Id == peerId),
+                    profiles?.FirstOrDefault(p => p.Id == message.from_id),
+                    groups?.FirstOrDefault(p => p.Id == message.from_id),
                     attachmentImages,
                     attachmentUris,
                     attachmentMessages,
