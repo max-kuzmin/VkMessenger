@@ -12,7 +12,10 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         private const int MaxLength = 150;
         private const string PaperClip = "📎";
 
-        public uint Id { get; }
+        /// <summary>
+        /// Positive number
+        /// </summary>
+        public int Id { get; }
         public string Text { get; private set; }
         public bool Read { get; private set; }
         public DateTime Date { get; }
@@ -46,7 +49,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public Message(
-            uint id,
+            int id,
             string fullText,
             DateTime date,
             Profile? profile,

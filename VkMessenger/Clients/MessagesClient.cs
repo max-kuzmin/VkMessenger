@@ -22,8 +22,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static async Task<IReadOnlyCollection<Message>> GetMessages(
             int dialogId,
-            uint? offset = null,
-            IReadOnlyCollection<uint>? messagesIds = null)
+            int? offset = null,
+            IReadOnlyCollection<int>? messagesIds = null)
         {
             try
             {
@@ -60,10 +60,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
-                var peerId = (uint)Math.Abs(source["from_id"]!.Value<int>()); // dialogs with groups have negative ids
-                var messageId = source["id"]!.Value<uint>();
+                var peerId = Math.Abs(source["from_id"]!.Value<int>()); // dialogs with groups have negative ids
+                var messageId = source["id"]!.Value<int>();
                 var date = DateTimeOffset
-                    .FromUnixTimeSeconds(source["date"]!.Value<uint>()).UtcDateTime
+                    .FromUnixTimeSeconds(source["date"]!.Value<int>()).UtcDateTime
                     .Add(TimeZoneInfo.Local.BaseUtcOffset);
                 var fullText = source["text"]!.Value<string>();
 
@@ -150,7 +150,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private static async Task<string> GetMessagesJson(int dialogId, uint? offset = null)
+        private static async Task<string> GetMessagesJson(int dialogId, int? offset = null)
         {
             var url =
                 "https://api.vk.com/method/messages.getHistory" +
@@ -190,7 +190,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private static async Task<string> GetMessagesJson(IReadOnlyCollection<uint> messagesIds)
+        private static async Task<string> GetMessagesJson(IReadOnlyCollection<int> messagesIds)
         {
             var url =
                 "https://api.vk.com/method/messages.getById" +

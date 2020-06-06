@@ -14,11 +14,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             return new Profile
             {
-                Id = profile["id"]!.Value<uint>(),
+                Id = profile["id"]!.Value<int>(),
                 Name = profile["first_name"]!.Value<string>(),
                 Surname = profile["last_name"]!.Value<string>(),
                 Photo = ImageSource.FromUri(new Uri(profile["photo_50"]!.Value<string>())),
-                Online = profile["online"]!.Value<uint>() != 0
+                Online = profile["online"]!.Value<int>() != 0
             };
         }
 

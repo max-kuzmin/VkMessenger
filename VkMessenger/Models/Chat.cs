@@ -4,7 +4,10 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 {
     public class Chat
     {
-        public uint Id { get; set; }
+        /// <summary>
+        /// Positive number
+        /// </summary>
+        public int Id { get; set; }
         public ImageSource? Photo { get; set; }
         public string Title { get; set; } = default!;
     }

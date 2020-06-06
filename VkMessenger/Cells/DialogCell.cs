@@ -68,9 +68,9 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         private static readonly BindableProperty UnreadCountProperty =
             BindableProperty.Create(
                 nameof(Dialog.UnreadCount),
-                typeof(uint),
+                typeof(int),
                 typeof(DialogCell),
-                default(uint),
+                default(int),
                 propertyChanged: OnUnreadCountPropertyChanged);
 
         private static readonly BindableProperty OnlineProperty =
@@ -84,9 +84,9 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         private static readonly BindableProperty TextProperty =
             BindableProperty.Create(
                 nameof(Dialog.Text),
-                typeof(uint),
+                typeof(int),
                 typeof(DialogCell),
-                default(uint),
+                default(int),
                 propertyChanged: OnTextPropertyChanged);
 
         public DialogCell()
@@ -115,7 +115,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 return;
             }
 
-            var unreadCount = (uint)newValue;
+            var unreadCount = (int)newValue;
             if (unreadCount > 0)
             {
                 cell.unreadCount.Text = $"({unreadCount})";

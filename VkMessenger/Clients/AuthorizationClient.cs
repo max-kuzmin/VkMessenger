@@ -33,7 +33,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var token = string.Concat(Regex.Match(url, @"access_token=(\d|\w)*").Value.Skip(13));
                 var userIdString = string.Concat(Regex.Match(url, @"user_id=\d*").Value.Skip(8));
 
-                if (token.Length == TokenLength && uint.TryParse(userIdString, out var userId))
+                if (token.Length == TokenLength && int.TryParse(userIdString, out var userId))
                 {
                     Authorization.Token = token;
                     Authorization.UserId = userId;

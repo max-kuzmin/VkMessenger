@@ -14,7 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public Chat? Chat { get; }
         public CustomObservableCollection<Message> Messages { get; }
         public DialogType Type { get; }
-        public uint UnreadCount { get; private set; }
+        public int UnreadCount { get; private set; }
         public string Text => Messages.FirstOrDefault()?.Text?.Replace('\n', ' ') ?? string.Empty;
         public bool Online => Type == DialogType.User && Profiles.First().Online;
 
@@ -66,7 +66,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public Dialog(DialogType type, Group? group, Chat? chat, uint unreadCount,
+        public Dialog(DialogType type, Group? group, Chat? chat, int unreadCount,
             IReadOnlyCollection<Profile>? profiles, IReadOnlyCollection<Message> messages)
         {
             Type = type;
@@ -96,13 +96,13 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             SetUnreadCount(0);
         }
 
-        public void SetUnreadCount(uint unreadCount)
+        public void SetUnreadCount(int unreadCount)
         {
             UnreadCount = unreadCount;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UnreadCount)));
         }
 
-        public void SetOnline(uint userId, bool online)
+        public void SetOnline(int userId, bool online)
         {
             var profile = Profiles?.FirstOrDefault(p => p.Id == userId);
             if (profile != null)

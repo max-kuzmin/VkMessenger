@@ -7,6 +7,7 @@ using ru.MaxKuzmin.VkMessenger.Net;
 using System;
 using System.Globalization;
 using System.Threading;
+using ru.MaxKuzmin.VkMessenger.Loggers;
 using Tizen.Applications;
 using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;

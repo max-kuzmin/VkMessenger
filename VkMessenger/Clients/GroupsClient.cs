@@ -14,7 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             return new Group
             {
-                Id = group["id"]!.Value<uint>(),
+                Id = group["id"]!.Value<int>(),
                 Name = group["name"]!.Value<string>(),
                 Photo = ImageSource.FromUri(new Uri(group["photo_50"]!.Value<string>()))
             };

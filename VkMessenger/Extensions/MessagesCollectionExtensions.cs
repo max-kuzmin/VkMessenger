@@ -15,8 +15,8 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         public static async Task Update(
             this CustomObservableCollection<Message> collection,
             int dialogId,
-            uint? offset = null,
-            IReadOnlyCollection<uint>? messagesIds = null)
+            int? offset = null,
+            IReadOnlyCollection<int>? messagesIds = null)
         {
             var newMessages = await MessagesClient.GetMessages(dialogId, offset, messagesIds);
             if (newMessages.Any())

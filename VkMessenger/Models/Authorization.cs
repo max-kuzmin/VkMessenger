@@ -6,7 +6,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 {
     public static class Authorization
     {
-        public const uint ClientId = 6872680;
+        public const int ClientId = 6872680;
 
         private const string TokenKey = "Token";
         private const string UserIdKey = "UserId";
@@ -28,10 +28,10 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
-        public static uint UserId
+        public static int UserId
         {
-            get => Preference.Contains(UserIdKey) ? (uint)Preference.Get<int>(UserIdKey) : 0u;
-            set => Preference.Set(UserIdKey, (int)value);
+            get => Preference.Contains(UserIdKey) ? Preference.Get<int>(UserIdKey) : 0;
+            set => Preference.Set(UserIdKey, value);
         }
 
         public static ImageSource? Photo

@@ -74,7 +74,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// <summary>
         /// Update user status in every dialog
         /// </summary>
-        public static void SetOnline(this IReadOnlyCollection<Dialog> dialogs, ISet<(uint UserId, bool Status)> updates)
+        public static void SetOnline(this IReadOnlyCollection<Dialog> dialogs, ISet<(int UserId, bool Status)> updates)
         {
             foreach (var dialog in dialogs)
             {

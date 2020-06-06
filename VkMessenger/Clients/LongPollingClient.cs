@@ -45,7 +45,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             LongPolling.Key = response["key"]!.Value<string>();
             LongPolling.Server = response["server"]!.Value<string>();
-            LongPolling.Ts ??= response["ts"]!.Value<uint>();
+            LongPolling.Ts ??= response["ts"]!.Value<int>();
         }
 
         private static async Task<JObject> SendLongRequest()
@@ -66,7 +66,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         private static void ParseLongPollingJson(JObject json)
         {
-            LongPolling.Ts = json["ts"]!.Value<uint>();
+            LongPolling.Ts = json["ts"]!.Value<int>();
 
             var messageEventArgs = new MessageEventArgs();
             var dialogEventArgs = new DialogEventArgs();
@@ -75,7 +75,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             foreach (var jToken in (JArray)json["updates"]!)
             {
                 var update = (JArray)jToken;
-                switch (update[0].Value<uint>())
+                switch (update[0].Value<int>())
                 {
                     case 1:
                     case 2:
@@ -83,7 +83,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     case 4:
                     case 5:
                         {
-                            messageEventArgs.Data.Add((update[1].Value<uint>(), update[3].Value<int>()));
+                            messageEventArgs.Data.Add((update[1].Value<int>(), update[3].Value<int>()));
                             break;
                         }
                     case 6:
@@ -96,17 +96,17 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     case 51:
                     case 52:
                         {
-                            dialogEventArgs.DialogIds.Add(update[1].Value<int>()); // dialogs with groups have negative ids
+                            dialogEventArgs.DialogIds.Add(update[1].Value<int>());
                             break;
                         }
                     case 8:
                         {
-                            userStatusEventArgs.Data.Add((update[1].Value<uint>(), true));
+                            userStatusEventArgs.Data.Add((update[1].Value<int>(), true));
                             break;
                         }
                     case 9:
                         {
-                            userStatusEventArgs.Data.Add((update[1].Value<uint>(), false));
+                            userStatusEventArgs.Data.Add((update[1].Value<int>(), false));
                             break;
                         }
                 }

@@ -31,14 +31,14 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             IReadOnlyCollection<Message> lastMessages)
         {
             var conversation = dialog["conversation"] ?? dialog;
-            var peerId = (uint)Math.Abs(conversation["peer"]!["id"]!.Value<int>()); // dialogs with groups have negative ids
+            var peerId = Math.Abs(conversation["peer"]!["id"]!.Value<int>()); // dialogs with groups have negative ids
             var dialogType = Enum.Parse<DialogType>(conversation["peer"]!["type"]!.Value<string>(), true);
-            var unreadCount = conversation["unread_count"]?.Value<uint>() ?? 0u;
+            var unreadCount = conversation["unread_count"]?.Value<int>() ?? 0;
 
             var lastMessage = new[] {
                 dialog.ContainsKey("last_message")
                     ? MessagesClient.FromJson((JObject)dialog["last_message"]!, profiles, groups)
-                    : lastMessages.First(e => e.Id == dialog["last_message_id"]!.Value<uint>())
+                    : lastMessages.First(e => e.Id == dialog["last_message_id"]!.Value<int>())
             };
 
             Dialog result = default!;
@@ -69,7 +69,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                                 : null
                         };
 
-                        //TODO: active_ids are negative sometimes
                         var dialogProfiles = ((JArray)chatSettings["active_ids"]!)
                             .Select(id => profiles.First(p => p.Id == id.Value<int>()))
                             .ToArray();
@@ -101,7 +100,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var lastMessagesIds = responseItems
                     .Select(jToken => (JObject)jToken)
                     .Where(e => !e.ContainsKey("last_message"))
-                    .Select(e => e["last_message_id"]!.Value<uint>()).ToList();
+                    .Select(e => e["last_message_id"]!.Value<int>()).ToList();
 
                 var lastMessages = lastMessagesIds.Any()
                     ? await MessagesClient.GetMessages(0, 0, lastMessagesIds)
