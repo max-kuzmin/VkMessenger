@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ru.MaxKuzmin.VkMessenger.Dtos;
 using Xamarin.Forms;
+using Newtonsoft.Json.Linq;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -75,7 +76,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             foreach (var update in json.updates!)
             {
-                switch ((int)update[0])
+                switch (update[0].Value<int>())
                 {
                     case 1:
                     case 2:
@@ -83,7 +84,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     case 4:
                     case 5:
                         {
-                            messageEventArgs.Data.Add(((int)update[1], (int)update[3]));
+                            messageEventArgs.Data.Add((update[1].Value<int>(), update[3].Value<int>()));
                             break;
                         }
                     case 6:
@@ -96,17 +97,17 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     case 51:
                     case 52:
                         {
-                            dialogEventArgs.DialogIds.Add((int)update[1]);
+                            dialogEventArgs.DialogIds.Add(update[1].Value<int>());
                             break;
                         }
                     case 8:
                         {
-                            userStatusEventArgs.Data.Add(((int)update[1], true));
+                            userStatusEventArgs.Data.Add((Math.Abs(update[1].Value<int>()), true)); // User ids send as negative values
                             break;
                         }
                     case 9:
                         {
-                            userStatusEventArgs.Data.Add(((int)update[1], false));
+                            userStatusEventArgs.Data.Add((Math.Abs(update[1].Value<int>()), false));
                             break;
                         }
                 }
