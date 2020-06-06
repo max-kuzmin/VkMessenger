@@ -140,18 +140,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var message = (Message)e.Item;
             if (dialog.Messages.Count >= 20 && dialog.Messages.All(i => i.Id >= message.Id))
             {
-                // Temporary disable "load more" event
-                messagesListView.ItemAppearing -= LoadMoreMessages;
-
                 await dialog.Messages.Update(dialog.Id, dialog.Messages.Count);
-
-                // To prevent event activation
-                // ReSharper disable once AssignmentIsFullyDiscarded
-                _ = Task.Run(async () =>
-                  {
-                      await Task.Delay(TimeSpan.FromSeconds(0.5));
-                      messagesListView.ItemAppearing += LoadMoreMessages;
-                  });
+                messagesListView.ScrollIfExist(message, ScrollToPosition.Center);
             }
         }
 
@@ -223,7 +213,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         protected override bool OnBackButtonPressed()
         {
-            messagesListView.ItemAppearing -= LoadMoreMessages;
             Navigation.PopAsync();
             return base.OnBackButtonPressed();
         }
@@ -233,13 +222,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (shouldScroll)
             {
                 messagesListView.ScrollIfExist(dialog.Messages.FirstOrDefault(), ScrollToPosition.Center);
-                // To prevent event activation
-                Task.Run(async () =>
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(0.5));
-                    messagesListView.ItemAppearing += LoadMoreMessages;
-                });
             }
+            // set to scroll on next appearing
             else shouldScroll = true;
 
             base.OnAppearing();
