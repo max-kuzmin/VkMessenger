@@ -92,13 +92,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OnDialogUpdate(object s, DialogEventArgs e)
         {
-            await dialogs.Update(e.DialogIds.ToArray());
+            await dialogs.UpdateByIds(e.DialogIds.ToArray());
+            // ReSharper disable once AssignmentIsFullyDiscarded
             _ = Task.Run(() => new Feedback().Play(FeedbackType.Vibration, "Tap"));
         }
 
         private async void OnMessageUpdate(object s, MessageEventArgs e)
         {
-            await dialogs.Update(e.Data.Select(i => i.DialogId).ToArray());
+            await dialogs.UpdateByIds(e.Data.Select(i => i.DialogId).ToArray());
+            // ReSharper disable once AssignmentIsFullyDiscarded
             _ = Task.Run(() => new Feedback().Play(FeedbackType.Vibration, "Tap"));
         }
 

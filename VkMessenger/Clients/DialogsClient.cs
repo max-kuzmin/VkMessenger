@@ -18,7 +18,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             DialogDto[] dialogs,
             IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups,
-            IReadOnlyCollection<Message> lastMessages)
+            IReadOnlyCollection<Message>? lastMessages)
         {
             return dialogs
                 .Select(item => FromDto(item, profiles, groups, lastMessages))
@@ -29,33 +29,35 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             DialogDto dialog,
             IReadOnlyCollection<Profile> profiles,
             IReadOnlyCollection<Group> groups,
-            IReadOnlyCollection<Message> lastMessages)
+            IReadOnlyCollection<Message>? lastMessages)
         {
             var conversation = dialog.conversation;
             var peerId = Math.Abs(conversation.peer.id); // dialogs with groups have negative ids
             var dialogType = Enum.Parse<DialogType>(conversation.peer.type, true);
             var unreadCount = conversation.unread_count ?? 0;
 
-            var lastMessage = new[] {
-                dialog.last_message != null
-                    ? MessagesClient.FromDto(dialog.last_message, profiles, groups)
-                    : lastMessages.First(e => e.Id == conversation.last_message_id)
-            };
+            var lastMessage = dialog.last_message != null
+                ? MessagesClient.FromDto(dialog.last_message, profiles, groups)
+                : lastMessages?.SingleOrDefault(e => e.Id == conversation.last_message_id);
+            var messages = lastMessage != null
+                ? new[] { lastMessage }
+                : null;
 
             Dialog result = default!;
 
+            // ReSharper disable once SwitchStatementMissingSomeCases
             switch (dialogType)
             {
                 case DialogType.User:
                     {
                         var dialogProfiles = new[] { profiles.First(p => p.Id == peerId) };
-                        result = new Dialog(dialogType, null, null, unreadCount, dialogProfiles, lastMessage);
+                        result = new Dialog(dialogType, null, null, unreadCount, dialogProfiles, messages);
                         break;
                     }
                 case DialogType.Group:
                     {
                         var group = groups.First(g => g.Id == peerId);
-                        result = new Dialog(dialogType, group, null, unreadCount, null, lastMessage);
+                        result = new Dialog(dialogType, group, null, unreadCount, null, messages);
                         break;
                     }
                 case DialogType.Chat:
@@ -74,7 +76,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                             .Select(id => profiles.First(p => p.Id == id))
                             .ToArray();
 
-                        result = new Dialog(dialogType, null, chat, unreadCount, dialogProfiles, lastMessage);
+                        result = new Dialog(dialogType, null, chat, unreadCount, dialogProfiles, messages);
                         break;
                     }
             }
@@ -82,15 +84,36 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             return result;
         }
 
-        public static async Task<IReadOnlyCollection<Dialog>> GetDialogs(IReadOnlyCollection<int>? dialogIds = null)
+        public static async Task<IReadOnlyCollection<Dialog>> GetDialogs()
+        {
+            try
+            {
+                Logger.Info("Updating dialogs");
+
+                var json = JsonConvert.DeserializeObject<JsonDto<DialogsResponseDto>>(await GetDialogsJson());
+
+                var response = json.response;
+                var responseItems = response.items;
+
+                var profiles = ProfilesClient.FromDtoArray(response.profiles);
+                var groups = GroupsClient.FromDtoArray(response.groups);
+
+                return FromDtoArray(responseItems, profiles, groups, null);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                throw;
+            }
+        }
+
+        public static async Task<IReadOnlyCollection<Dialog>> GetDialogsByIds(IReadOnlyCollection<int> dialogIds)
         {
             try
             {
                 Logger.Info($"Updating dialogs {dialogIds.ToJson()}");
 
-                var json = JsonConvert.DeserializeObject<JsonDto<DialogsResponseDto>>(dialogIds == null
-                    ? await GetDialogsJson()
-                    : await GetDialogsJson(dialogIds));
+                var json = JsonConvert.DeserializeObject<JsonDto<DialogsByIdsResponseDto>>(await GetDialogsJsonByIds(dialogIds));
 
                 var response = json.response;
                 var responseItems = response.items;
@@ -99,14 +122,18 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var groups = GroupsClient.FromDtoArray(response.groups);
 
                 var lastMessagesIds = responseItems
-                    .Where(e => e.last_message == null && e.conversation.last_message_id.HasValue)
-                    .Select(e => e.conversation.last_message_id!.Value).ToList();
+                    .Where(e => e.last_message_id.HasValue)
+                    .Select(e => e.last_message_id!.Value).ToList();
 
                 var lastMessages = lastMessagesIds.Any()
-                    ? await MessagesClient.GetMessages(0, 0, lastMessagesIds)
-                    : Array.Empty<Message>();
+                    ? await MessagesClient.GetMessagesByIds(lastMessagesIds)
+                    : null;
 
-                return FromDtoArray(responseItems, profiles, groups, lastMessages);
+                var dialogs = responseItems
+                    .Select(e => new DialogDto { conversation = e })
+                    .ToArray();
+
+                return FromDtoArray(dialogs, profiles, groups, lastMessages);
             }
             catch (Exception e)
             {
@@ -152,7 +179,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private static async Task<string> GetDialogsJson(IReadOnlyCollection<int> dialogIds)
+        private static async Task<string> GetDialogsJsonByIds(IReadOnlyCollection<int> dialogIds)
         {
             var url =
                 "https://api.vk.com/method/messages.getConversationsById" +

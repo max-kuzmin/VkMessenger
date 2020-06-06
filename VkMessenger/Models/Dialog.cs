@@ -41,9 +41,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             {
                 return Type switch
                 {
-                    DialogType.User => (int)Profiles.First().Id,
-                    DialogType.Chat => (int)Chat!.Id,
-                    DialogType.Group => -(int)Group!.Id,
+                    DialogType.User => Profiles.First().Id,
+                    DialogType.Chat => Chat!.Id,
+                    DialogType.Group => -Group!.Id,
                     _ => 0
                 };
             }
@@ -67,16 +67,14 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public Dialog(DialogType type, Group? group, Chat? chat, int unreadCount,
-            IReadOnlyCollection<Profile>? profiles, IReadOnlyCollection<Message> messages)
+            IReadOnlyCollection<Profile>? profiles, IReadOnlyCollection<Message>? messages)
         {
             Type = type;
             Group = group;
             Chat = chat;
             UnreadCount = unreadCount;
 
-            Messages = messages == null
-                ? new CustomObservableCollection<Message>()
-                : new CustomObservableCollection<Message>(messages);
+            Messages = new CustomObservableCollection<Message>(messages ?? Array.Empty<Message>());
 
             Messages.CollectionChanged += (s, e) =>
             {

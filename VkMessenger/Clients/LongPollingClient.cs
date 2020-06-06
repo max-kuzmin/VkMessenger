@@ -76,6 +76,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             foreach (var update in json.updates!)
             {
+                // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (update[0].Value<int>())
                 {
                     case 1:

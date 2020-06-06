@@ -111,6 +111,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (!firstTapPerformed)
             {
                 firstTapPerformed = true;
+                // ReSharper disable once AssignmentIsFullyDiscarded
                 _ = Task.Run(async () =>
                   {
                       await Task.Delay(TimeSpan.FromSeconds(1));
@@ -145,6 +146,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 await dialog.Messages.Update(dialog.Id, dialog.Messages.Count);
 
                 // To prevent event activation
+                // ReSharper disable once AssignmentIsFullyDiscarded
                 _ = Task.Run(async () =>
                   {
                       await Task.Delay(TimeSpan.FromSeconds(0.5));
@@ -166,7 +168,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             if (items.Any())
             {
-                await dialog.Messages.Update(dialog.Id, messagesIds: items);
+                await dialog.Messages.UpdateByIds(items);
+                // ReSharper disable once AssignmentIsFullyDiscarded
                 _ = Task.Run(() => new Feedback().Play(FeedbackType.Vibration, "Tap"));
             }
         }

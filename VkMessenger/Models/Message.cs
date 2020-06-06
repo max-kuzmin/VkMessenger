@@ -33,11 +33,11 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             get
             {
                 if (Group != null)
-                    return -(int)Group.Id;
+                    return -Group.Id;
                 else if (Profile != null)
-                    return (int)Profile.Id;
+                    return Profile.Id;
                 else
-                    return (int)Authorization.UserId;
+                    return Authorization.UserId;
             }
         }
 

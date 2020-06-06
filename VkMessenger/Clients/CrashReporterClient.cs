@@ -3,8 +3,10 @@ using ru.MaxKuzmin.VkMessenger.Net;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
+    // ReSharper disable once UnusedMember.Global
     internal static class CrashReporterClient
     {
+        // ReSharper disable once UnusedMember.Global
         public static async Task SendAsync(string text)
         {
             try
@@ -14,7 +16,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 using var client = new ProxiedWebClient();
                 await client.UploadStringTaskAsync(url, text);
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
     }
 }

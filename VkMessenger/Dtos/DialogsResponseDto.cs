@@ -1,4 +1,5 @@
-﻿namespace ru.MaxKuzmin.VkMessenger.Dtos
+﻿#pragma warning disable IDE1006 // Naming Styles
+namespace ru.MaxKuzmin.VkMessenger.Dtos
 {
     public sealed class DialogsResponseDto
     {
@@ -7,9 +8,5 @@
         public ProfileDto[]? profiles { get; set; }
 
         public GroupDto[]? groups { get; set; }
-
-        public int count { get; set; }
-
-        public int unread_count { get; set; }
     }
 }

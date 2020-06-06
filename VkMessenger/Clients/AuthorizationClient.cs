@@ -41,7 +41,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     await GetPhoto();
                     return true;
                 }
-                else return false;
+                
+                return false;
             }
             catch (Exception e)
             {

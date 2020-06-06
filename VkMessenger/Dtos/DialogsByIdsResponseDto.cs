@@ -1,9 +1,9 @@
 ﻿#pragma warning disable IDE1006 // Naming Styles
 namespace ru.MaxKuzmin.VkMessenger.Dtos
 {
-    public sealed class MessagesResponseDto
+    public sealed class DialogsByIdsResponseDto
     {
-        public MessageDto[] items { get; set; } = default!;
+        public ConversationDto[] items { get; set; } = default!;
 
         public ProfileDto[]? profiles { get; set; }
 

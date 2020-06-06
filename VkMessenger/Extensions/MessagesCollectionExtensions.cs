@@ -15,10 +15,23 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         public static async Task Update(
             this CustomObservableCollection<Message> collection,
             int dialogId,
-            int? offset = null,
-            IReadOnlyCollection<int>? messagesIds = null)
+            int? offset = null)
         {
-            var newMessages = await MessagesClient.GetMessages(dialogId, offset, messagesIds);
+            var newMessages = await MessagesClient.GetMessages(dialogId, offset);
+            if (newMessages.Any())
+            {
+                collection.AddUpdate(newMessages);
+            }
+        }
+
+        /// <summary>
+        /// Update messages from API. Can be used during setup of page or with <see cref="LongPolling"/>
+        /// </summary>
+        public static async Task UpdateByIds(
+            this CustomObservableCollection<Message> collection,
+            IReadOnlyCollection<int> messagesIds)
+        {
+            var newMessages = await MessagesClient.GetMessagesByIds(messagesIds);
             if (newMessages.Any())
             {
                 collection.AddUpdate(newMessages);

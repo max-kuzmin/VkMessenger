@@ -24,18 +24,33 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         private const string LinkRegex =
             @"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)";
 
-        public static async Task<IReadOnlyCollection<Message>> GetMessages(
-            int dialogId,
-            int? offset = null,
-            IReadOnlyCollection<int>? messagesIds = null)
+        public static async Task<IReadOnlyCollection<Message>> GetMessages(int dialogId, int? offset)
         {
             try
             {
-                Logger.Info($"Updating messages {messagesIds.ToJson()} in dialog {dialogId}");
+                Logger.Info($"Updating messages in dialog {dialogId}");
 
-                var json = JsonConvert.DeserializeObject<JsonDto<MessagesResponseDto>>(messagesIds != null
-                    ? await GetMessagesJson(messagesIds)
-                    : await GetMessagesJson(dialogId, offset));
+                var json = JsonConvert.DeserializeObject<JsonDto<MessagesResponseDto>>(await GetMessagesJson(dialogId, offset));
+
+                var response = json.response;
+                var profiles = ProfilesClient.FromDtoArray(response.profiles);
+                var groups = GroupsClient.FromDtoArray(response.groups);
+                return FromDtoArray(response.items, profiles, groups);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                throw;
+            }
+        }
+
+        public static async Task<IReadOnlyCollection<Message>> GetMessagesByIds(IReadOnlyCollection<int> messagesIds)
+        {
+            try
+            {
+                Logger.Info($"Updating messages {messagesIds.ToJson()}");
+
+                var json = JsonConvert.DeserializeObject<JsonDto<MessagesResponseDto>>(await GetMessagesJsonByIds(messagesIds));
 
                 var response = json.response;
                 var profiles = ProfilesClient.FromDtoArray(response.profiles);
@@ -64,6 +79,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
+                var peerId = message.from_id;
                 var date = DateTimeOffset
                     .FromUnixTimeSeconds(message.date).UtcDateTime
                     .Add(TimeZoneInfo.Local.BaseUtcOffset);
@@ -76,6 +92,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var attachmentMessages = message.fwd_messages?
                     .Select(i =>
                     (
+                        // ReSharper disable once RedundantCast
                         (Profile?)profiles.SingleOrDefault(e => e.Id == i.from_id),
                         i.text
                     )).ToArray();
@@ -133,8 +150,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     message.id,
                     fullText,
                     date,
-                    profiles?.FirstOrDefault(p => p.Id == message.from_id),
-                    groups?.FirstOrDefault(p => p.Id == message.from_id),
+                    profiles?.FirstOrDefault(p => p.Id == peerId),
+                    groups?.FirstOrDefault(p => p.Id == peerId),
                     attachmentImages,
                     attachmentUris,
                     attachmentMessages,
@@ -148,7 +165,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private static async Task<string> GetMessagesJson(int dialogId, int? offset = null)
+        private static async Task<string> GetMessagesJson(int dialogId, int? offset)
         {
             var url =
                 "https://api.vk.com/method/messages.getHistory" +
@@ -188,7 +205,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private static async Task<string> GetMessagesJson(IReadOnlyCollection<int> messagesIds)
+        private static async Task<string> GetMessagesJsonByIds(IReadOnlyCollection<int> messagesIds)
         {
             var url =
                 "https://api.vk.com/method/messages.getById" +
