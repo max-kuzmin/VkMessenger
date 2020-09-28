@@ -5,6 +5,6 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
 {
     public sealed class LinkDto
     {
-        public Uri url { get; set; } = default!;
+        public string url { get; set; } = default!;
     }
 }

@@ -30,7 +30,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 Logger.Info($"Updating messages in dialog {dialogId}");
 
-                var json = JsonConvert.DeserializeObject<JsonDto<MessagesResponseDto>>(await GetMessagesJson(dialogId, offset));
+                var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<MessagesResponseDto>>(
+                    () => GetMessagesJson(dialogId, offset), e => e?.response != null);
 
                 var response = json.response;
                 var profiles = ProfilesClient.FromDtoArray(response.profiles);
@@ -50,7 +51,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 Logger.Info($"Updating messages {messagesIds.ToJson()}");
 
-                var json = JsonConvert.DeserializeObject<JsonDto<MessagesResponseDto>>(await GetMessagesJsonByIds(messagesIds));
+                var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<MessagesResponseDto>>(
+                    () => GetMessagesJsonByIds(messagesIds), e => e?.response != null);
 
                 var response = json.response;
                 var profiles = ProfilesClient.FromDtoArray(response.profiles);
@@ -104,11 +106,17 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         switch (item.type)
                         {
                             case "photo":
+                                var photoUri = item.photo!.sizes.SingleOrDefault(i => i.type == "q");
+                                if (photoUri == null)
+                                    Logger.Error("Uri for photo attachment is null. Attachment: " + item.ToJson());
+
                                 attachmentImages.Add(item.photo!.sizes.Single(i => i.type == "q").url);
                                 break;
 
                             case "link":
-                                attachmentUris.Add(item.link!.url);
+                                Uri.TryCreate(item.link!.url, UriKind.RelativeOrAbsolute, out Uri? uriResult);
+                                if (uriResult != null)
+                                    attachmentUris.Add(uriResult);
                                 break;
 
                             case "wall":

@@ -40,10 +40,14 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&access_token=" + Authorization.Token;
 
             using var client = new ProxiedWebClient();
-            var json = JsonConvert.DeserializeObject<JsonDto<LongPollingInitResponseDto>>(await client.DownloadStringTaskAsync(url));
+            var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<LongPollingInitResponseDto>>(
+                () => client.DownloadStringTaskAsync(url), e => e?.response != null);
             Logger.Debug(json.ToString());
 
             var response = json.response;
+
+            if (response?.key == null || response.server == null || response.ts == 0)
+                Logger.Error("One of LongPollingInitResponseDto props is null. Response: " + response.ToJson());
 
             LongPolling.Key = response.key;
             LongPolling.Server = response.server;
@@ -60,7 +64,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&wait=" + LongPolling.WaitTime +
                 "&version=3";
 
-            var json = JsonConvert.DeserializeObject<LongPollingUpdatesJsonDto>(await client.DownloadStringTaskAsync(url));
+            var json = await HttpHelpers.RetryIfEmptyResponse<LongPollingUpdatesJsonDto>(
+                () => client.DownloadStringTaskAsync(url), e => e != null);
             Logger.Debug(json.ToString());
 
             return json;
@@ -74,7 +79,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var dialogEventArgs = new DialogEventArgs();
             var userStatusEventArgs = new UserStatusEventArgs();
 
-            foreach (var update in json.updates!)
+            foreach (var update in json.updates!.Where(e => e.Length >= 2))
             {
                 // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (update[0].Value<int>())
@@ -85,7 +90,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     case 4:
                     case 5:
                         {
-                            messageEventArgs.Data.Add((update[1].Value<int>(), update[3].Value<int>()));
+                            if (update.Length >= 4)
+                                messageEventArgs.Data.Add((update[1].Value<int>(), update[3].Value<int>()));
                             break;
                         }
                     case 6:
@@ -158,7 +164,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 try
                 {
-                    if (LongPolling.Ts == null)
+                    if (LongPolling.Ts == null || LongPolling.Server == null || LongPolling.Key == null)
                     {
                         await GetLongPollServer();
                     }
