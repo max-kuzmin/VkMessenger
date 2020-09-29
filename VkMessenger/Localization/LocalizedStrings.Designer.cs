@@ -205,6 +205,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sticker.
+        /// </summary>
+        internal static string Sticker {
+            get {
+                return ResourceManager.GetString("Sticker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Video.
         /// </summary>
         internal static string Video {

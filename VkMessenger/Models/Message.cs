@@ -23,7 +23,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public Profile? Profile { get; }
         public Group? Group { get; }
         public string FullText { get; }
-        public IReadOnlyCollection<ImageSource> AttachmentImages { get; }
+        public IReadOnlyCollection<(ImageSource Url, bool IsSticker)> AttachmentImages { get; }
         public IReadOnlyCollection<Uri> AttachmentUris { get; }
         public IReadOnlyCollection<(Profile? Profile, string Text)> AttachmentMessages { get; }
         public bool FullScreenAllowed { get; }
@@ -54,7 +54,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             DateTime date,
             Profile? profile,
             Group? group,
-            IReadOnlyCollection<ImageSource>? attachmentImages,
+            IReadOnlyCollection<(ImageSource Url, bool IsSticker)>? attachmentImages,
             IReadOnlyCollection<Uri>? attachmentUris,
             IReadOnlyCollection<(Profile? Profile, string Text)>? attachmentMessages,
             IReadOnlyCollection<string> otherAttachments)
@@ -63,7 +63,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Date = date;
             Group = group;
             Profile = profile;
-            AttachmentImages = attachmentImages ?? Array.Empty<ImageSource>();
+            AttachmentImages = attachmentImages ?? Array.Empty<(ImageSource Url, bool IsSticker)>();
             AttachmentUris = attachmentUris ?? Array.Empty<Uri>();
             AttachmentMessages = attachmentMessages ?? Array.Empty<(Profile? Profile, string Text)>();
             Read = Profile?.Id == Authorization.UserId;
@@ -92,9 +92,15 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 FullScreenAllowed = true;
             }
 
-            if (AttachmentImages.Any())
+            if (AttachmentImages.Any(e => !e.IsSticker))
             {
                 Text += $"\n{PaperClip} {LocalizedStrings.Image}";
+                FullScreenAllowed = true;
+            }
+
+            if (AttachmentImages.Any(e => e.IsSticker))
+            {
+                Text += $"\n{PaperClip} {LocalizedStrings.Sticker}";
                 FullScreenAllowed = true;
             }
 

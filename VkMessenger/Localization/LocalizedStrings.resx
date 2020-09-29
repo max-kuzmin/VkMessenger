@@ -96,4 +96,7 @@
 	<data name="LoadingAuthPage" xml:space="preserve">
 		<value>Loading authorization page...</value>
 	</data>
+	<data name="Sticker" xml:space="preserve">
+		<value>Sticker</value>
+	</data>
 </root>

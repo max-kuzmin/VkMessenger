@@ -8,5 +8,7 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
         public PhotoAttachmentDto? photo { get; set; }
 
         public LinkDto? link { get; set; }
+
+        public StickerAttachmentDto? sticker { get; set; }
     }
 }

@@ -84,7 +84,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
 
             foreach (var item in message.AttachmentImages)
             {
-                var image = CreateImage(item, firstElement);
+                var image = CreateImage(item.Url, firstElement);
                 wrapperLayout.Children.Add(image);
                 firstElement = false;
             }

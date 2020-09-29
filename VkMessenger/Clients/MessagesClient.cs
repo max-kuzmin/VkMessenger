@@ -87,7 +87,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     .Add(TimeZoneInfo.Local.BaseUtcOffset);
                 var fullText = message.text;
 
-                var attachmentImages = new List<ImageSource>();
+                var attachmentImages = new List<(ImageSource Url, bool IsSticker)>();
                 var attachmentUris = new List<Uri>();
                 var otherAttachments = new List<string>();
 
@@ -106,15 +106,15 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         switch (item.type)
                         {
                             case "photo":
-                                var photoUri = item.photo!.sizes.SingleOrDefault(i => i.type == "q");
+                                var photoUri = item.photo?.sizes.SingleOrDefault(i => i.type == "q");
                                 if (photoUri == null)
                                     Logger.Error("Uri for photo attachment is null. Attachment: " + item.ToJson());
-
-                                attachmentImages.Add(item.photo!.sizes.Single(i => i.type == "q").url);
+                                else
+                                    attachmentImages.Add((photoUri.url, false));
                                 break;
 
                             case "link":
-                                Uri.TryCreate(item.link!.url, UriKind.RelativeOrAbsolute, out Uri? uriResult);
+                                Uri.TryCreate(item.link?.url, UriKind.RelativeOrAbsolute, out Uri? uriResult);
                                 if (uriResult != null)
                                     attachmentUris.Add(uriResult);
                                 break;
@@ -133,6 +133,15 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                             case "album":
                                 otherAttachments.Add(LocalizedStrings.Album);
+                                break;
+
+                            case "sticker":
+                                var stickerUri = item.sticker?.images.FirstOrDefault(i => i.height == 256)
+                                        ?? item.sticker?.images.OrderBy(i => i.height).FirstOrDefault();
+                                if (stickerUri == null)
+                                    Logger.Error("Uri for sticker attachment is null. Attachment: " + item.ToJson());
+                                else
+                                    attachmentImages.Add((stickerUri.url, true));
                                 break;
 
                             default:
