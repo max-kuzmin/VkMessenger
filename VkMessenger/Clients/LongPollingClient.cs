@@ -79,7 +79,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var dialogEventArgs = new DialogEventArgs();
             var userStatusEventArgs = new UserStatusEventArgs();
 
-            foreach (var update in json.updates!.Where(e => e.Length >= 2))
+            var updates = json.updates?.Where(e => e.Length >= 2) ?? Array.Empty<JToken[]>();
+            foreach (var update in updates)
             {
                 // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (update[0].Value<int>())

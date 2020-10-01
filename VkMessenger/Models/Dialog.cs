@@ -25,8 +25,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 return Type switch
                 {
                     DialogType.User => (Profiles.First().Name + " " + Profiles.First().Surname),
-                    DialogType.Group => Group!.Name,
-                    DialogType.Chat => Chat!.Title,
+                    DialogType.Group when Group != null => Group.Name,
+                    DialogType.Chat when Chat != null => Chat.Title,
                     _ => string.Empty
                 };
             }
@@ -42,8 +42,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 return Type switch
                 {
                     DialogType.User => Profiles.First().Id,
-                    DialogType.Chat => Chat!.Id,
-                    DialogType.Group => -Group!.Id,
+                    DialogType.Chat when Chat != null => Chat.Id,
+                    DialogType.Group when Group != null => -Group.Id,
                     _ => 0
                 };
             }
