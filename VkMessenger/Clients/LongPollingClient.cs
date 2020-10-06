@@ -35,7 +35,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var url =
                 "https://api.vk.com/method/messages.getLongPollServer" +
-                "?v=5.92" +
+                "?v=5.124" +
                 "&lp_version=3" +
                 "&access_token=" + Authorization.Token;
 

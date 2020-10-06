@@ -10,5 +10,7 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
         public LinkDto? link { get; set; }
 
         public StickerAttachmentDto? sticker { get; set; }
+
+        public AudioMessageDto? audio_message { get; set; }
     }
 }

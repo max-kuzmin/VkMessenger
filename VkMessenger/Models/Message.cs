@@ -25,6 +25,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public string FullText { get; }
         public IReadOnlyCollection<(ImageSource Url, bool IsSticker)> AttachmentImages { get; }
         public IReadOnlyCollection<Uri> AttachmentUris { get; }
+        public Uri? AudioMessage { get; }
         public IReadOnlyCollection<(Profile? Profile, string Text)> AttachmentMessages { get; }
         public bool FullScreenAllowed { get; }
 
@@ -57,6 +58,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             IReadOnlyCollection<(ImageSource Url, bool IsSticker)>? attachmentImages,
             IReadOnlyCollection<Uri>? attachmentUris,
             IReadOnlyCollection<(Profile? Profile, string Text)>? attachmentMessages,
+            Uri? audioMessage,
             IReadOnlyCollection<string> otherAttachments)
         {
             Id = id;
@@ -65,6 +67,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Profile = profile;
             AttachmentImages = attachmentImages ?? Array.Empty<(ImageSource Url, bool IsSticker)>();
             AttachmentUris = attachmentUris ?? Array.Empty<Uri>();
+            AudioMessage = audioMessage;
             AttachmentMessages = attachmentMessages ?? Array.Empty<(Profile? Profile, string Text)>();
             Read = Profile?.Id == Authorization.UserId;
             FullText = fullText;

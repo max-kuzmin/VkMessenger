@@ -167,7 +167,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var url =
                 "https://api.vk.com/method/messages.getConversations" +
-                "?v=5.92" +
+                "?v=5.124" +
                 "&extended=1" +
                 "&access_token=" + Authorization.Token;
 
@@ -184,7 +184,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 var url =
                     "https://api.vk.com/method/messages.markAsRead" +
-                    "?v=5.92" +
+                    "?v=5.124" +
                     "&peer_id=" + dialogId +
                     "&access_token=" + Authorization.Token;
 
@@ -205,7 +205,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var url =
                 "https://api.vk.com/method/messages.getConversationsById" +
-                "?v=5.92" +
+                "?v=5.124" +
                 "&extended=1" +
                 "&peer_ids=" + dialogIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
                 "&access_token=" + Authorization.Token;

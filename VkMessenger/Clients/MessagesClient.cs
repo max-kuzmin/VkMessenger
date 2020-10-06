@@ -10,7 +10,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using ru.MaxKuzmin.VkMessenger.Dtos;
 using Xamarin.Forms;
 using Group = ru.MaxKuzmin.VkMessenger.Models.Group;
@@ -89,6 +88,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 var attachmentImages = new List<(ImageSource Url, bool IsSticker)>();
                 var attachmentUris = new List<Uri>();
+                Uri? audioMessage = null;
                 var otherAttachments = new List<string>();
 
                 var attachmentMessages = message.fwd_messages?
@@ -144,6 +144,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                                     attachmentImages.Add((stickerUri.url, true));
                                 break;
 
+                            case "audio_message":
+                                audioMessage = item.audio_message?.link_mp3;
+                                break;
+
                             default:
                                 otherAttachments.Add(item.type);
                                 break;
@@ -172,6 +176,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     attachmentImages,
                     attachmentUris,
                     attachmentMessages,
+                    audioMessage,
                     otherAttachments);
 
             }
@@ -186,7 +191,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var url =
                 "https://api.vk.com/method/messages.getHistory" +
-                "?v=5.92" +
+                "?v=5.124" +
                 "&extended=1" +
                 "&offset=" + (offset ?? 0) +
                 "&peer_id=" + dialogId +
@@ -205,7 +210,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 var url =
                     "https://api.vk.com/method/messages.send" +
-                    "?v=5.92" +
+                    "?v=5.124" +
                     "&random_id=" + BitConverter.ToInt32(Md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(text)), 0) +
                     "&peer_id=" + dialogId +
                     "&message=" + text +
@@ -226,7 +231,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             var url =
                 "https://api.vk.com/method/messages.getById" +
-                "?v=5.92" +
+                "?v=5.124" +
                 "&extended=1" +
                 "&message_ids=" + messagesIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
                 "&access_token=" + Authorization.Token;

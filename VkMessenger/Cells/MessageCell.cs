@@ -1,4 +1,5 @@
 ﻿using FFImageLoading.Forms;
+using ru.MaxKuzmin.VkMessenger.Layouts;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
 
@@ -44,6 +45,8 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private readonly StackLayout outerLayout = new StackLayout();
 
+        private readonly AudioLayout audioLayout = new AudioLayout();
+
         private static readonly BindableProperty SenderIdProperty =
             BindableProperty.Create(
                 nameof(Message.SenderId),
@@ -67,11 +70,13 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             time.SetBinding(Label.TextProperty, nameof(Message.TimeFormatted));
             this.SetBinding(SenderIdProperty, nameof(Message.SenderId));
             this.SetBinding(ReadProperty, nameof(Message.Read));
+            audioLayout.SetBinding(AudioLayout.SourceProperty, nameof(Message.AudioMessage));
 
             photoWrapperLayout.Children.Add(photo);
             photoWrapperLayout.Children.Add(time);
             wrapperLayout.Children.Add(photoWrapperLayout);
             wrapperLayout.Children.Add(text);
+            wrapperLayout.Children.Add(audioLayout);
             outerLayout.Children.Add(wrapperLayout);
             View = outerLayout;
         }

@@ -24,7 +24,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "?client_id=" + Authorization.ClientId +
                 "&scope=" + (MessagesAccessFlag + OfflineAccessFlag) +
                 "&response_type=token" +
-                "&v=5.92";
+                "&v=5.124";
         }
 
         public static async Task<bool> SetUserFromUrl(string url)
@@ -62,7 +62,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var url =
                 "https://api.vk.com/method/users.get" +
                 "?user_ids=" + Authorization.UserId +
-                "&v=5.92" +
+                "&v=5.124" +
                 "&fields=photo_50" +
                 "&access_token=" + Authorization.Token;
 
