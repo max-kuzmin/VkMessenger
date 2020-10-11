@@ -1,5 +1,4 @@
-﻿using System.IO;
-using FFImageLoading.Forms;
+﻿using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
 
@@ -13,8 +12,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             Aspect = Aspect.AspectFit,
             HeightRequest = 75,
             WidthRequest = 75,
-            LoadingPlaceholder = ImageSource.FromFile(
-                        Path.Combine(Tizen.Applications.Application.Current.DirectoryInfo.SharedResource, "Placeholder.png"))
+            LoadingPlaceholder = ImageResources.Placeholder
 
         };
 

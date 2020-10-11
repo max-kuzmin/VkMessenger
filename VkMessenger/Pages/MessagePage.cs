@@ -18,7 +18,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             VerticalOptions = LayoutOptions.FillAndExpand
         };
 
-        private static Label CreateLabel(string text, bool marginTop) => new Label
+        private static Label CreateLabel(string text, bool marginTop = false) => new Label
         {
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             LineBreakMode = LineBreakMode.WordWrap,
@@ -28,23 +28,22 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             Text = text
         };
 
-        private static Label CreateUri(string text, bool marginTop) => new Label
+        private static Label CreateUri(string text) => new Label
         {
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             LineBreakMode = LineBreakMode.WordWrap,
             HorizontalTextAlignment = TextAlignment.Center,
             VerticalTextAlignment = TextAlignment.Center,
-            Margin = new Thickness(30, marginTop ? 70 : 10, 30, 0),
+            Margin = new Thickness(30, 10, 30, 0),
             TextColor = CustomColors.BrightBlue,
             TextDecorations = TextDecorations.Underline,
             Text = text
         };
 
-        private static CachedImage CreateImage(ImageSource source, bool marginTop) => new CachedImage
+        private static CachedImage CreateImage(ImageSource source) => new CachedImage
         {
-            Margin = new Thickness(0, marginTop ? 70 : 10, 0, 0),
-            LoadingPlaceholder = ImageSource.FromFile(
-                Path.Combine(Tizen.Applications.Application.Current.DirectoryInfo.SharedResource, "Placeholder.png")),
+            Margin = new Thickness(0, 10, 0, 0),
+            LoadingPlaceholder = ImageResources.Placeholder,
             Source = source
         };
 
@@ -52,14 +51,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
         {
             NavigationPage.SetHasNavigationBar(this, false);
 
-            var firstElement = true;
-
-            if (message.AttachmentUris.Any(e => e.ToString() != message.FullText))
-            {
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                wrapperLayout.Children.Add(CreateLabel(message.FullText, firstElement));
-                firstElement = false;
-            }
+            wrapperLayout.Children.Add(CreateLabel(message.FullText, true));
 
             foreach (var (profile, msg) in message.AttachmentMessages)
             {
@@ -68,13 +60,12 @@ namespace ru.MaxKuzmin.VkMessenger.pages
                                ? $" {LocalizedStrings.From} " + profile.Name
                                : string.Empty)
                            + $":\n\"{msg}\"";
-                wrapperLayout.Children.Add(CreateLabel(text, firstElement));
-                firstElement = false;
+                wrapperLayout.Children.Add(CreateLabel(text));
             }
 
             foreach (var item in message.AttachmentUris)
             {
-                var uri = CreateUri(item.ToString(), firstElement);
+                var uri = CreateUri(item.ToString());
                 wrapperLayout.Children.Add(uri);
 
                 var tapGestureRecognizer = new TapGestureRecognizer();
@@ -85,14 +76,12 @@ namespace ru.MaxKuzmin.VkMessenger.pages
                         Uri = item.ToString()
                     });
                 uri.GestureRecognizers.Add(tapGestureRecognizer);
-                firstElement = false;
             }
 
             foreach (var item in message.AttachmentImages)
             {
-                var image = CreateImage(item.Url, firstElement);
+                var image = CreateImage(item.Url);
                 wrapperLayout.Children.Add(image);
-                firstElement = false;
             }
 
             var emptyLabel = new Label { Margin = new Thickness(0, 0, 0, 70) };

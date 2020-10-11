@@ -11,7 +11,8 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         {
             Aspect = Aspect.AspectFit,
             HeightRequest = 40,
-            WidthRequest = 40
+            WidthRequest = 40,
+            LoadingPlaceholder = ImageResources.Placeholder
         };
 
         private readonly Label text = new Label

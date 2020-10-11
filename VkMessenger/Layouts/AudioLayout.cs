@@ -18,12 +18,6 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
 {
     public sealed class AudioLayout : StackLayout, IDisposable
     {
-        private static readonly string SharedResource = Tizen.Applications.Application.Current.DirectoryInfo.SharedResource;
-        private static readonly string PlaySymbol = Path.Combine(SharedResource, "PlaySymbol.png");
-        private static readonly string PauseSymbol = Path.Combine(SharedResource, "PauseSymbol.png");
-        private static readonly string BackSymbol = Path.Combine(SharedResource, "BackSymbol.png");
-        private static readonly string ForwardSymbol = Path.Combine(SharedResource, "ForwardSymbol.png");
-        private static readonly string LoadingSymbol = Path.Combine(SharedResource, "LoadingSymbol.png");
         private const int seekDelta = 5000;
         private const int timerInterval = 1;
 
@@ -34,21 +28,21 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
 
         private readonly Button playButton = new Button
         {
-            ImageSource = ImageSource.FromFile(PlaySymbol),
+            ImageSource = ImageResources.PlaySymbol,
             WidthRequest = 48
         };
 
         private readonly Button scrollBackButton = new Button
         {
             IsEnabled = false,
-            ImageSource = ImageSource.FromFile(BackSymbol),
+            ImageSource = ImageResources.BackSymbol,
             WidthRequest = 48
         };
 
         private readonly Button scrollForwardButton = new Button
         {
             IsEnabled = false,
-            ImageSource = ImageSource.FromFile(ForwardSymbol),
+            ImageSource = ImageResources.ForwardSymbol,
             WidthRequest = 48
         };
 
@@ -138,7 +132,7 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
                 return;
 
             isLoading = true;
-            playButton.ImageSource = ImageSource.FromFile(LoadingSymbol);
+            playButton.ImageSource = ImageResources.LoadingSymbol;
             playButton.IsEnabled = false;
             try
             {
@@ -155,7 +149,7 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             catch (Exception e)
             {
                 Logger.Error(e);
-                playButton.ImageSource = ImageSource.FromFile(PlaySymbol);
+                playButton.ImageSource = ImageResources.PlaySymbol;
                 playButton.IsEnabled = true;
             }
             finally
@@ -223,7 +217,7 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             if (player == null)
                 return;
 
-            playButton.ImageSource = ImageSource.FromFile(PlaySymbol);
+            playButton.ImageSource = ImageResources.PlaySymbol;
             player.Pause();
         }
 
@@ -233,7 +227,7 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
                 return;
 
             playButton.IsEnabled = true;
-            playButton.ImageSource = ImageSource.FromFile(PauseSymbol);
+            playButton.ImageSource = ImageResources.PauseSymbol;
             await player.Start();
             timer?.Change(TimeSpan.Zero, TimeSpan.FromSeconds(timerInterval));
             OnPauseAllPlayers?.Invoke(this, null);
@@ -246,7 +240,7 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
 
             Pause();
             player.Seek(0);
-            playButton.ImageSource = ImageSource.FromFile(PlaySymbol);
+            playButton.ImageSource = ImageResources.PlaySymbol;
             timer?.Change(TimeSpan.FromMilliseconds(-1), TimeSpan.FromSeconds(timerInterval));
             durationLabel.Text = Duration + LocalizedStrings.Sec;
         }

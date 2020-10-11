@@ -12,14 +12,24 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         private const string UserIdKey = "UserId";
         private const string PhotoKey = "Photo";
 
+        private static string? token;
+        private static int userId;
+        private static ImageSource? photoSource;
+
         public static string? Token
         {
-            get => Preference.Contains(TokenKey) ? Preference.Get<string>(TokenKey) : null;
+            get
+            {
+                if (token == null)
+                    token = Preference.Contains(TokenKey) ? Preference.Get<string>(TokenKey) : null;
+                return token;
+            }
             set
             {
                 if (value != null)
                 {
                     Preference.Set(TokenKey, value);
+                    token = value;
                 }
                 else
                 {
@@ -30,18 +40,25 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public static int UserId
         {
-            get => Preference.Contains(UserIdKey) ? Preference.Get<int>(UserIdKey) : 0;
-            set => Preference.Set(UserIdKey, value);
+            get
+            {
+                if (userId == 0)
+                    userId = Preference.Contains(UserIdKey) ? Preference.Get<int>(UserIdKey) : 0;
+                return userId;
+            }
+            set
+            {
+                Preference.Set(UserIdKey, value);
+                userId = value;
+            }
         }
 
         public static ImageSource? Photo
         {
             get
             {
-                if (photoSource == null && Preference.Contains(UserIdKey))
-                {
+                if (photoSource == null && userId != 0)
                     photoSource = ImageSource.FromUri(new Uri(Preference.Get<string>(PhotoKey)));
-                }
                 return photoSource;
             }
         }
@@ -51,7 +68,5 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Preference.Set(PhotoKey, url.ToString());
             photoSource = ImageSource.FromUri(url);
         }
-
-        private static ImageSource? photoSource;
     }
 }

@@ -2,7 +2,9 @@
 using System.Runtime.CompilerServices;
 using Tizen;
 #else
+using System.Reflection;
 using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Models;
 #endif
 
 namespace ru.MaxKuzmin.VkMessenger.Loggers
@@ -31,13 +33,15 @@ namespace ru.MaxKuzmin.VkMessenger.Loggers
 #else
     public static class Logger
     {
+        private static readonly string Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
         public static void Info(string text, string? file = null, string? caller = null, int line = 0) { }
 
         public static void Debug(string text, string? file = null, string? caller = null, int line = 0) { }
 
         public static void Error(object e, string? file = null, string? caller = null, int line = 0)
         {
-            _ = CrashReporterClient.SendAsync(e.ToString());
+            _ = CrashReporterClient.SendAsync($"{e}\nAppVersion: {Version}\nUserId: {Authorization.UserId}");
         }
     }
 #endif
