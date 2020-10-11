@@ -70,6 +70,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Audio Message.
+        /// </summary>
+        internal static string AudioMessage {
+            get {
+                return ResourceManager.GetString("AudioMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t load authorization page. No internet connection.
         /// </summary>
         internal static string AuthNoInternetError {

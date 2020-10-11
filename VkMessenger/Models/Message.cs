@@ -23,6 +23,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public Profile? Profile { get; }
         public Group? Group { get; }
         public string FullText { get; }
+        public string PreviewText { get; private set; }
         public IReadOnlyCollection<(ImageSource Url, bool IsSticker)> AttachmentImages { get; }
         public IReadOnlyCollection<Uri> AttachmentUris { get; }
         public Uri? AudioMessage { get; }
@@ -113,6 +114,10 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
 
             Text = Text.Trim('\n');
+
+            PreviewText = audioMessage != null
+                ? $"{PaperClip} {LocalizedStrings.AudioMessage}"
+                : Text.Replace('\n', ' ');
         }
 
         public void SetRead()

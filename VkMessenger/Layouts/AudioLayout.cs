@@ -39,8 +39,7 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             Text = ForwardSymbol,
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Button)),
             IsEnabled = false,
-            BackgroundColor = Color.Transparent,
-            Margin = new Thickness(0, 0, 10, 0)
+            BackgroundColor = Color.Transparent
         };
 
         private MediaPlayer? player;

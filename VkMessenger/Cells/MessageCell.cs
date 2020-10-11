@@ -18,7 +18,8 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         {
             FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
             LineBreakMode = LineBreakMode.WordWrap,
-            VerticalTextAlignment = TextAlignment.Center
+            VerticalTextAlignment = TextAlignment.Center,
+            HorizontalOptions = LayoutOptions.FillAndExpand
         };
 
         private readonly Label time = new Label
@@ -91,17 +92,15 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             var senderId = (int)newValue;
             if (senderId != Authorization.UserId)
             {
+                cell.wrapperLayout.LowerChild(cell.audioLayout);
                 cell.wrapperLayout.LowerChild(cell.photoWrapperLayout);
-                cell.photo.HorizontalOptions = LayoutOptions.End;
-                cell.text.HorizontalOptions = LayoutOptions.FillAndExpand;
                 cell.text.HorizontalTextAlignment = TextAlignment.Start;
                 cell.View.BackgroundColor = CustomColors.DarkBlue;
             }
             else
             {
+                cell.wrapperLayout.RaiseChild(cell.audioLayout);
                 cell.wrapperLayout.RaiseChild(cell.photoWrapperLayout);
-                cell.photo.HorizontalOptions = LayoutOptions.Start;
-                cell.text.HorizontalOptions = LayoutOptions.FillAndExpand;
                 cell.text.HorizontalTextAlignment = TextAlignment.End;
             }
         }
