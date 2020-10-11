@@ -174,7 +174,16 @@
   <data name="Sticker" xml:space="preserve">
     <value>Стикер</value>
   </data>
-  <data name="AudioMessage" xml:space="preserve">
-    <value>Аудио сообщение</value>
+  <data name="VoiceMessage" xml:space="preserve">
+    <value>Голосовое сообщение</value>
+  </data>
+  <data name="ForwardedMessage" xml:space="preserve">
+    <value>Пересланное сообщение</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>от</value>
+  </data>
+  <data name="Sec" xml:space="preserve">
+    <value>с</value>
   </data>
 </root>

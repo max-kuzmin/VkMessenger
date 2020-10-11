@@ -1,6 +1,8 @@
-﻿using FFImageLoading.Forms;
+﻿using System.IO;
+using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System.Linq;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
@@ -42,7 +44,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
         {
             Margin = new Thickness(0, marginTop ? 70 : 10, 0, 0),
             LoadingPlaceholder = ImageSource.FromFile(
-                Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/Placeholder.png"),
+                Path.Combine(Tizen.Applications.Application.Current.DirectoryInfo.SharedResource, "Placeholder.png")),
             Source = source
         };
 
@@ -61,7 +63,11 @@ namespace ru.MaxKuzmin.VkMessenger.pages
 
             foreach (var (profile, msg) in message.AttachmentMessages)
             {
-                var text = $"Пересланное сообщение{(profile?.Name != null ? " от " + profile.Name : string.Empty)}:\n\"{msg}\"";
+                var text = LocalizedStrings.ForwardedMessage
+                           + (profile?.Name != null 
+                               ? $" {LocalizedStrings.From} " + profile.Name
+                               : string.Empty)
+                           + $":\n\"{msg}\"";
                 wrapperLayout.Children.Add(CreateLabel(text, firstElement));
                 firstElement = false;
             }

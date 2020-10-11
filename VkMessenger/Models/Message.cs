@@ -26,7 +26,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public string PreviewText { get; private set; }
         public IReadOnlyCollection<(ImageSource Url, bool IsSticker)> AttachmentImages { get; }
         public IReadOnlyCollection<Uri> AttachmentUris { get; }
-        public Uri? AudioMessage { get; }
+        public Uri? VoiceMessage { get; }
+        public int? VoiceMessageDuration { get; }
         public IReadOnlyCollection<(Profile? Profile, string Text)> AttachmentMessages { get; }
         public bool FullScreenAllowed { get; }
 
@@ -59,7 +60,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             IReadOnlyCollection<(ImageSource Url, bool IsSticker)>? attachmentImages,
             IReadOnlyCollection<Uri>? attachmentUris,
             IReadOnlyCollection<(Profile? Profile, string Text)>? attachmentMessages,
-            Uri? audioMessage,
+            (Uri, int)? voiceMessage,
             IReadOnlyCollection<string> otherAttachments)
         {
             Id = id;
@@ -68,7 +69,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Profile = profile;
             AttachmentImages = attachmentImages ?? Array.Empty<(ImageSource Url, bool IsSticker)>();
             AttachmentUris = attachmentUris ?? Array.Empty<Uri>();
-            AudioMessage = audioMessage;
+            VoiceMessage = voiceMessage?.Item1;
+            VoiceMessageDuration = voiceMessage?.Item2;
             AttachmentMessages = attachmentMessages ?? Array.Empty<(Profile? Profile, string Text)>();
             Read = Profile?.Id == Authorization.UserId;
             FullText = fullText;
@@ -115,8 +117,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
             Text = Text.Trim('\n');
 
-            PreviewText = audioMessage != null
-                ? $"{PaperClip} {LocalizedStrings.AudioMessage}"
+            PreviewText = voiceMessage != null
+                ? $"{PaperClip} {LocalizedStrings.VoiceMessage}"
                 : Text.Replace('\n', ' ');
         }
 

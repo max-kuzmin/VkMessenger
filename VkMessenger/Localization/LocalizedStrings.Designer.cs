@@ -70,15 +70,6 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Audio Message.
-        /// </summary>
-        internal static string AudioMessage {
-            get {
-                return ResourceManager.GetString("AudioMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t load authorization page. No internet connection.
         /// </summary>
         internal static string AuthNoInternetError {
@@ -102,6 +93,24 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         internal static string File {
             get {
                 return ResourceManager.GetString("File", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Forwarded message.
+        /// </summary>
+        internal static string ForwardedMessage {
+            get {
+                return ResourceManager.GetString("ForwardedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to from.
+        /// </summary>
+        internal static string From {
+            get {
+                return ResourceManager.GetString("From", resourceCulture);
             }
         }
         
@@ -205,6 +214,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to s.
+        /// </summary>
+        internal static string Sec {
+            get {
+                return ResourceManager.GetString("Sec", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t send message. No internet connection.
         /// </summary>
         internal static string SendMessageNoInternetError {
@@ -228,6 +246,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         internal static string Video {
             get {
                 return ResourceManager.GetString("Video", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Voice Message.
+        /// </summary>
+        internal static string VoiceMessage {
+            get {
+                return ResourceManager.GetString("VoiceMessage", resourceCulture);
             }
         }
         

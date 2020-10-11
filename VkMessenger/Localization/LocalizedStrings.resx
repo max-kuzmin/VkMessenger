@@ -174,7 +174,16 @@
   <data name="Sticker" xml:space="preserve">
     <value>Sticker</value>
   </data>
-  <data name="AudioMessage" xml:space="preserve">
-    <value>Audio Message</value>
+  <data name="VoiceMessage" xml:space="preserve">
+    <value>Voice Message</value>
+  </data>
+  <data name="ForwardedMessage" xml:space="preserve">
+    <value>Forwarded message</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>from</value>
+  </data>
+  <data name="Sec" xml:space="preserve">
+    <value>s</value>
   </data>
 </root>

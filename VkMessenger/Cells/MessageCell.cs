@@ -71,7 +71,8 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             time.SetBinding(Label.TextProperty, nameof(Message.TimeFormatted));
             this.SetBinding(SenderIdProperty, nameof(Message.SenderId));
             this.SetBinding(ReadProperty, nameof(Message.Read));
-            audioLayout.SetBinding(AudioLayout.SourceProperty, nameof(Message.AudioMessage));
+            audioLayout.SetBinding(AudioLayout.SourceProperty, nameof(Message.VoiceMessage));
+            audioLayout.SetBinding(AudioLayout.DurationProperty, nameof(Message.VoiceMessageDuration));
 
             photoWrapperLayout.Children.Add(photo);
             photoWrapperLayout.Children.Add(time);

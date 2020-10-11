@@ -1,4 +1,5 @@
-﻿using FFImageLoading.Forms;
+﻿using System.IO;
+using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
 
@@ -13,7 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             HeightRequest = 75,
             WidthRequest = 75,
             LoadingPlaceholder = ImageSource.FromFile(
-                        Tizen.Applications.Application.Current.DirectoryInfo.SharedResource + "/Placeholder.png")
+                        Path.Combine(Tizen.Applications.Application.Current.DirectoryInfo.SharedResource, "Placeholder.png"))
 
         };
 

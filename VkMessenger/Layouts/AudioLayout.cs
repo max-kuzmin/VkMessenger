@@ -1,50 +1,65 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Net;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Tizen.Native;
 using Xamarin.Forms.PlatformConfiguration.TizenSpecific;
 using Button = Xamarin.Forms.Button;
+using Label = Xamarin.Forms.Label;
+using TextAlignment = Xamarin.Forms.TextAlignment;
+using TizenConfig = Xamarin.Forms.PlatformConfiguration.Tizen;
 
 namespace ru.MaxKuzmin.VkMessenger.Layouts
 {
-    public sealed class AudioLayout: StackLayout, IDisposable
+    public sealed class AudioLayout : StackLayout, IDisposable
     {
-        private const string PlaySymbol = "▶️";
-        private const string PauseSymbol = "⏸";
-        private const string BackSymbol = "⏪";
-        private const string ForwardSymbol = "⏩️";
-        private const string LoadingSymbol = "🔄";
+        private static readonly string SharedResource = Tizen.Applications.Application.Current.DirectoryInfo.SharedResource;
+        private static readonly string PlaySymbol = Path.Combine(SharedResource, "PlaySymbol.png");
+        private static readonly string PauseSymbol = Path.Combine(SharedResource, "PauseSymbol.png");
+        private static readonly string BackSymbol = Path.Combine(SharedResource, "BackSymbol.png");
+        private static readonly string ForwardSymbol = Path.Combine(SharedResource, "ForwardSymbol.png");
+        private static readonly string LoadingSymbol = Path.Combine(SharedResource, "LoadingSymbol.png");
+        private const int seekDelta = 5000;
+        private const int timerInterval = 1;
 
-        private static event EventHandler? OnStopAllPlayers;
+        private Timer? timer;
+        private MediaPlayer? player;
+        private static event EventHandler? OnPauseAllPlayers;
+        private bool isLoading;
 
         private readonly Button playButton = new Button
         {
-            Text = PlaySymbol,
-            FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Button)),
-            BackgroundColor = Color.Transparent
+            ImageSource = ImageSource.FromFile(PlaySymbol),
+            WidthRequest = 48
         };
-        private readonly Button scrollBackButton = new Button    
+
+        private readonly Button scrollBackButton = new Button
         {
-            Text = BackSymbol,
-            FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Button)),
             IsEnabled = false,
-            BackgroundColor = Color.Transparent
+            ImageSource = ImageSource.FromFile(BackSymbol),
+            WidthRequest = 48
         };
+
         private readonly Button scrollForwardButton = new Button
         {
-            Text = ForwardSymbol,
-            FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Button)),
             IsEnabled = false,
-            BackgroundColor = Color.Transparent
+            ImageSource = ImageSource.FromFile(ForwardSymbol),
+            WidthRequest = 48
         };
 
-        private MediaPlayer? player;
-
-        private const int seekDelta = 5000;
+        private readonly Label durationLabel = new Label
+        {
+            FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
+            VerticalTextAlignment = TextAlignment.Center,
+            HorizontalTextAlignment = TextAlignment.Center,
+            TextColor = Color.Gray,
+            WidthRequest = 60
+        };
 
         public static readonly BindableProperty SourceProperty =
             BindableProperty.Create(
@@ -54,55 +69,48 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
                 default(Uri),
                 propertyChanged: OnSourcePropertyChanged);
 
-        public Uri? Source { get; set; }
+        public static readonly BindableProperty DurationProperty =
+            BindableProperty.Create(
+                nameof(Duration),
+                typeof(int?),
+                typeof(AudioLayout),
+                default(int?),
+                propertyChanged: OnDurationPropertyChanged);
+
+        public Uri? Source { get; private set; }
+        public int? Duration { get; private set; }
 
         public AudioLayout()
         {
             Orientation = StackOrientation.Horizontal;
             IsVisible = false;
             playButton.Clicked += OnPlayButtonClicked;
+            scrollBackButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
+            playButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
+            scrollForwardButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
 
             Children.Add(scrollBackButton);
             Children.Add(playButton);
             Children.Add(scrollForwardButton);
+            Children.Add(durationLabel);
         }
 
         public void Dispose()
         {
-            OnStopAllPlayers -= StopThisPlayer;
+            OnPauseAllPlayers -= PauseThisPlayer;
             player?.Dispose();
         }
 
         private async void OnPlayButtonClicked(object s, EventArgs e)
         {
-            if (playButton.Text == LoadingSymbol)
-            {
+            if (isLoading)
                 return;
-            }
             if (player == null)
-            {
                 await InitAndPlay();
-            }
             else if (player.State != PlaybackState.Playing)
-            {
                 await Start();
-            }
             else
-            {
-                playButton.Text = PlaySymbol;
-                player.Pause();
-            }
-        }
-
-        private async Task Start()
-        {
-            if (player == null)
-                return;
-
-            playButton.IsEnabled = true;
-            playButton.Text = PauseSymbol;
-            await player.Start();
-            OnStopAllPlayers?.Invoke(this, null);
+                Pause();
         }
 
         private static void OnSourcePropertyChanged(BindableObject bindable, object oldValue, object newValue)
@@ -114,12 +122,23 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             }
         }
 
+        private static void OnDurationPropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is AudioLayout layout && newValue is int duration)
+            {
+                layout.Duration = duration;
+                layout.durationLabel.Text = duration + LocalizedStrings.Sec;
+                layout.IsVisible = true;
+            }
+        }
+
         private async Task InitAndPlay()
         {
             if (Source == null)
                 return;
 
-            playButton.Text = LoadingSymbol;
+            isLoading = true;
+            playButton.ImageSource = ImageSource.FromFile(LoadingSymbol);
             playButton.IsEnabled = false;
             try
             {
@@ -136,8 +155,12 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             catch (Exception e)
             {
                 Logger.Error(e);
-                playButton.Text = PlaySymbol;
+                playButton.ImageSource = ImageSource.FromFile(PlaySymbol);
                 playButton.IsEnabled = true;
+            }
+            finally
+            {
+                isLoading = false;
             }
         }
 
@@ -152,8 +175,14 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
                 await client.DownloadFileTaskAsync(Source!, tempFileName);
             }
 
-            OnStopAllPlayers += StopThisPlayer;
-            
+            OnPauseAllPlayers += PauseThisPlayer;
+
+            timer = new Timer(
+                obj => UpdateDurationLabel(),
+                null,
+                TimeSpan.FromMilliseconds(-1),
+                TimeSpan.FromSeconds(timerInterval));
+
             return new MediaPlayer
             {
                 Source = new FileMediaSource
@@ -163,11 +192,19 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             };
         }
 
+        private void UpdateDurationLabel()
+        {
+            if (player == null)
+                return;
+
+            durationLabel.Text = (player.Duration - player.Position) / 1000 + LocalizedStrings.Sec;
+        }
+
         private void OnScrollBackButtonClicked(object s, EventArgs e)
         {
             if (player == null)
                 return;
-            
+
             var pos = Math.Max(player.Position - seekDelta, 0);
             player.Seek(pos);
         }
@@ -181,20 +218,43 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             player.Seek(pos);
         }
 
+        private void Pause()
+        {
+            if (player == null)
+                return;
+
+            playButton.ImageSource = ImageSource.FromFile(PlaySymbol);
+            player.Pause();
+        }
+
+        private async Task Start()
+        {
+            if (player == null)
+                return;
+
+            playButton.IsEnabled = true;
+            playButton.ImageSource = ImageSource.FromFile(PauseSymbol);
+            await player.Start();
+            timer?.Change(TimeSpan.Zero, TimeSpan.FromSeconds(timerInterval));
+            OnPauseAllPlayers?.Invoke(this, null);
+        }
+
         private void OnPlaybackCompleted(object s, EventArgs e)
         {
             if (player == null)
                 return;
 
-            player.Stop();
+            Pause();
             player.Seek(0);
-            playButton.Text = PlaySymbol;
+            playButton.ImageSource = ImageSource.FromFile(PlaySymbol);
+            timer?.Change(TimeSpan.FromMilliseconds(-1), TimeSpan.FromSeconds(timerInterval));
+            durationLabel.Text = Duration + LocalizedStrings.Sec;
         }
 
-        private void StopThisPlayer(object s, EventArgs e)
+        private void PauseThisPlayer(object s, EventArgs e)
         {
             if (s != this)
-                OnPlaybackCompleted(s, e);
+                Pause();
         }
     }
 }

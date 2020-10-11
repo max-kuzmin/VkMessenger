@@ -88,7 +88,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 var attachmentImages = new List<(ImageSource Url, bool IsSticker)>();
                 var attachmentUris = new List<Uri>();
-                Uri? audioMessage = null;
+                (Uri, int)? voiceMessage = null;
                 var otherAttachments = new List<string>();
 
                 var attachmentMessages = message.fwd_messages?
@@ -145,7 +145,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                                 break;
 
                             case "audio_message":
-                                audioMessage = item.audio_message?.link_mp3;
+                                voiceMessage = item.audio_message != null
+                                    ? (item.audio_message.link_mp3, item.audio_message.duration)
+                                    : ((Uri, int)?)null;
                                 break;
 
                             default:
@@ -171,12 +173,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     message.id,
                     fullText,
                     date,
-                    profiles?.FirstOrDefault(p => p.Id == peerId),
-                    groups?.FirstOrDefault(p => p.Id == peerId),
+                    profiles.FirstOrDefault(p => p.Id == peerId),
+                    groups.FirstOrDefault(p => p.Id == peerId),
                     attachmentImages,
                     attachmentUris,
                     attachmentMessages,
-                    audioMessage,
+                    voiceMessage,
                     otherAttachments);
 
             }
