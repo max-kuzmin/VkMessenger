@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger
@@ -12,6 +11,8 @@ namespace ru.MaxKuzmin.VkMessenger
         public static ImageSource? PauseSymbol = ImageSource.FromFile(Path.Combine(SharedResource, "PauseSymbol.png"));
         public static ImageSource? BackSymbol = ImageSource.FromFile(Path.Combine(SharedResource, "BackSymbol.png"));
         public static ImageSource? ForwardSymbol = ImageSource.FromFile(Path.Combine(SharedResource, "ForwardSymbol.png"));
+        public static ImageSource? BackDisabledSymbol = ImageSource.FromFile(Path.Combine(SharedResource, "BackDisabledSymbol.png"));
+        public static ImageSource? ForwardDisabledSymbol = ImageSource.FromFile(Path.Combine(SharedResource, "ForwardDisabledSymbol.png"));
         public static ImageSource? LoadingSymbol = ImageSource.FromFile(Path.Combine(SharedResource, "LoadingSymbol.png"));
     }
 }

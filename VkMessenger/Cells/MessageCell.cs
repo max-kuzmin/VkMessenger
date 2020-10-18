@@ -1,4 +1,5 @@
-﻿using FFImageLoading.Forms;
+﻿using System;
+using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Layouts;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
@@ -45,9 +46,11 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             VerticalOptions = LayoutOptions.CenterAndExpand
         };
 
+        private AudioLayout? audioLayout;
+
         private readonly StackLayout outerLayout = new StackLayout();
 
-        private readonly AudioLayout audioLayout = new AudioLayout();
+        private int senderId;
 
         private static readonly BindableProperty SenderIdProperty =
             BindableProperty.Create(
@@ -65,6 +68,14 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 default(bool),
                 propertyChanged: OnReadPropertyChanged);
 
+        public static readonly BindableProperty VoiceMessageSourceProperty =
+            BindableProperty.Create(
+                nameof(Message.VoiceMessage),
+                typeof(Uri),
+                typeof(MessageCell),
+                default(Uri),
+                propertyChanged: OnVoiceMessageSourcePropertyChanged);
+
         public MessageCell()
         {
             photo.SetBinding(CachedImage.SourceProperty, nameof(Message.Photo));
@@ -72,14 +83,12 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             time.SetBinding(Label.TextProperty, nameof(Message.TimeFormatted));
             this.SetBinding(SenderIdProperty, nameof(Message.SenderId));
             this.SetBinding(ReadProperty, nameof(Message.Read));
-            audioLayout.SetBinding(AudioLayout.SourceProperty, nameof(Message.VoiceMessage));
-            audioLayout.SetBinding(AudioLayout.DurationProperty, nameof(Message.VoiceMessageDuration));
+            this.SetBinding(VoiceMessageSourceProperty, nameof(Message.VoiceMessage));
 
             photoWrapperLayout.Children.Add(photo);
             photoWrapperLayout.Children.Add(time);
             wrapperLayout.Children.Add(photoWrapperLayout);
             wrapperLayout.Children.Add(text);
-            wrapperLayout.Children.Add(audioLayout);
             outerLayout.Children.Add(wrapperLayout);
             View = outerLayout;
         }
@@ -91,17 +100,15 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 return;
             }
 
-            var senderId = (int)newValue;
-            if (senderId != Authorization.UserId)
+            cell.senderId = (int)newValue;
+            if (cell.senderId != Authorization.UserId)
             {
-                cell.wrapperLayout.LowerChild(cell.audioLayout);
                 cell.wrapperLayout.LowerChild(cell.photoWrapperLayout);
                 cell.text.HorizontalTextAlignment = TextAlignment.Start;
                 cell.View.BackgroundColor = CustomColors.DarkBlue;
             }
             else
             {
-                cell.wrapperLayout.RaiseChild(cell.audioLayout);
                 cell.wrapperLayout.RaiseChild(cell.photoWrapperLayout);
                 cell.text.HorizontalTextAlignment = TextAlignment.End;
             }
@@ -121,6 +128,28 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             else
             {
                 cell.View.BackgroundColor = CustomColors.DarkBlue;
+            }
+        }
+
+        private static void OnVoiceMessageSourcePropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is MessageCell layout && newValue is Uri uri && layout.audioLayout == null)
+            {
+                layout.audioLayout = new AudioLayout();
+                layout.audioLayout.SetBinding(AudioLayout.SourceProperty, nameof(Message.VoiceMessage));
+                layout.audioLayout.SetBinding(AudioLayout.DurationProperty, nameof(Message.VoiceMessageDuration));
+                layout.wrapperLayout.Children.Add(layout.audioLayout);
+
+                if (layout.senderId != Authorization.UserId)
+                {
+                    layout.wrapperLayout.LowerChild(layout.audioLayout);
+                    layout.wrapperLayout.LowerChild(layout.photoWrapperLayout);
+                }
+                else
+                {
+                    layout.wrapperLayout.RaiseChild(layout.audioLayout);
+                    layout.wrapperLayout.RaiseChild(layout.photoWrapperLayout);
+                }
             }
         }
     }

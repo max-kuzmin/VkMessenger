@@ -35,14 +35,14 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
         private readonly Button scrollBackButton = new Button
         {
             IsEnabled = false,
-            ImageSource = ImageResources.BackSymbol,
+            ImageSource = ImageResources.BackDisabledSymbol,
             WidthRequest = 48
         };
 
         private readonly Button scrollForwardButton = new Button
         {
             IsEnabled = false,
-            ImageSource = ImageResources.ForwardSymbol,
+            ImageSource = ImageResources.ForwardDisabledSymbol,
             WidthRequest = 48
         };
 
@@ -77,8 +77,7 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
         public AudioLayout()
         {
             Orientation = StackOrientation.Horizontal;
-            IsVisible = false;
-            playButton.Clicked += OnPlayButtonClicked;
+            playButton.Pressed += OnPlayButtonClicked;
             scrollBackButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
             playButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
             scrollForwardButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
@@ -112,7 +111,6 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             if (bindable is AudioLayout layout && newValue is Uri uri)
             {
                 layout.Source = uri;
-                layout.IsVisible = true;
             }
         }
 
@@ -122,7 +120,6 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             {
                 layout.Duration = duration;
                 layout.durationLabel.Text = duration + LocalizedStrings.Sec;
-                layout.IsVisible = true;
             }
         }
 
@@ -138,11 +135,13 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             {
                 player = await InitPlayer();
 
-                scrollBackButton.Clicked += OnScrollBackButtonClicked;
-                scrollForwardButton.Clicked += OnScrollForwardButtonClicked;
+                scrollBackButton.Pressed += OnScrollBackButtonClicked;
+                scrollForwardButton.Pressed += OnScrollForwardButtonClicked;
                 player.PlaybackCompleted += OnPlaybackCompleted;
                 scrollBackButton.IsEnabled = true;
                 scrollForwardButton.IsEnabled = true;
+                scrollBackButton.ImageSource = ImageResources.BackSymbol;
+                scrollForwardButton.ImageSource = ImageResources.ForwardSymbol;
 
                 await Start();
             }
