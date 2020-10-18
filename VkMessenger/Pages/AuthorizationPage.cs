@@ -5,7 +5,7 @@ using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    public class AuthorizationPage : CirclePage
+    public class AuthorizationPage : ContentPage
     {
         private readonly WebView loginWebView = new WebView();
         private InformationPopup? refreshingPopup;

@@ -139,6 +139,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 layout.audioLayout.SetBinding(AudioLayout.SourceProperty, nameof(Message.VoiceMessage));
                 layout.audioLayout.SetBinding(AudioLayout.DurationProperty, nameof(Message.VoiceMessageDuration));
                 layout.wrapperLayout.Children.Add(layout.audioLayout);
+                layout.wrapperLayout.Children.Remove(layout.text);
 
                 if (layout.senderId != Authorization.UserId)
                 {

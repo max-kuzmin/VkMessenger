@@ -16,7 +16,7 @@ using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    public class MessagesPage : CirclePage, IDisposable
+    public class MessagesPage : BezelInteractionPage, IDisposable
     {
         private readonly StackLayout verticalLayout = new StackLayout();
         private readonly Dialog dialog;

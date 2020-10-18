@@ -1,7 +1,5 @@
-﻿using System.IO;
-using FFImageLoading.Forms;
+﻿using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Models;
-using System.Linq;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms;
@@ -9,7 +7,7 @@ using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.pages
 {
-    public class MessagePage : CirclePage
+    public class MessagePage : BezelInteractionPage
     {
         private readonly CircleScrollView scrollView = new CircleScrollView();
         private readonly StackLayout wrapperLayout = new StackLayout

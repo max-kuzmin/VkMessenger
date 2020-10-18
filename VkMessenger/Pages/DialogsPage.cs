@@ -17,7 +17,7 @@ using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    public class DialogsPage : CirclePage, IDisposable
+    public class DialogsPage : BezelInteractionPage, IDisposable
     {
         private readonly Dictionary<int, MessagesPage> messagesPages = new Dictionary<int, MessagesPage>();
         private readonly CustomObservableCollection<Dialog> dialogs = new CustomObservableCollection<Dialog>();
