@@ -50,6 +50,7 @@ namespace ru.MaxKuzmin.VkMessenger
                 VerboseLogging = true
 #endif
             };
+            config.DownloadCache = new CustomDownloadCache(config);
             ImageService.Instance.Initialize(config);
 
             SetCulture();
