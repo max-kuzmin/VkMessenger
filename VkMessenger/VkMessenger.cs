@@ -24,17 +24,14 @@ namespace ru.MaxKuzmin.VkMessenger
 
             var config = new Configuration
             {
-                BitmapOptimizations = true,
+                BitmapOptimizations = false,
                 FadeAnimationEnabled = false,
                 FadeAnimationForCachedImages = false,
-                FadeAnimationDuration = 300,
                 TransformPlaceholders = true,
                 DownsampleInterpolationMode = InterpolationMode.Default,
-                HttpHeadersTimeout = 3,
-                HttpReadTimeout = 15,
                 HttpReadBufferSize = 8192,
-                DecodingMaxParallelTasks = 1,
-                SchedulerMaxParallelTasks = 1,
+                DecodingMaxParallelTasks = 2,
+                SchedulerMaxParallelTasks = 2,
                 DiskCacheDuration = TimeSpan.FromDays(30d),
                 TryToReadDiskCacheDurationFromHttpHeaders = false,
                 ExecuteCallbacksOnUIThread = false,
@@ -46,7 +43,7 @@ namespace ru.MaxKuzmin.VkMessenger
 
                 AllowUpscale = true,
                 DataResolverFactory = new ProxiedDataResolverFactory(),
-                MaxMemoryCacheSize = 1024 * 1024 * 1,
+                MaxMemoryCacheSize = 1024 * 1024 * 5,
 #if DEBUG
                 Logger = new FfImageLoadingLogger(),
                 VerbosePerformanceLogging = true,

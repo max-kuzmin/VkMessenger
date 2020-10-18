@@ -21,7 +21,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private readonly StackLayout verticalLayout = new StackLayout();
         private readonly Dialog dialog;
         private bool shouldScroll;
-        private bool firstTapPerformed;
 
         private readonly SwipeGestureRecognizer swipeRecognizer = new SwipeGestureRecognizer
         {
@@ -108,17 +107,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OnItemTapped(object sender, ItemTappedEventArgs e)
         {
-            if (!firstTapPerformed)
-            {
-                firstTapPerformed = true;
-                // ReSharper disable once AssignmentIsFullyDiscarded
-                _ = Task.Run(async () =>
-                  {
-                      await Task.Delay(TimeSpan.FromSeconds(1));
-                      firstTapPerformed = false;
-                  });
+            if (popupEntryView.IsPopupOpened)
                 return;
-            }
 
             await dialog.SetReadWithMessagesAndPublish();
 
