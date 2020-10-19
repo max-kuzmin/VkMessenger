@@ -223,6 +223,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Send.
+        /// </summary>
+        internal static string Send {
+            get {
+                return ResourceManager.GetString("Send", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t send message. No internet connection.
         /// </summary>
         internal static string SendMessageNoInternetError {
@@ -255,6 +264,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         internal static string VoiceMessage {
             get {
                 return ResourceManager.GetString("VoiceMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Voice message limit of 10 minutes has reached. Recording stopped..
+        /// </summary>
+        internal static string VoiceMessageLimit {
+            get {
+                return ResourceManager.GetString("VoiceMessageLimit", resourceCulture);
             }
         }
         

@@ -14,5 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger
         public static ImageSource? BackDisabledSymbol = ImageSource.FromFile(Path.Combine(SharedResource, "BackDisabledSymbol.png"));
         public static ImageSource? ForwardDisabledSymbol = ImageSource.FromFile(Path.Combine(SharedResource, "ForwardDisabledSymbol.png"));
         public static ImageSource? LoadingSymbol = ImageSource.FromFile(Path.Combine(SharedResource, "LoadingSymbol.png"));
+        public static ImageSource? StopSymbol = ImageSource.FromFile(Path.Combine(SharedResource, "StopSymbol.png"));
+        public static ImageSource? RecordSymbol = ImageSource.FromFile(Path.Combine(SharedResource, "RecordSymbol.png"));
     }
 }

@@ -206,7 +206,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             return json;
         }
 
-        public static async Task Send(string text, int dialogId)
+        public static async Task Send(int dialogId, string? text, string? voiceMessagePath)
         {
             try
             {
@@ -215,8 +215,21 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     "?v=5.124" +
                     "&random_id=" + BitConverter.ToInt32(Md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(text)), 0) +
                     "&peer_id=" + dialogId +
-                    "&message=" + text +
                     "&access_token=" + Authorization.Token;
+
+                if (text != null)
+                {
+                    url += "&message=" + text;
+                }
+                else if (voiceMessagePath != null)
+                {
+                    var id = DocumentsClient.UploadAudioFile(voiceMessagePath);
+                    url += "&attachment=audio_message" + Authorization.UserId + "_" + id;
+                }
+                else
+                {
+                    throw new ArgumentNullException(nameof(voiceMessagePath));
+                }
 
                 using var client = new ProxiedWebClient();
                 var json = await client.DownloadStringTaskAsync(url);

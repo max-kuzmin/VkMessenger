@@ -19,6 +19,7 @@
         <privilege>http://tizen.org/privilege/haptic</privilege>
         <privilege>http://tizen.org/privilege/appmanager.launch</privilege>
         <privilege>http://tizen.org/privilege/telephony</privilege>
+        <privilege>http://tizen.org/privilege/recorder</privilege>
     </privileges>
     <dependencies />
     <provides-appdefined-privileges />

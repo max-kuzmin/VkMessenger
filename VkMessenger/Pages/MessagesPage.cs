@@ -22,9 +22,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private readonly Dialog dialog;
         private bool shouldScroll;
 
-        private readonly SwipeGestureRecognizer swipeRecognizer = new SwipeGestureRecognizer
+        private readonly SwipeGestureRecognizer swipeLeftRecognizer = new SwipeGestureRecognizer
         {
-            Direction = SwipeDirection.Right | SwipeDirection.Left
+            Direction = SwipeDirection.Left
+        };
+        private readonly SwipeGestureRecognizer swipeRightRecognizer = new SwipeGestureRecognizer
+        {
+            Direction = SwipeDirection.Right
         };
 
         private readonly CircleListView messagesListView = new CircleListView
@@ -51,8 +55,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
 
-            swipeRecognizer.Command = new Command(OpenKeyboard);
-            messagesListView.GestureRecognizers.Add(swipeRecognizer);
+            swipeLeftRecognizer.Command = new Command(OpenKeyboard);
+            swipeRightRecognizer.Command = new Command(OpenRecorder);
+            messagesListView.GestureRecognizers.Add(swipeLeftRecognizer);
+            messagesListView.GestureRecognizers.Add(swipeRightRecognizer);
 
             Appearing += UpdateAll;
         }
@@ -198,14 +204,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
         }
 
-        /// <summary>
-        /// Go to previous page
-        /// </summary>
-        protected override bool OnBackButtonPressed()
-        {
-            Navigation.PopAsync();
-            return base.OnBackButtonPressed();
-        }
 
         protected override void OnAppearing()
         {
@@ -222,7 +220,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OpenKeyboard()
         {
             popupEntryView.IsPopupOpened = true;
+            await dialog.SetReadWithMessagesAndPublish();
+        }
 
+        private async void OpenRecorder()
+        {
+            await Navigation.PushAsync(new RecordVoicePage());
             await dialog.SetReadWithMessagesAndPublish();
         }
 
