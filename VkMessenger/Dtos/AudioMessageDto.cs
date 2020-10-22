@@ -7,5 +7,7 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
         public Uri link_mp3 { get; set; } = default!;
 
         public int duration { get; set; }
+
+        public long id { get; set; }
     }
 }

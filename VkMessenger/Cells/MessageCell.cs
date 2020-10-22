@@ -37,6 +37,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             Orientation = StackOrientation.Horizontal,
             Padding = new Thickness(10, 0),
             VerticalOptions = LayoutOptions.FillAndExpand,
+            HorizontalOptions = LayoutOptions.Fill,
             Rotation = -180
         };
 
@@ -58,7 +59,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 typeof(int),
                 typeof(MessageCell),
                 default(int),
-                propertyChanged: OnSenderIdPropertyChanged);
+                propertyChanged: OnSenderIdPropertyChanged); 
 
         private static readonly BindableProperty ReadProperty =
             BindableProperty.Create(
@@ -145,11 +146,13 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 {
                     layout.wrapperLayout.LowerChild(layout.audioLayout);
                     layout.wrapperLayout.LowerChild(layout.photoWrapperLayout);
+                    layout.audioLayout.HorizontalOptions = LayoutOptions.StartAndExpand;
                 }
                 else
                 {
                     layout.wrapperLayout.RaiseChild(layout.audioLayout);
                     layout.wrapperLayout.RaiseChild(layout.photoWrapperLayout);
+                    layout.audioLayout.HorizontalOptions = LayoutOptions.EndAndExpand;
                 }
             }
         }

@@ -40,6 +40,7 @@ namespace ru.MaxKuzmin.VkMessenger
                 DelayInMs = 10,
                 ClearMemoryCacheOnOutOfMemory = true,
                 InvalidateLayout = true,
+                HttpHeadersTimeout = 15,
 
                 AllowUpscale = true,
                 DataResolverFactory = new ProxiedDataResolverFactory(),
@@ -50,7 +51,7 @@ namespace ru.MaxKuzmin.VkMessenger
                 VerboseLogging = true
 #endif
             };
-            config.DownloadCache = new CustomDownloadCache(config);
+
             ImageService.Instance.Initialize(config);
 
             SetCulture();

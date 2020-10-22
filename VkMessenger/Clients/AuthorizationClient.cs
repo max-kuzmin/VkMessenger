@@ -16,13 +16,14 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         private const int TokenLength = 85;
         private const int MessagesAccessFlag = 4096;
         private const int OfflineAccessFlag = 65536;
+        private const int DocsFlag = 131072;
 
         public static string GetAuthorizeUri()
         {
             return
                 "https://oauth.vk.com/authorize" +
                 "?client_id=" + Authorization.ClientId +
-                "&scope=" + (MessagesAccessFlag + OfflineAccessFlag) +
+                "&scope=" + (MessagesAccessFlag + OfflineAccessFlag + DocsFlag) +
                 "&response_type=token" +
                 "&v=5.124";
         }

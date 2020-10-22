@@ -23,7 +23,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 var saveDocResponse = await HttpHelpers.RetryIfEmptyResponse<JsonDto<SaveDocResponseDto>>(
                     () => SaveUploadedFileAsDoc(fileDescriptor), e => e?.response != null);
-                var id = saveDocResponse.response.id;
+                var id = saveDocResponse.response.audio_message!.id;
                 return id;
 
             }
@@ -63,7 +63,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var fileExt = Path.GetExtension(filePath);
                 var contentType = fileExt switch
                 {
-                    "mp3" => "audio/mpeg",
+                    ".3gp" => "video/3gpp",
                     _ => throw new NotSupportedException("Content type is not supported")
                 };
 

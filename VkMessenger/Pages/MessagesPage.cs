@@ -175,7 +175,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             try
             {
-                await MessagesClient.Send(text, dialog.Id);
+                await MessagesClient.Send(dialog.Id, text, null);
                 popupEntryView.Text = string.Empty;
             }
             catch (WebException)
@@ -225,7 +225,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OpenRecorder()
         {
-            await Navigation.PushAsync(new RecordVoicePage());
+            await Navigation.PushAsync(new RecordVoicePage(dialog));
             await dialog.SetReadWithMessagesAndPublish();
         }
 

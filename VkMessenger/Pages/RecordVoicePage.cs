@@ -1,11 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Helpers;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Tizen.Multimedia;
+using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 using Xamarin.Forms.PlatformConfiguration.TizenSpecific;
@@ -19,12 +22,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private string? voiceMessageTempPath;
         private bool isRecording = false;
 
-        private AudioRecorder audioRecorder = new AudioRecorder(RecorderAudioCodec.Aac, RecorderFileFormat.Ogg)
+        private readonly AudioRecorder audioRecorder = new AudioRecorder(RecorderAudioCodec.Aac, RecorderFileFormat.ThreeGp)
         {
-            AudioBitRate = 128000,
-            TimeLimit = 600,
+            AudioBitRate = 16000,
+            TimeLimit = 300,
             AudioDevice = RecorderAudioDevice.Mic,
-            AudioSampleRate = 44100
+            AudioSampleRate = 16000,
+            AudioChannels = 1
         };
 
         private readonly StackLayout verticalLayout = new StackLayout
@@ -43,7 +47,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private readonly Button sendButton = new Button
         {
             Text = LocalizedStrings.Send,
-            VerticalOptions = LayoutOptions.EndAndExpand
+            VerticalOptions = LayoutOptions.EndAndExpand,
+            IsEnabled = false
         };
 
         public RecordVoicePage(Dialog dialog)
@@ -59,6 +64,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             audioRecorder.RecordingLimitReached += OnRecordingLimitReached;
             recordButton.Pressed += OnRecordButtonPressed;
             sendButton.Pressed += OnSendButtonPressed;
+
+            PrivilegeChecker.PrivilegeCheck("http://tizen.org/privilege/recorder");
+            PrivilegeChecker.PrivilegeCheck("http://tizen.org/privilege/mediastorage");
         }
 
         private void OnRecordingLimitReached(object sender, RecordingLimitReachedEventArgs e)
@@ -66,6 +74,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             Toast.DisplayText(LocalizedStrings.VoiceMessageLimit);
             recordButton.ImageSource = ImageResources.RecordSymbol;
             isRecording = false;
+            sendButton.IsEnabled = true;
             Logger.Error("Audio message time limit reached");
         }
 
@@ -75,12 +84,19 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             {
                 recordButton.ImageSource = ImageResources.RecordSymbol;
                 audioRecorder.Commit();
+                sendButton.IsEnabled = true;
             }
             else
             {
                 recordButton.ImageSource = ImageResources.StopSymbol;
+                sendButton.IsEnabled = false;
                 DeleteTempFile();
-                voiceMessageTempPath = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
+
+                var internalStorage = StorageManager.Storages
+                    .First(s => s.StorageType == StorageArea.Internal)
+                    .GetAbsolutePath(DirectoryType.Others);
+                voiceMessageTempPath = Path.Combine(internalStorage, Path.GetRandomFileName() + ".3gp");
+
                 audioRecorder.Unprepare();
                 audioRecorder.Prepare();
                 audioRecorder.Start(voiceMessageTempPath);

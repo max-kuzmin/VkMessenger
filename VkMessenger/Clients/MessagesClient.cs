@@ -213,18 +213,19 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var url =
                     "https://api.vk.com/method/messages.send" +
                     "?v=5.124" +
-                    "&random_id=" + BitConverter.ToInt32(Md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(text)), 0) +
                     "&peer_id=" + dialogId +
                     "&access_token=" + Authorization.Token;
 
                 if (text != null)
                 {
                     url += "&message=" + text;
+                    url += "&random_id=" + BitConverter.ToInt32(Md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(text)), 0);
                 }
                 else if (voiceMessagePath != null)
                 {
-                    var id = DocumentsClient.UploadAudioFile(voiceMessagePath);
+                    var id = await DocumentsClient.UploadAudioFile(voiceMessagePath);
                     url += "&attachment=audio_message" + Authorization.UserId + "_" + id;
+                    url += "&random_id=" + BitConverter.ToInt32(Md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(voiceMessagePath)), 0);
                 }
                 else
                 {
