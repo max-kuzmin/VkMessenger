@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Exceptions;
 using ru.MaxKuzmin.VkMessenger.Helpers;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Loggers;
@@ -82,14 +84,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             if (isRecording)
             {
-                recordButton.ImageSource = ImageResources.RecordSymbol;
                 audioRecorder.Commit();
+                audioRecorder.Unprepare();
+                recordButton.ImageSource = ImageResources.RecordSymbol;
                 sendButton.IsEnabled = true;
             }
             else
             {
-                recordButton.ImageSource = ImageResources.StopSymbol;
-                sendButton.IsEnabled = false;
                 DeleteTempFile();
 
                 var internalStorage = StorageManager.Storages
@@ -97,9 +98,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     .GetAbsolutePath(DirectoryType.Others);
                 voiceMessageTempPath = Path.Combine(internalStorage, Path.GetRandomFileName() + ".3gp");
 
-                audioRecorder.Unprepare();
                 audioRecorder.Prepare();
                 audioRecorder.Start(voiceMessageTempPath);
+                recordButton.ImageSource = ImageResources.StopSymbol;
+                sendButton.IsEnabled = false;
             }
 
             isRecording = !isRecording;
@@ -110,9 +112,40 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (voiceMessageTempPath == null)
                 return;
 
-            await MessagesClient.Send(dialog.Id, null, voiceMessageTempPath);
-            DeleteTempFile();
-            await Navigation.PopAsync();
+            try
+            {
+                sendButton.IsEnabled = false;
+                await MessagesClient.Send(dialog.Id, null, voiceMessageTempPath);
+                DeleteTempFile();
+                await Navigation.PopAsync();
+            }
+            catch (WebException)
+            {
+                new CustomPopup(
+                        LocalizedStrings.SendMessageNoInternetError,
+                        LocalizedStrings.Ok,
+                        () => OnSendButtonPressed(sender, e))
+                    .Show();
+            }
+            catch (InvalidSessionException)
+            {
+                new CustomPopup(
+                        LocalizedStrings.InvalidSessionError,
+                        LocalizedStrings.Ok,
+                        AuthorizationClient.CleanUserAndExit)
+                    .Show();
+            }
+            catch (Exception ex)
+            {
+                new CustomPopup(
+                        ex.ToString(),
+                        LocalizedStrings.Ok)
+                    .Show();
+            }
+            finally
+            {
+                sendButton.IsEnabled = true;
+            }
         }
 
         public void Dispose()
