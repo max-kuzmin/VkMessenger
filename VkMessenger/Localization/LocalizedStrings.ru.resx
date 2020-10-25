@@ -190,6 +190,6 @@
     <value>Отправить</value>
   </data>
   <data name="VoiceMessageLimit" xml:space="preserve">
-    <value>Достигнут лимит записи аудио сообщения (10 минут). Запись остановлена.</value>
+    <value>Достигнут лимит записи аудио сообщения (5 минут). Запись остановлена.</value>
   </data>
 </root>

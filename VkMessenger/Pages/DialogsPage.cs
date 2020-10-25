@@ -24,7 +24,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private readonly CircleListView dialogsListView = new CircleListView
         {
-            ItemTemplate = new DataTemplate(typeof(DialogCell))
+            ItemTemplate = new DataTemplate(typeof(DialogCell)),
+            BarColor = Color.Transparent,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Never
         };
 
         public DialogsPage()

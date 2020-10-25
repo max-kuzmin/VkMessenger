@@ -77,7 +77,7 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
         public AudioLayout()
         {
             Orientation = StackOrientation.Horizontal;
-            playButton.Pressed += OnPlayButtonClicked;
+            playButton.Released += OnPlayButtonClicked;
             scrollBackButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
             playButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
             scrollForwardButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
@@ -92,6 +92,7 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
         {
             OnPauseAllPlayers -= PauseThisPlayer;
             player?.Dispose();
+            timer?.Dispose();
         }
 
         private async void OnPlayButtonClicked(object s, EventArgs e)
@@ -135,8 +136,8 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             {
                 player = await InitPlayer();
 
-                scrollBackButton.Pressed += OnScrollBackButtonClicked;
-                scrollForwardButton.Pressed += OnScrollForwardButtonClicked;
+                scrollBackButton.Released += OnScrollBackButtonClicked;
+                scrollForwardButton.Released += OnScrollForwardButtonClicked;
                 player.PlaybackCompleted += OnPlaybackCompleted;
                 scrollBackButton.IsEnabled = true;
                 scrollForwardButton.IsEnabled = true;
@@ -248,6 +249,14 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
         {
             if (s != this)
                 Pause();
+        }
+
+        /// <summary>
+        /// Prevents player activation on swipe and other actions
+        /// </summary>
+        public static void PauseAllPlayers()
+        {
+            OnPauseAllPlayers?.Invoke(null, null);
         }
     }
 }

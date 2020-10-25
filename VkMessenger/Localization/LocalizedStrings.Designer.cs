@@ -268,7 +268,7 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Voice message limit of 10 minutes has reached. Recording stopped..
+        ///   Looks up a localized string similar to Voice message limit of 5 minutes has reached. Recording stopped..
         /// </summary>
         internal static string VoiceMessageLimit {
             get {

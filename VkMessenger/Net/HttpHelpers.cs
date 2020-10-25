@@ -13,9 +13,10 @@ namespace ru.MaxKuzmin.VkMessenger.Net
 
         public static async Task<T> RetryIfEmptyResponse<T>(Func<Task<string>> apiCall, Func<T, bool> condition)
         {
+            string? json = null;
             for (int i = 0; i < Retries; i++)
             {
-                var json = await apiCall();
+                json = await apiCall();
                 var dto = JsonConvert.DeserializeObject<T>(json);
                 if (condition(dto))
                     return dto;
@@ -23,7 +24,7 @@ namespace ru.MaxKuzmin.VkMessenger.Net
                 await Task.Delay(TimeSpan.FromMilliseconds(IntervalMs));
             }
 
-            Logger.Error(typeof(T).Name + " is null");
+            Logger.Error(typeof(T).Name + " is null. Response: " + (json ?? string.Empty));
             throw new EmptyHttpResponseException();
         }
     }

@@ -190,6 +190,6 @@
     <value>Send</value>
   </data>
   <data name="VoiceMessageLimit" xml:space="preserve">
-    <value>Voice message limit of 10 minutes has reached. Recording stopped.</value>
+    <value>Voice message limit of 5 minutes has reached. Recording stopped.</value>
   </data>
 </root>

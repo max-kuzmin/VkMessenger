@@ -64,8 +64,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             Content = verticalLayout;
 
             audioRecorder.RecordingLimitReached += OnRecordingLimitReached;
-            recordButton.Pressed += OnRecordButtonPressed;
-            sendButton.Pressed += OnSendButtonPressed;
+            recordButton.Clicked += OnRecordButtonPressed;
+            sendButton.Clicked += OnSendButtonPressed;
 
             PrivilegeChecker.PrivilegeCheck("http://tizen.org/privilege/recorder");
             PrivilegeChecker.PrivilegeCheck("http://tizen.org/privilege/mediastorage");
@@ -150,6 +150,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         public void Dispose()
         {
+            audioRecorder.Dispose();
             DeleteTempFile();
         }
 

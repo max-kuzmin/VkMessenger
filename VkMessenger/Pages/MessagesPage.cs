@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using ru.MaxKuzmin.VkMessenger.Layouts;
 using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
@@ -20,7 +21,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     {
         private readonly StackLayout verticalLayout = new StackLayout();
         private readonly Dialog dialog;
-        private bool shouldScroll;
 
         private readonly SwipeGestureRecognizer swipeLeftRecognizer = new SwipeGestureRecognizer
         {
@@ -36,7 +36,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             ItemTemplate = new DataTemplate(typeof(MessageCell)),
             HasUnevenRows = true,
             Rotation = 180,
-            BarColor = Color.Transparent
+            BarColor = Color.Transparent,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Never
         };
 
         private readonly PopupEntry popupEntryView = new PopupEntry
@@ -119,10 +120,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             var message = (Message)e.Item;
             if (message.FullScreenAllowed)
-            {
-                shouldScroll = false;
                 await Navigation.PushAsync(new MessagePage(message));
-            }
         }
 
         /// <summary>
@@ -203,19 +201,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
         }
 
-
-        protected override void OnAppearing()
-        {
-            if (shouldScroll)
-            {
-                messagesListView.ScrollIfExist(dialog.Messages.FirstOrDefault(), ScrollToPosition.Center);
-            }
-            // set to scroll on next appearing
-            else shouldScroll = true;
-
-            base.OnAppearing();
-        }
-
         private async void OpenKeyboard()
         {
             popupEntryView.IsPopupOpened = true;
@@ -231,6 +216,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         public void Dispose()
         {
             LongPollingClient.OnMessageUpdate -= OnMessageUpdate;
+        }
+
+        protected override void OnDisappearing()
+        {
+            AudioLayout.PauseAllPlayers();
+            base.OnDisappearing();
         }
     }
 }

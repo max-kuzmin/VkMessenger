@@ -8,7 +8,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     {
         public const int ClientId = 6872680;
 
-        private const string TokenKey = "Token";
+        private const string TokenKey = "Token2";
         private const string UserIdKey = "UserId";
         private const string PhotoKey = "Photo";
 
