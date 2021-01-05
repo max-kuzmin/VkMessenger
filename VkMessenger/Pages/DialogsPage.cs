@@ -36,6 +36,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
 
+            _ = dialogs.GetFromCache();
+
             Appearing += UpdateAll;
         }
 
@@ -46,8 +48,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             Appearing -= UpdateAll;
 
-            var refreshingPopup = new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
-            refreshingPopup.Show();
+            var refreshingPopup = dialogs.Any() ? null : new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
+            refreshingPopup?.Show();
 
             try
             {
@@ -84,7 +86,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     .Show();
             }
 
-            refreshingPopup.Dismiss();
+            refreshingPopup?.Dismiss();
         }
 
         private void OnUserStatusUpdate(object s, UserStatusEventArgs e)

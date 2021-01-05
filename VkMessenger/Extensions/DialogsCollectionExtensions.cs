@@ -19,6 +19,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             if (newDialogs.Any())
             {
                 collection.AddUpdate(newDialogs);
+                _ = DurableCacheManager.SaveDialogs(collection);
             }
         }
 
@@ -33,7 +34,15 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             if (newDialogs.Any())
             {
                 collection.AddUpdate(newDialogs);
+                _ = DurableCacheManager.SaveDialogs(collection);
             }
+        }
+
+        public static async Task GetFromCache(this CustomObservableCollection<Dialog> collection)
+        {
+            var cached = await DurableCacheManager.GetDialogs();
+            if (cached != null)
+                collection.AddUpdate(cached);
         }
 
         private static void AddUpdate(

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Newtonsoft.Json;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
@@ -15,22 +16,23 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         /// <summary>
         /// Positive number
         /// </summary>
-        public int Id { get; }
-        public string Text { get; private set; }
-        public bool Read { get; private set; }
-        public DateTime Date { get; }
-        public string TimeFormatted { get; }
-        public Profile? Profile { get; }
-        public Group? Group { get; }
-        public string FullText { get; }
-        public string PreviewText { get; private set; }
-        public IReadOnlyCollection<(ImageSource Url, bool IsSticker)> AttachmentImages { get; }
-        public IReadOnlyCollection<Uri> AttachmentUris { get; }
-        public Uri? VoiceMessage { get; }
-        public int? VoiceMessageDuration { get; }
-        public IReadOnlyCollection<(Profile? Profile, string Text)> AttachmentMessages { get; }
-        public bool FullScreenAllowed { get; }
+        public int Id { get; set; }
+        public string Text { get; set; }
+        public bool Read { get; set; }
+        public DateTime Date { get; set; }
+        public string TimeFormatted { get; set; }
+        public Profile? Profile { get; set; }
+        public Group? Group { get; set; }
+        public string FullText { get; set; }
+        public string PreviewText { get; set; }
+        public IReadOnlyCollection<AttachmentImage> AttachmentImages { get; set; }
+        public IReadOnlyCollection<Uri> AttachmentUris { get; set; }
+        public Uri? VoiceMessage { get; set; }
+        public int? VoiceMessageDuration { get; set; }
+        public IReadOnlyCollection<AttachmentMessage> AttachmentMessages { get; set; }
+        public bool FullScreenAllowed { get; set; }
 
+        [JsonIgnore]
         public int SenderId
         {
             get
@@ -44,6 +46,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
+        [JsonIgnore]
         public ImageSource? Photo =>
             Profile?.Photo ??
             Group?.Photo ??
@@ -51,15 +54,18 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        [JsonConstructor]
+        public Message() { }
+
         public Message(
             int id,
             string fullText,
             DateTime date,
             Profile? profile,
             Group? group,
-            IReadOnlyCollection<(ImageSource Url, bool IsSticker)>? attachmentImages,
+            IReadOnlyCollection<AttachmentImage>? attachmentImages,
             IReadOnlyCollection<Uri>? attachmentUris,
-            IReadOnlyCollection<(Profile? Profile, string Text)>? attachmentMessages,
+            IReadOnlyCollection<AttachmentMessage>? attachmentMessages,
             (Uri, int)? voiceMessage,
             IReadOnlyCollection<string> otherAttachments)
         {
@@ -67,11 +73,11 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Date = date;
             Group = group;
             Profile = profile;
-            AttachmentImages = attachmentImages ?? Array.Empty<(ImageSource Url, bool IsSticker)>();
+            AttachmentImages = attachmentImages ?? Array.Empty<AttachmentImage>();
             AttachmentUris = attachmentUris ?? Array.Empty<Uri>();
             VoiceMessage = voiceMessage?.Item1;
             VoiceMessageDuration = voiceMessage?.Item2;
-            AttachmentMessages = attachmentMessages ?? Array.Empty<(Profile? Profile, string Text)>();
+            AttachmentMessages = attachmentMessages ?? Array.Empty<AttachmentMessage>();
             Read = Profile?.Id == Authorization.UserId;
             FullText = fullText;
             TimeFormatted = date.ToString("HH:mm");

@@ -96,39 +96,35 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static void OnSenderIdPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (!(bindable is MessageCell cell))
+            if (bindable is MessageCell cell && newValue is int value)
             {
-                return;
-            }
-
-            cell.senderId = (int)newValue;
-            if (cell.senderId != Authorization.UserId)
-            {
-                cell.wrapperLayout.LowerChild(cell.photoWrapperLayout);
-                cell.text.HorizontalTextAlignment = TextAlignment.Start;
-                cell.View.BackgroundColor = CustomColors.DarkBlue;
-            }
-            else
-            {
-                cell.wrapperLayout.RaiseChild(cell.photoWrapperLayout);
-                cell.text.HorizontalTextAlignment = TextAlignment.End;
+                cell.senderId = value;
+                if (cell.senderId != Authorization.UserId)
+                {
+                    cell.wrapperLayout.LowerChild(cell.photoWrapperLayout);
+                    cell.text.HorizontalTextAlignment = TextAlignment.Start;
+                    cell.View.BackgroundColor = CustomColors.DarkBlue;
+                }
+                else
+                {
+                    cell.wrapperLayout.RaiseChild(cell.photoWrapperLayout);
+                    cell.text.HorizontalTextAlignment = TextAlignment.End;
+                }
             }
         }
 
         private static void OnReadPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (!(bindable is MessageCell cell))
+            if (bindable is MessageCell cell && newValue is bool value)
             {
-                return;
-            }
-
-            if ((bool)newValue)
-            {
-                cell.View.BackgroundColor = Color.Black;
-            }
-            else
-            {
-                cell.View.BackgroundColor = CustomColors.DarkBlue;
+                if (value)
+                {
+                    cell.View.BackgroundColor = Color.Black;
+                }
+                else
+                {
+                    cell.View.BackgroundColor = CustomColors.DarkBlue;
+                }
             }
         }
 

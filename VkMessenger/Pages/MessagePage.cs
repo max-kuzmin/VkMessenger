@@ -51,13 +51,13 @@ namespace ru.MaxKuzmin.VkMessenger.pages
 
             wrapperLayout.Children.Add(CreateLabel(message.FullText, true));
 
-            foreach (var (profile, msg) in message.AttachmentMessages)
+            foreach (var item in message.AttachmentMessages)
             {
                 var text = LocalizedStrings.ForwardedMessage
-                           + (profile?.Name != null 
-                               ? $" {LocalizedStrings.From} " + profile.Name
+                           + (item.Profile?.Name != null 
+                               ? $" {LocalizedStrings.From} " + item.Profile.Name
                                : string.Empty)
-                           + $":\n\"{msg}\"";
+                           + $":\n\"{item.Text}\"";
                 wrapperLayout.Children.Add(CreateLabel(text));
             }
 

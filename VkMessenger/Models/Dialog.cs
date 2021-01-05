@@ -3,21 +3,25 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Newtonsoft.Json;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
 {
     public class Dialog : INotifyPropertyChanged
     {
-        public CustomObservableCollection<Profile> Profiles { get; }
-        public Group? Group { get; }
-        public Chat? Chat { get; }
-        public CustomObservableCollection<Message> Messages { get; }
-        public DialogType Type { get; }
-        public int UnreadCount { get; private set; }
+        public CustomObservableCollection<Profile> Profiles { get; set; }
+        public Group? Group { get; set; }
+        public Chat? Chat { get; set; }
+        public CustomObservableCollection<Message> Messages { get; set; }
+        public DialogType Type { get; set; }
+        public int UnreadCount { get; set; }
+        [JsonIgnore]
         public string Text => Messages.FirstOrDefault()?.PreviewText ?? string.Empty;
+        [JsonIgnore]
         public bool Online => Type == DialogType.User && Profiles.First().Online;
 
+        [JsonIgnore]
         public string Title
         {
             get
@@ -35,6 +39,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         /// <summary>
         /// Dialogs with users and chats have positive id, dialogs with groups - negative id
         /// </summary>
+        [JsonIgnore]
         public int Id
         {
             get
@@ -49,6 +54,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
+        [JsonIgnore]
         public ImageSource? Photo
         {
             get
@@ -66,6 +72,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        [JsonConstructor]
         public Dialog(DialogType type, Group? group, Chat? chat, int unreadCount,
             IReadOnlyCollection<Profile>? profiles, IReadOnlyCollection<Message>? messages)
         {

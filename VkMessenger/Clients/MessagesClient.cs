@@ -86,20 +86,19 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     .Add(TimeZoneInfo.Local.BaseUtcOffset);
                 var fullText = message.text;
 
-                var attachmentImages = new List<(ImageSource Url, bool IsSticker)>();
+                var attachmentImages = new List<AttachmentImage>();
                 var attachmentUris = new List<Uri>();
                 (Uri, int)? voiceMessage = null;
                 var otherAttachments = new List<string>();
 
                 var attachmentMessages = message.fwd_messages?
                     .Select(i =>
-                    (
-                        // ReSharper disable once RedundantCast
-                        (Profile?)profiles.SingleOrDefault(e => e.Id == i.from_id),
-                        i.text
-                    )).ToArray();
+                    new AttachmentMessage {
+                        Profile = profiles.SingleOrDefault(e => e.Id == i.from_id),
+                        Text = i.text
+                    }).ToArray();
 
-                if (message.attachments?.Any() == true)
+                if (message.attachments != null)
                 {
                     foreach (var item in message.attachments)
                     {
@@ -110,7 +109,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                                 if (photoUri == null)
                                     Logger.Error("Uri for photo attachment is null. Attachment: " + item.ToJson());
                                 else
-                                    attachmentImages.Add((photoUri.url, false));
+                                    attachmentImages.Add(new AttachmentImage { Url = photoUri.url, IsSticker = false });
                                 break;
 
                             case "link":
@@ -141,7 +140,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                                 if (stickerUri == null)
                                     Logger.Error("Uri for sticker attachment is null. Attachment: " + item.ToJson());
                                 else
-                                    attachmentImages.Add((stickerUri.url, true));
+                                    attachmentImages.Add(new AttachmentImage { Url = stickerUri.url, IsSticker = true });
                                 break;
 
                             case "audio_message":

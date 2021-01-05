@@ -1,4 +1,6 @@
-﻿using Xamarin.Forms;
+﻿using Newtonsoft.Json;
+using ru.MaxKuzmin.VkMessenger.Json;
+using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
 {
@@ -8,6 +10,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         /// Positive number
         /// </summary>
         public int Id { get; set; }
+        [JsonConverter(typeof(ImageSourceJsonConverter))]
         public ImageSource? Photo { get; set; }
         public string Title { get; set; } = default!;
     }

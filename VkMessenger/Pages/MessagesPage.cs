@@ -71,8 +71,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             Appearing -= UpdateAll;
 
-            var refreshingPopup = new InformationPopup { Text = LocalizedStrings.LoadingMessages };
-            refreshingPopup.Show();
+            var refreshingPopup = dialog.Messages.Count > 1 ? null : new InformationPopup { Text = LocalizedStrings.LoadingMessages };
+            refreshingPopup?.Show();
 
             try
             {
@@ -108,7 +108,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     .Show();
             }
 
-            refreshingPopup.Dismiss();
+            refreshingPopup?.Dismiss();
         }
 
         private async void OnItemTapped(object sender, ItemTappedEventArgs e)
@@ -151,7 +151,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             if (items.Any())
             {
-                await dialog.Messages.UpdateByIds(items);
+                await dialog.Messages.UpdateByIds(items, dialog.Id);
                 // ReSharper disable once AssignmentIsFullyDiscarded
                 _ = Task.Run(() => new Feedback().Play(FeedbackType.Vibration, "Tap"));
             }

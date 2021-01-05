@@ -21,6 +21,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             if (newMessages.Any())
             {
                 collection.AddUpdate(newMessages);
+                _ = DurableCacheManager.SaveMessages(dialogId, collection);
             }
         }
 
@@ -29,12 +30,14 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// </summary>
         public static async Task UpdateByIds(
             this CustomObservableCollection<Message> collection,
-            IReadOnlyCollection<int> messagesIds)
+            IReadOnlyCollection<int> messagesIds,
+            int dialogId)
         {
             var newMessages = await MessagesClient.GetMessagesByIds(messagesIds);
             if (newMessages.Any())
             {
                 collection.AddUpdate(newMessages);
+                _ = DurableCacheManager.SaveMessages(dialogId, collection);
             }
         }
 
@@ -44,9 +47,9 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         {
             lock (collection)
             {
-                var smallestToAppendId = newMessages.Last().Id;
-                var biggestExistingId = collection.First().Id;
-                bool isOldMessages = biggestExistingId >= smallestToAppendId;
+                var newestToInsertId = newMessages.Last().Id;
+                var oldestExistingId = collection.First().Id;
+                bool isOldMessages = oldestExistingId >= newestToInsertId;
 
                 var messagesToInsert = new List<Message>();
 

@@ -83,9 +83,9 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         private static readonly BindableProperty TextProperty =
             BindableProperty.Create(
                 nameof(Dialog.Text),
-                typeof(int),
+                typeof(string),
                 typeof(DialogCell),
-                default(int),
+                default(string),
                 propertyChanged: OnTextPropertyChanged);
 
         public DialogCell()
@@ -129,17 +129,17 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static void OnOnlinePropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is DialogCell cell)
+            if (bindable is DialogCell cell && newValue is bool value)
             {
-                cell.onlineIndicator.Text = (bool)newValue ? "•" : string.Empty;
+                cell.onlineIndicator.Text = value ? "•" : string.Empty;
             }
         }
 
         private static void OnTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is DialogCell cell)
+            if (bindable is DialogCell cell && newValue is string value)
             {
-                cell.text.Text = newValue.ToString();
+                cell.text.Text = value;
             }
         }
     }
