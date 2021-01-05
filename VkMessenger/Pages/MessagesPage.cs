@@ -223,5 +223,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             AudioLayout.PauseAllPlayers();
             base.OnDisappearing();
         }
+
+        /// <inheritdoc />
+        protected override bool OnBackButtonPressed()
+        {
+            Navigation.PopAsync();
+            return true;
+        }
     }
 }

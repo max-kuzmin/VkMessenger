@@ -89,5 +89,12 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             Content = scrollView;
             SetBinding(RotaryFocusObjectProperty, new Binding { Source = scrollView });
         }
+
+        /// <inheritdoc />
+        protected override bool OnBackButtonPressed()
+        {
+            Navigation.PopAsync();
+            return true;
+        }
     }
 }

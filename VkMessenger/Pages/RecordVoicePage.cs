@@ -170,5 +170,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 }
             });
         }
+
+        /// <inheritdoc />
+        protected override bool OnBackButtonPressed()
+        {
+            Navigation.PopAsync();
+            return true;
+        }
     }
 }
