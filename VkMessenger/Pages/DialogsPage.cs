@@ -56,7 +56,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 await dialogs.Update();
                 //Trim to batch size to prevent skipping new dialogs between cached and 20 loaded on init
                 dialogs.Trim(Consts.BatchSize);
-                dialogsListView.ScrollIfExist(dialogs.FirstOrDefault(), ScrollToPosition.Center);
+                //dialogsListView.ScrollIfExist(dialogs.FirstOrDefault(), ScrollToPosition.Center);
 
                 dialogsListView.ItemTapped += OnDialogTapped;
                 LongPollingClient.OnMessageUpdate += OnMessageUpdate;
@@ -135,6 +135,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         public void Dispose()
         {
+            dialogsListView.ItemTapped -= OnDialogTapped;
             LongPollingClient.OnMessageUpdate -= OnMessageUpdate;
             LongPollingClient.OnDialogUpdate -= OnDialogUpdate;
             LongPollingClient.OnUserStatusUpdate -= OnUserStatusUpdate;

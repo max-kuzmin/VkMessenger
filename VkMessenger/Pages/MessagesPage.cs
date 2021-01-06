@@ -79,7 +79,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 await dialog.Messages.Update(dialog.Id);
                 //Trim to batch size to prevent skipping new messages between cached and 20 loaded on init
                 dialog.Messages.Trim(Consts.BatchSize);
-                messagesListView.ScrollIfExist(dialog.Messages.FirstOrDefault(), ScrollToPosition.Center);
+                //messagesListView.ScrollIfExist(dialog.Messages.FirstOrDefault(), ScrollToPosition.Center);
 
                 messagesListView.ItemTapped += OnItemTapped;
                 messagesListView.ItemAppearing += LoadMoreMessages;
@@ -218,6 +218,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         public void Dispose()
         {
+            messagesListView.ItemTapped -= OnItemTapped;
+            messagesListView.ItemAppearing -= LoadMoreMessages;
+            popupEntryView.Completed -= OnTextCompleted;
             LongPollingClient.OnMessageUpdate -= OnMessageUpdate;
             LongPollingClient.OnFullReset -= OnFullReset;
         }
