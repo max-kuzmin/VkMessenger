@@ -61,15 +61,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             messagesListView.GestureRecognizers.Add(swipeLeftRecognizer);
             messagesListView.GestureRecognizers.Add(swipeRightRecognizer);
 
-            Appearing += UpdateAll;
+            Appearing += InitFromApi;
         }
 
         /// <summary>
         /// Called on start. If update unsuccessful show error popup and retry
         /// </summary>
-        private async void UpdateAll(object? s = null, EventArgs? e = null)
+        private async void InitFromApi(object? s = null, EventArgs? e = null)
         {
-            Appearing -= UpdateAll;
+            Appearing -= InitFromApi;
 
             var refreshingPopup = dialog.Messages.Count > 1 ? null : new InformationPopup { Text = LocalizedStrings.LoadingMessages };
             refreshingPopup?.Show();
@@ -77,19 +77,22 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             try
             {
                 await dialog.Messages.Update(dialog.Id);
+                //Trim to batch size to prevent skipping new messages between cached and 20 loaded on init
+                dialog.Messages.Trim(Consts.BatchSize);
                 messagesListView.ScrollIfExist(dialog.Messages.FirstOrDefault(), ScrollToPosition.Center);
 
                 messagesListView.ItemTapped += OnItemTapped;
                 messagesListView.ItemAppearing += LoadMoreMessages;
                 popupEntryView.Completed += OnTextCompleted;
                 LongPollingClient.OnMessageUpdate += OnMessageUpdate;
+                LongPollingClient.OnFullReset += OnFullReset;
             }
             catch (WebException)
             {
                 new CustomPopup(
                         LocalizedStrings.MessagesNoInternetError,
                         LocalizedStrings.Retry,
-                        () => UpdateAll())
+                        () => InitFromApi())
                     .Show();
             }
             catch (InvalidSessionException)
@@ -131,7 +134,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void LoadMoreMessages(object sender, ItemVisibilityEventArgs e)
         {
             var message = (Message)e.Item;
-            if (dialog.Messages.Count >= 20 && dialog.Messages.All(i => i.Id >= message.Id))
+            if (dialog.Messages.Count >= Consts.BatchSize && dialog.Messages.All(i => i.Id >= message.Id))
             {
                 await dialog.Messages.Update(dialog.Id, dialog.Messages.Count);
                 messagesListView.ScrollIfExist(message, ScrollToPosition.Center);
@@ -216,6 +219,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         public void Dispose()
         {
             LongPollingClient.OnMessageUpdate -= OnMessageUpdate;
+            LongPollingClient.OnFullReset -= OnFullReset;
         }
 
         protected override void OnDisappearing()
@@ -229,6 +233,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             Navigation.PopAsync();
             return true;
+        }
+
+        private void OnFullReset(object s, EventArgs e)
+        {
+            Dispose();
+            if (Navigation.NavigationStack.Contains(this))
+                InitFromApi();
         }
     }
 }

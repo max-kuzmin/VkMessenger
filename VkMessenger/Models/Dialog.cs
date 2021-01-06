@@ -9,7 +9,7 @@ using Xamarin.Forms;
 namespace ru.MaxKuzmin.VkMessenger.Models
 {
     /// <summary>
-    /// Older dialogs with smaller Id are at the beginning of list
+    /// Older dialogs with smaller date are at the end of list
     /// </summary>
     public class Dialog : INotifyPropertyChanged
     {

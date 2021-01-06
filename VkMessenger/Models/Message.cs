@@ -9,7 +9,7 @@ using Xamarin.Forms;
 namespace ru.MaxKuzmin.VkMessenger.Models
 {
     /// <summary>
-    /// In dialog older messages with smaller Id are at the end of list. In API responses it's vise versa
+    /// Older messages with smaller Id are at the end of list
     /// </summary>
     public class Message : INotifyPropertyChanged
     {

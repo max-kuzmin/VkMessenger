@@ -13,11 +13,10 @@ namespace ru.MaxKuzmin.VkMessenger
     public static class DurableCacheManager
     {
         private const string DialogsCacheKey = "_dialogsCache";
-        private const int MaxEntitiesInCache = 20;
 
         public static Task SaveDialogs(IReadOnlyCollection<Dialog> dialogs)
         {
-            dialogs = dialogs.TakeLast(MaxEntitiesInCache).ToArray();
+            dialogs = dialogs.TakeLast(Consts.BatchSize).ToArray();
             Preference.Set(DialogsCacheKey, JsonConvert.SerializeObject(dialogs));
             return Task.CompletedTask;
         }
@@ -32,7 +31,7 @@ namespace ru.MaxKuzmin.VkMessenger
             if (dialog == null)
                 return;
 
-            messages = messages.Take(MaxEntitiesInCache).ToArray();
+            messages = messages.Take(Consts.BatchSize).ToArray();
             dialog.Messages = new CustomObservableCollection<Message>(messages);
 
             await SaveDialogs(cached);

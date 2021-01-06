@@ -59,7 +59,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     if (foundDialog != null)
                     {
                         var oldLastMessage = foundDialog.Messages.First();
-                        var newLastMessage = newDialog.Messages.Last();
+                        var newLastMessage = newDialog.Messages.First();
 
                         UpdateDialog(newDialog, foundDialog);
 

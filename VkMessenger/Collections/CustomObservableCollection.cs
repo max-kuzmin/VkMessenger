@@ -40,5 +40,13 @@ namespace ru.MaxKuzmin.VkMessenger.Collections
                 base.InsertItem(Count, item);
             }
         }
+
+        public void Trim(int batchSize)
+        {
+            while (Count > batchSize)
+            {
+                RemoveAt(Count - 1);
+            }
+        }
     }
 }

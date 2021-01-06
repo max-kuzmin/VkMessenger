@@ -38,15 +38,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             _ = dialogs.GetFromCache();
 
-            Appearing += UpdateAll;
+            Appearing += InitFromApi;
         }
 
         /// <summary>
         /// Called on start. If update unsuccessful show error popup and retry
         /// </summary>
-        private async void UpdateAll(object? sender = null, EventArgs? args = null)
+        private async void InitFromApi(object? sender = null, EventArgs? args = null)
         {
-            Appearing -= UpdateAll;
+            Appearing -= InitFromApi;
 
             var refreshingPopup = dialogs.Any() ? null : new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
             refreshingPopup?.Show();
@@ -54,19 +54,22 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             try
             {
                 await dialogs.Update();
+                //Trim to batch size to prevent skipping new dialogs between cached and 20 loaded on init
+                dialogs.Trim(Consts.BatchSize);
                 dialogsListView.ScrollIfExist(dialogs.FirstOrDefault(), ScrollToPosition.Center);
 
                 dialogsListView.ItemTapped += OnDialogTapped;
                 LongPollingClient.OnMessageUpdate += OnMessageUpdate;
                 LongPollingClient.OnDialogUpdate += OnDialogUpdate;
                 LongPollingClient.OnUserStatusUpdate += OnUserStatusUpdate;
+                LongPollingClient.OnFullReset += OnFullReset;
             }
             catch (WebException)
             {
                 new CustomPopup(
                     LocalizedStrings.DialogsNoInternetError,
                     LocalizedStrings.Retry,
-                    () => UpdateAll())
+                    () => InitFromApi())
                     .Show();
             }
             catch (InvalidSessionException)
@@ -135,6 +138,19 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             LongPollingClient.OnMessageUpdate -= OnMessageUpdate;
             LongPollingClient.OnDialogUpdate -= OnDialogUpdate;
             LongPollingClient.OnUserStatusUpdate -= OnUserStatusUpdate;
+            LongPollingClient.OnFullReset -= OnFullReset;
+        }
+
+        private void OnFullReset(object s, EventArgs e)
+        {
+            foreach (var (dialogId, page) in messagesPages)
+            {
+                if (!Navigation.NavigationStack.Contains(page))
+                    messagesPages.Remove(dialogId);
+            }
+
+            Dispose();
+            InitFromApi();
         }
     }
 }
