@@ -47,38 +47,45 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         {
             lock (collection)
             {
-                var newestToInsertId = newMessages.Last().Id;
-                var oldestExistingId = collection.First().Id;
-                bool isOldMessages = oldestExistingId >= newestToInsertId;
+                var newestExistingId = collection.First().ConversationMessageId;
+                var oldestExistingId = collection.Last().ConversationMessageId;
 
-                var messagesToInsert = new List<Message>();
+                var oldMessagesToAppend = new List<Message>();
+                var newMessagesToPrepend = new List<Message>();
 
                 foreach (var newMessage in newMessages)
                 {
                     var foundMessage = collection.FirstOrDefault(m => m.Id == newMessage.Id);
                     if (foundMessage != null)
-                    {
                         UpdateMessage(newMessage, foundMessage);
-                    }
+                    else if (newestExistingId < newMessage.ConversationMessageId)
+                        newMessagesToPrepend.Add(newMessage);
+                    else if (oldestExistingId > newMessage.ConversationMessageId)
+                        oldMessagesToAppend.Add(newMessage);
                     else
-                    {
-                        messagesToInsert.Add(newMessage);
-                    }
+                        for (int i = 0; i < collection.Count; i++)
+                        {
+                            if (collection[i].ConversationMessageId < newMessage.ConversationMessageId)
+                            {
+                                collection.Insert(i, newMessage);
+                                newMessage.SetRead();
+                                break;
+                            }
+                        }
                 }
 
-                if (isOldMessages)
+                if (oldMessagesToAppend.Any())
                 {
-                    foreach (var newMessage in messagesToInsert)
+                    foreach (var newMessage in oldMessagesToAppend)
                     {
                         newMessage.SetRead();
                     }
 
-                    collection.AddRange(messagesToInsert);
+                    collection.AddRange(oldMessagesToAppend);
                 }
-                else
-                {
-                    collection.InsertRange(0, messagesToInsert);
-                }
+                
+                if (newMessagesToPrepend.Any())
+                    collection.InsertRange(0, newMessagesToPrepend);
             }
         }
 

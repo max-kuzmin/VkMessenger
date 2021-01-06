@@ -8,6 +8,9 @@ using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
 {
+    /// <summary>
+    /// In dialog older messages with smaller Id are at the end of list. In API responses it's vise versa
+    /// </summary>
     public class Message : INotifyPropertyChanged
     {
         private const int MaxLength = 150;
@@ -17,6 +20,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         /// Positive number
         /// </summary>
         public int Id { get; set; }
+
+        public int ConversationMessageId { get; set; }
         public string Text { get; set; }
         public bool Read { get; set; }
         public DateTime Date { get; set; }
@@ -59,6 +64,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public Message(
             int id,
+            int conversationMessageId,
             string fullText,
             DateTime date,
             Profile? profile,
@@ -70,6 +76,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             IReadOnlyCollection<string> otherAttachments)
         {
             Id = id;
+            ConversationMessageId = conversationMessageId;
             Date = date;
             Group = group;
             Profile = profile;

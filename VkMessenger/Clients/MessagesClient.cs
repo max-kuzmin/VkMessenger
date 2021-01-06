@@ -170,6 +170,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 return new Message(
                     message.id,
+                    message.conversation_message_id,
                     fullText,
                     date,
                     profiles.FirstOrDefault(p => p.Id == peerId),

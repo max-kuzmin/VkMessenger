@@ -116,7 +116,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (popupEntryView.IsPopupOpened)
                 return;
 
-            await dialog.SetReadWithMessagesAndPublish();
+            _ = dialog.SetReadWithMessagesAndPublish();
 
             var message = (Message)e.Item;
             if (message.FullScreenAllowed)
@@ -162,7 +162,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async void OnTextCompleted(object? sender = null, EventArgs? args = null)
         {
-            await dialog.SetReadWithMessagesAndPublish();
+            _ = dialog.SetReadWithMessagesAndPublish();
 
             var text = popupEntryView.Text;
             if (string.IsNullOrEmpty(text))
@@ -203,14 +203,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OpenKeyboard()
         {
+            _ = dialog.SetReadWithMessagesAndPublish();
             popupEntryView.IsPopupOpened = true;
-            await dialog.SetReadWithMessagesAndPublish();
         }
 
         private async void OpenRecorder()
         {
+            _ = dialog.SetReadWithMessagesAndPublish();
             await Navigation.PushAsync(new RecordVoicePage(dialog));
-            await dialog.SetReadWithMessagesAndPublish();
         }
 
         public void Dispose()

@@ -9,6 +9,8 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
 
         public int id { get; set; }
 
+        public int conversation_message_id { get; set; }
+
         public string text { get; set; } = default!;
 
         public MessageDto[]? fwd_messages { get; set; }

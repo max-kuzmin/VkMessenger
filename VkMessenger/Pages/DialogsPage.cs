@@ -114,6 +114,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OnDialogTapped(object sender, ItemTappedEventArgs e)
         {
             var dialog = (Dialog)e.Item;
+            _ = dialog.SetReadWithMessagesAndPublish();
+
             MessagesPage messagesPage;
             if (messagesPages.ContainsKey(dialog.Id))
             {
@@ -126,8 +128,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
 
             await Navigation.PushAsync(messagesPage);
-
-            await dialog.SetReadWithMessagesAndPublish();
         }
 
         public void Dispose()

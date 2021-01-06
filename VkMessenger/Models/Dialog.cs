@@ -8,6 +8,9 @@ using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
 {
+    /// <summary>
+    /// Older dialogs with smaller Id are at the beginning of list
+    /// </summary>
     public class Dialog : INotifyPropertyChanged
     {
         public CustomObservableCollection<Profile> Profiles { get; set; }
