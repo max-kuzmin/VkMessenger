@@ -149,6 +149,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                     layout.wrapperLayout.RaiseChild(layout.audioLayout);
                     layout.wrapperLayout.RaiseChild(layout.photoWrapperLayout);
                     layout.audioLayout.HorizontalOptions = LayoutOptions.EndAndExpand;
+                    layout.audioLayout.SetMarginForAnimation();
                 }
             }
         }

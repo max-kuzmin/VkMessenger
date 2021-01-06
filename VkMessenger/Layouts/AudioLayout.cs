@@ -258,5 +258,10 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
         {
             OnPauseAllPlayers?.Invoke(null, null);
         }
+
+        public void SetMarginForAnimation()
+        {
+            scrollBackButton.Margin = new Thickness(30, 0, 0, 0);
+        }
     }
 }
