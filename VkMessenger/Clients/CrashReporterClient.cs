@@ -21,5 +21,20 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 // ignored
             }
         }
+
+        public static void Send(string text)
+        {
+            try
+            {
+                const string url = "https://vkmessenger.azurewebsites.net/api/crash";
+
+                using var client = new ProxiedWebClient();
+                client.UploadString(url, text);
+            }
+            catch
+            {
+                // ignored
+            }
+        }
     }
 }

@@ -56,6 +56,11 @@ namespace ru.MaxKuzmin.VkMessenger
 
             SetCulture();
 
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            {
+                Logger.ErrorAndAwait(e.ExceptionObject);
+            };
+
             LoadApplication(new App());
         }
 

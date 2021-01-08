@@ -29,6 +29,11 @@ namespace ru.MaxKuzmin.VkMessenger.Loggers
         {
             Log.Error(Tag, e.ToString(), file, caller, line);
         }
+
+        public static void ErrorAndAwait(object e, [CallerFilePath] string? file = null, [CallerMemberName] string? caller = null, [CallerLineNumber]int line = 0)
+        {
+            Error(e, file, caller, line);
+        }
     }
 #else
     public static class Logger
@@ -42,6 +47,11 @@ namespace ru.MaxKuzmin.VkMessenger.Loggers
         public static void Error(object e, string? file = null, string? caller = null, int line = 0)
         {
             _ = CrashReporterClient.SendAsync($"{e}\nAppVersion: {Version}\nUserId: {Authorization.UserId}");
+        }
+
+        public static void ErrorAndAwait(object e, string? file = null, string? caller = null, int line = 0)
+        {
+            CrashReporterClient.Send($"{e}\nAppVersion: {Version}\nUserId: {Authorization.UserId}");
         }
     }
 #endif
