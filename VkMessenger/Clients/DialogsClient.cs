@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using ru.MaxKuzmin.VkMessenger.Dtos;
 using Xamarin.Forms;
 
@@ -55,20 +54,13 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 case DialogType.User:
                     {
-                        var dialogProfiles = profiles.Where(p => Math.Abs(p.Id) == peerId).ToArray(); // TODO: Remove math abs
-                        if (dialogProfiles.Any(e => e.Id < 0))
-                            Logger.Error("DialogType.User parse error, negative profile id. Dialog:" + dialog.ToJson());
-                        if (!dialogProfiles.Any())
-                            Logger.Error("DialogType.User parse error, profile not found. Dialog:" + dialog.ToJson());
-                        
+                        var dialogProfiles = profiles.Where(p => p.Id == peerId).ToArray();
                         result = new Dialog(dialogType, null, null, unreadCount, dialogProfiles, messages);
                         break;
                     }
                 case DialogType.Group:
                     {
-                        var group = groups.FirstOrDefault(g => Math.Abs(g.Id) == peerId); // TODO: Remove math abs
-                        if (group?.Id < 0)
-                            Logger.Error("DialogType.Group parse error, negative group id. Dialog:" + dialog.ToJson());
+                        var group = groups.FirstOrDefault(g => g.Id == peerId);
                         if (group == null)
                             Logger.Error("DialogType.Group parse error, group not found. Dialog:" + dialog.ToJson());
 
@@ -84,20 +76,18 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                             Id = peerId,
                             Photo = chatSettings.photo?.photo_50 != null
                                 ? ImageSource.FromUri(chatSettings.photo.photo_50)
-                                : null
+                                : (chatSettings.photo?.photo_100 != null
+                                    ? ImageSource.FromUri(chatSettings.photo.photo_100)
+                                    : null)
                         };
 
-                        if (chatSettings.photo != null && chatSettings.photo.photo_50 == null)
-                            Logger.Error("chatSettings.photo.photo_50 is not found. Dialog:" + dialog.ToJson());
+                        if (chatSettings.photo != null && chatSettings.photo.photo_50 == null && chatSettings.photo.photo_100 == null)
+                            Logger.Error("chatSettings.photo.photo_50 and 100 is not found. Dialog:" + dialog.ToJson());
 
                         var dialogProfiles = profiles
-                            .Where(p => chatSettings.active_ids?.Any(i => Math.Abs(i) == Math.Abs(p.Id)) == true) // TODO: Remove math abs of profile id
+                            .Where(p => chatSettings.active_ids?.Any(i => Math.Abs(i) == p.Id) == true)
                             .ToArray();
 
-                        if (dialogProfiles.Any(e => e.Id < 0))
-                            Logger.Error("DialogType.Chat parse error, negative profile id. Dialog:" + dialog.ToJson());
-                        if (chatSettings.active_ids?.Any(e => e < 0) == true)
-                            Logger.Error("DialogType.Chat parse error, negative chat id. Dialog:" + dialog.ToJson());
                         if (!dialogProfiles.Any())
                             Logger.Error("DialogType.Chat parse error, profile not found. Dialog:" + dialog.ToJson());
 
@@ -113,9 +103,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
+#if DEBUG
                 Logger.Info("Updating dialogs");
+#endif
 
-                var json = JsonConvert.DeserializeObject<JsonDto<DialogsResponseDto>>(await GetDialogsJson());
+                var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<DialogsResponseDto>>(
+                    GetDialogsJson, e => e?.response != null);
 
                 var response = json.response;
                 var responseItems = response.items;
@@ -136,7 +129,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
+#if DEBUG
                 Logger.Info($"Updating dialogs {dialogIds.ToJson()}");
+#endif
 
                 var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<DialogsByIdsResponseDto>>(
                     () => GetDialogsJsonByIds(dialogIds), e => e?.response != null);
@@ -178,7 +173,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using var client = new ProxiedWebClient();
             var json = await client.DownloadStringTaskAsync(url);
+#if DEBUG
             Logger.Debug(json);
+#endif
             ExceptionHelpers.ThrowIfInvalidSession(json);
             return json;
         }
@@ -196,7 +193,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 using var client = new ProxiedWebClient();
                 var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<int>>(
                     () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+#if DEBUG
                 Logger.Debug(json.ToString());
+#endif
                 return json.response == 1;
             }
             catch (Exception e)
@@ -217,7 +216,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using var client = new ProxiedWebClient();
             var json = await client.DownloadStringTaskAsync(url);
+#if DEBUG
             Logger.Debug(json);
+#endif
             ExceptionHelpers.ThrowIfInvalidSession(json);
             return json;
         }

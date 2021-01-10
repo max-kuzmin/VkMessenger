@@ -49,36 +49,33 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             this CustomObservableCollection<Dialog> collection,
             IReadOnlyCollection<Dialog> newDialogs)
         {
-            lock (collection)
+            var dialogsToInsert = new List<Dialog>();
+
+            foreach (var newDialog in newDialogs)
             {
-                var dialogsToInsert = new List<Dialog>();
-
-                foreach (var newDialog in newDialogs)
+                var foundDialog = collection.FirstOrDefault(m => m.Id == newDialog.Id);
+                if (foundDialog != null)
                 {
-                    var foundDialog = collection.FirstOrDefault(m => m.Id == newDialog.Id);
-                    if (foundDialog != null)
-                    {
-                        var oldLastMessage = foundDialog.Messages.First();
-                        var newLastMessage = newDialog.Messages.First();
+                    var oldLastMessage = foundDialog.Messages.First();
+                    var newLastMessage = newDialog.Messages.First();
 
-                        UpdateDialog(newDialog, foundDialog);
+                    UpdateDialog(newDialog, foundDialog);
 
-                        // Move dialog to top, because it was updated
-                        if (collection.IndexOf(foundDialog) != collection.Count - 1
-                            && oldLastMessage.Id != newLastMessage.Id)
-                        {
-                            collection.Remove(foundDialog);
-                            dialogsToInsert.Add(foundDialog);
-                        }
-                    }
-                    else
+                    // Move dialog to top, because it was updated
+                    if (collection.IndexOf(foundDialog) != collection.Count - 1
+                        && oldLastMessage.Id != newLastMessage.Id)
                     {
-                        dialogsToInsert.Add(newDialog);
+                        collection.Remove(foundDialog);
+                        dialogsToInsert.Add(foundDialog);
                     }
                 }
-
-                collection.InsertRange(0, dialogsToInsert);
+                else
+                {
+                    dialogsToInsert.Add(newDialog);
+                }
             }
+
+            collection.InsertRange(0, dialogsToInsert);
         }
 
         /// <summary>
@@ -99,7 +96,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// </summary>
         public static void SetOnline(this IReadOnlyCollection<Dialog> dialogs, ISet<(int UserId, bool Status)> updates)
         {
-            foreach (var dialog in dialogs)
+            foreach (var dialog in dialogs.ToArray()) //To prevent enumeration exception
             {
                 foreach (var (userId, status) in updates)
                 {

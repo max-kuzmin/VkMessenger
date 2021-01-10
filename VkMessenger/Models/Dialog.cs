@@ -96,7 +96,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public void SetReadWithMessages()
         {
-            foreach (var message in Messages)
+            foreach (var message in Messages.ToArray()) //To prevent enumeration exception
             {
                 message.SetRead(true);
             }

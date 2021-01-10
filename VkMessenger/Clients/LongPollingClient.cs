@@ -41,7 +41,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using var client = new ProxiedWebClient();
             var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<LongPollingInitResponseDto>>(
                 () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+#if DEBUG
             Logger.Debug(json.ToString());
+#endif
 
             var response = json.response;
 
@@ -65,7 +67,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             var json = await HttpHelpers.RetryIfEmptyResponse<LongPollingUpdatesJsonDto>(
                 () => client.DownloadStringTaskAsync(url), e => e != null);
+#if DEBUG
             Logger.Debug(json.ToString());
+#endif
 
             return json;
         }
@@ -122,36 +126,47 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             if (messageEventArgs.Data.Any())
             {
+#if DEBUG
                 Logger.Info("Messages update: " + messageEventArgs.Data.Select(i => i.MessageId).ToJson());
+#endif
                 Device.BeginInvokeOnMainThread(() =>
                     OnMessageUpdate?.Invoke(null, messageEventArgs));
             }
 
             if (dialogEventArgs.DialogIds.Any())
             {
+#if DEBUG
                 Logger.Info("Dialogs update: " + dialogEventArgs.DialogIds.ToJson());
+#endif
                 Device.BeginInvokeOnMainThread(() =>
                     OnDialogUpdate?.Invoke(null, dialogEventArgs));
             }
 
             if (userStatusEventArgs.Data.Any())
             {
+#if DEBUG
                 Logger.Info("Online status changed for users: " + userStatusEventArgs.Data.Select(i => i.UserId).ToJson());
+#endif
                 Device.BeginInvokeOnMainThread(() =>
                     OnUserStatusUpdate?.Invoke(null, userStatusEventArgs));
             }
         }
 
-        public static void Start()
+        public static async void Start()
         {
+            await Task.Delay(500);
+#if DEBUG
             Logger.Info("Long polling started");
+#endif
             currentRequestInterval = LongPolling.RequestInterval;
             timer.Change(LongPolling.RequestInterval, TimeSpan.FromMilliseconds(-1));
         }
 
         public static void Stop()
         {
+#if DEBUG
             Logger.Info("Long polling stopped");
+#endif
             currentRequestInterval = TimeSpan.FromMilliseconds(-1);
         }
 

@@ -11,7 +11,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Dtos;
-using Xamarin.Forms;
 using Group = ru.MaxKuzmin.VkMessenger.Models.Group;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
@@ -27,7 +26,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
+#if DEBUG
                 Logger.Info($"Updating messages in dialog {dialogId}");
+#endif
 
                 var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<MessagesResponseDto>>(
                     () => GetMessagesJson(dialogId, offset), e => e?.response != null);
@@ -48,7 +49,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
+#if DEBUG
                 Logger.Info($"Updating messages {messagesIds.ToJson()}");
+#endif
 
                 var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<MessagesResponseDto>>(
                     () => GetMessagesJsonByIds(messagesIds), e => e?.response != null);
@@ -201,7 +204,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using var client = new ProxiedWebClient();
             var json = await client.DownloadStringTaskAsync(url);
+#if DEBUG
             Logger.Debug(json);
+#endif
             ExceptionHelpers.ThrowIfInvalidSession(json);
             return json;
         }
@@ -234,7 +239,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 using var client = new ProxiedWebClient();
                 var json = await client.DownloadStringTaskAsync(url);
+#if DEBUG
                 Logger.Debug(json);
+#endif
             }
             catch (Exception e)
             {
@@ -254,7 +261,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using var client = new ProxiedWebClient();
             var json = await client.DownloadStringTaskAsync(url);
+#if DEBUG
             Logger.Debug(json);
+#endif
             ExceptionHelpers.ThrowIfInvalidSession(json);
             return json;
         }

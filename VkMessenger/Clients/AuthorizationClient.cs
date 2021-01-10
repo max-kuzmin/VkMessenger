@@ -4,7 +4,6 @@ using ru.MaxKuzmin.VkMessenger.Net;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using ru.MaxKuzmin.VkMessenger.Dtos;
 using Xamarin.Forms;
 using Authorization = ru.MaxKuzmin.VkMessenger.Models.Authorization;
@@ -68,8 +67,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&access_token=" + Authorization.Token;
 
             using var client = new ProxiedWebClient();
-            var json = JsonConvert.DeserializeObject<JsonDto<UserDto[]>>(await client.DownloadStringTaskAsync(url));
+            var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<UserDto[]>>(
+                () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+#if DEBUG
             Logger.Debug(json.ToString());
+#endif
 
             Authorization.SetPhoto(json.response.First().photo_50);
         }

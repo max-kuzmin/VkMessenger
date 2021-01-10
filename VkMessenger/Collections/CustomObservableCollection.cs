@@ -18,34 +18,58 @@ namespace ru.MaxKuzmin.VkMessenger.Collections
         public void InsertRange(int index, IReadOnlyCollection<T> items)
         {
             if (!items.Any())
-            {
                 return;
-            }
 
-            for (int i = 0; i < items.Count; i++)
+            lock (this)
             {
-                base.InsertItem(index + i, items.ElementAt(i));
+                for (int i = 0; i < items.Count; i++)
+                {
+                    base.InsertItem(index + i, items.ElementAt(i));
+                }
             }
         }
 
         public void AddRange(IReadOnlyCollection<T> items)
         {
             if (!items.Any())
-            {
                 return;
-            }
 
-            foreach (var item in items)
+            lock (this)
             {
-                base.InsertItem(Count, item);
+                foreach (var item in items)
+                {
+                    base.InsertItem(Count, item);
+                }
+            }
+        }
+
+        public new void Insert(int index, T item)
+        {
+            lock (this)
+            {
+                base.Insert(index, item);
+            }
+        }
+
+        public new bool Remove(T item)
+        {
+            lock (this)
+            {
+                return base.Remove(item);
             }
         }
 
         public void Trim(int batchSize)
         {
-            while (Count > batchSize)
+            if (Count <= batchSize)
+                return;
+
+            lock (this)
             {
-                RemoveAt(Count - 1);
+                while (Count > batchSize)
+                {
+                    RemoveAt(Count - 1);
+                }
             }
         }
     }

@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest package="ru.MaxKuzmin.VkMessenger" version="1.4.0" api-version="4" xmlns="http://tizen.org/ns/packages">
+<manifest package="ru.MaxKuzmin.VkMessenger" version="1.5.0" api-version="4" xmlns="http://tizen.org/ns/packages">
     <author>Max Kuzmin</author>
     <description>VkMessenger for Samsung smart watches</description>
     <description xml:lang="ru-ru">Мессенджер ВКонтакте для смарт-часов Samsung</description>
     <description xml:lang="en-us">VK Messenger for Samsung smart watches</description>
     <profile name="wearable" />
-    <ui-application appid="ru.MaxKuzmin.VkMessenger" exec="VkMessenger.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" launch_mode="single">
+    <ui-application appid="ru.MaxKuzmin.VkMessenger" exec="VkMessenger.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" hw-acceleration="on" splash-screen-display="true" launch_mode="single">
         <label>VkMessenger</label>
         <icon>Icon.png</icon>
         <label xml:lang="en-us">VK Messenger</label>
@@ -14,12 +14,12 @@
     </ui-application>
     <shortcut-list />
     <privileges>
-      <privilege>http://tizen.org/privilege/network.get</privilege>
-      <privilege>http://tizen.org/privilege/internet</privilege>
-      <privilege>http://tizen.org/privilege/haptic</privilege>
-      <privilege>http://tizen.org/privilege/appmanager.launch</privilege>
-      <privilege>http://tizen.org/privilege/recorder</privilege>
-      <privilege>http://tizen.org/privilege/mediastorage</privilege>
+        <privilege>http://tizen.org/privilege/network.get</privilege>
+        <privilege>http://tizen.org/privilege/internet</privilege>
+        <privilege>http://tizen.org/privilege/haptic</privilege>
+        <privilege>http://tizen.org/privilege/appmanager.launch</privilege>
+        <privilege>http://tizen.org/privilege/recorder</privilege>
+        <privilege>http://tizen.org/privilege/mediastorage</privilege>
     </privileges>
     <dependencies />
     <provides-appdefined-privileges />

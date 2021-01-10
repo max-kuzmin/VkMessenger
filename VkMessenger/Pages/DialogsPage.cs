@@ -142,12 +142,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private void OnFullReset(object s, EventArgs e)
         {
-            foreach (var (dialogId, page) in messagesPages)
-            {
-                if (!Navigation.NavigationStack.Contains(page))
-                    messagesPages.Remove(dialogId);
-            }
-
             Dispose();
             InitFromApi();
         }
