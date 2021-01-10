@@ -80,7 +80,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
-                var peerId = message.from_id;
+                var peerId = Math.Abs(message.from_id); // FromId can be negative
                 var date = DateTimeOffset
                     .FromUnixTimeSeconds(message.date).UtcDateTime
                     .Add(TimeZoneInfo.Local.BaseUtcOffset);
@@ -94,7 +94,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var attachmentMessages = message.fwd_messages?
                     .Select(i =>
                     new AttachmentMessage {
-                        Profile = profiles.SingleOrDefault(e => e.Id == i.from_id),
+                        Profile = profiles.SingleOrDefault(e => e.Id == Math.Abs(i.from_id)), // FromId can be negative
                         Text = i.text
                     }).ToArray();
 

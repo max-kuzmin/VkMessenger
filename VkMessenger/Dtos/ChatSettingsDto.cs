@@ -7,6 +7,9 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
 
         public PhotoDto? photo { get; set; }
 
+        /// <summary>
+        /// Can be negative number
+        /// </summary>
         public int[]? active_ids { get; set; }
     }
 }

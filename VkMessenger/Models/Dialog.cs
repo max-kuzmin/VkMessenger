@@ -98,7 +98,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         {
             foreach (var message in Messages)
             {
-                message.SetRead();
+                message.SetRead(true);
             }
 
             SetUnreadCount(0);
@@ -106,14 +106,17 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public void SetUnreadCount(int unreadCount)
         {
-            UnreadCount = unreadCount;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UnreadCount)));
+            if (UnreadCount != unreadCount)
+            {
+                UnreadCount = unreadCount;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UnreadCount)));
+            }
         }
 
         public void SetOnline(int userId, bool online)
         {
             var profile = Profiles?.FirstOrDefault(p => p.Id == userId);
-            if (profile != null)
+            if (profile != null && profile.Online != online)
             {
                 profile.Online = online;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Online)));

@@ -90,7 +90,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             {
                 foundDialog.SetOnline(newProfile.Id, newDialog.Online);
             }
-            foundDialog.Messages.AddUpdate(newDialog.Messages);
+            foundDialog.Messages.AddUpdate(newDialog.Messages, newDialog.UnreadCount);
             foundDialog.SetUnreadCount(newDialog.UnreadCount);
         }
 

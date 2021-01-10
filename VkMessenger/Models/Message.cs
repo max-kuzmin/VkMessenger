@@ -135,16 +135,22 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 : Text.Replace('\n', ' ');
         }
 
-        public void SetRead()
+        public void SetRead(bool value)
         {
-            Read = true;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Read)));
+            if (Read != value)
+            {
+                Read = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Read)));
+            }
         }
 
         public void SetText(string text)
         {
-            Text = text;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
+            if (Text != text)
+            {
+                Text = text;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
+            }
         }
     }
 }

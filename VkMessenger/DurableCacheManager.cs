@@ -16,7 +16,7 @@ namespace ru.MaxKuzmin.VkMessenger
 
         public static Task SaveDialogs(IReadOnlyCollection<Dialog> dialogs)
         {
-            dialogs = dialogs.TakeLast(Consts.BatchSize).ToArray();
+            dialogs = dialogs.Take(Consts.BatchSize).ToArray();
             Preference.Set(DialogsCacheKey, JsonConvert.SerializeObject(dialogs));
             return Task.CompletedTask;
         }

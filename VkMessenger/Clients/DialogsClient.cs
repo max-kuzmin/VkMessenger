@@ -32,7 +32,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             IReadOnlyCollection<Message>? lastMessages)
         {
             var conversation = dialog.conversation;
-            var peerId = Math.Abs(conversation.peer.id); // dialogs with groups have negative ids
+            var peerId = Math.Abs(conversation.peer.id); // id in peerDto can be negative
             var dialogType = Enum.Parse<DialogType>(conversation.peer.type, true);
             var unreadCount = conversation.unread_count ?? 0;
 
@@ -45,7 +45,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             if (lastMessage != null && unreadCount == 0)
             {
-                lastMessage.SetRead();
+                lastMessage.SetRead(true);
             }
 
             Dialog result = default!;
@@ -55,7 +55,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             {
                 case DialogType.User:
                     {
-                        var dialogProfiles = profiles.Where(p => Math.Abs(p.Id) == peerId).ToArray(); // Compare absolute values to prevent null ex
+                        var dialogProfiles = profiles.Where(p => Math.Abs(p.Id) == peerId).ToArray(); // TODO: Remove math abs
                         if (dialogProfiles.Any(e => e.Id < 0))
                             Logger.Error("DialogType.User parse error, negative profile id. Dialog:" + dialog.ToJson());
                         if (!dialogProfiles.Any())
@@ -66,7 +66,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     }
                 case DialogType.Group:
                     {
-                        var group = groups.FirstOrDefault(g => Math.Abs(g.Id) == peerId); // Compare absolute values to prevent null ex
+                        var group = groups.FirstOrDefault(g => Math.Abs(g.Id) == peerId); // TODO: Remove math abs
                         if (group?.Id < 0)
                             Logger.Error("DialogType.Group parse error, negative group id. Dialog:" + dialog.ToJson());
                         if (group == null)
@@ -91,7 +91,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                             Logger.Error("chatSettings.photo.photo_50 is not found. Dialog:" + dialog.ToJson());
 
                         var dialogProfiles = profiles
-                            .Where(p => chatSettings.active_ids?.Any(i => Math.Abs(i) == Math.Abs(p.Id)) == true) // Compare absolute values to prevent null ex
+                            .Where(p => chatSettings.active_ids?.Any(i => Math.Abs(i) == Math.Abs(p.Id)) == true) // TODO: Remove math abs of profile id
                             .ToArray();
 
                         if (dialogProfiles.Any(e => e.Id < 0))

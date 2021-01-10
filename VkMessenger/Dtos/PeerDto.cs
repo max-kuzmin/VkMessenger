@@ -3,6 +3,9 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
 {
     public sealed class PeerDto
     {
+        /// <summary>
+        /// Can be negative number
+        /// </summary>
         public int id { get; set; }
 
         public string type { get; set; } = default!;

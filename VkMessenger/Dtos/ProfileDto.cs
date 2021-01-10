@@ -5,6 +5,9 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
 {
     public sealed class ProfileDto
     {
+        /// <summary>
+        /// Positive number
+        /// </summary>
         public int id { get; set; }
 
         public string first_name { get; set; } = default!;

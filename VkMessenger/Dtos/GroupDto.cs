@@ -5,6 +5,9 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
 {
     public sealed class GroupDto
     {
+        /// <summary>
+        /// Positive number
+        /// </summary>
         public int id { get; set; }
 
         public string name { get; set; } = default!;

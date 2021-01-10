@@ -76,7 +76,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             try
             {
-                await dialog.Messages.Update(dialog.Id);
+                await dialog.Messages.Update(dialog.Id, dialog.UnreadCount);
                 //Trim to batch size to prevent skipping new messages between cached and 20 loaded on init
                 dialog.Messages.Trim(Consts.BatchSize);
                 //messagesListView.ScrollIfExist(dialog.Messages.FirstOrDefault(), ScrollToPosition.Center);
@@ -154,7 +154,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             if (items.Any())
             {
-                await dialog.Messages.UpdateByIds(items, dialog.Id);
+                await dialog.Messages.UpdateByIds(items, dialog.Id, dialog.UnreadCount);
                 // ReSharper disable once AssignmentIsFullyDiscarded
                 _ = Task.Run(() => new Feedback().Play(FeedbackType.Vibration, "Tap"));
             }
@@ -204,7 +204,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
         }
 
-        private async void OpenKeyboard()
+        private void OpenKeyboard()
         {
             _ = dialog.SetReadWithMessagesAndPublish();
             popupEntryView.IsPopupOpened = true;
@@ -234,6 +234,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <inheritdoc />
         protected override bool OnBackButtonPressed()
         {
+            _ = dialog.SetReadWithMessagesAndPublish();
             Navigation.PopAsync();
             return true;
         }

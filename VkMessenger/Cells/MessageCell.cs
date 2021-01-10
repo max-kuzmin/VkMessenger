@@ -92,6 +92,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             wrapperLayout.Children.Add(text);
             outerLayout.Children.Add(wrapperLayout);
             View = outerLayout;
+            View.BackgroundColor = CustomColors.DarkBlue;
         }
 
         private static void OnSenderIdPropertyChanged(BindableObject bindable, object oldValue, object newValue)
@@ -103,7 +104,6 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 {
                     cell.wrapperLayout.LowerChild(cell.photoWrapperLayout);
                     cell.text.HorizontalTextAlignment = TextAlignment.Start;
-                    cell.View.BackgroundColor = CustomColors.DarkBlue;
                 }
                 else
                 {

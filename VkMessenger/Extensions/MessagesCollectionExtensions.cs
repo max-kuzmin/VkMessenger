@@ -15,12 +15,13 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         public static async Task Update(
             this CustomObservableCollection<Message> collection,
             int dialogId,
+            int unreadCount,
             int? offset = null)
         {
             var newMessages = await MessagesClient.GetMessages(dialogId, offset);
             if (newMessages.Any())
             {
-                collection.AddUpdate(newMessages);
+                collection.AddUpdate(newMessages, unreadCount);
                 _ = DurableCacheManager.SaveMessages(dialogId, collection);
             }
         }
@@ -31,19 +32,21 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         public static async Task UpdateByIds(
             this CustomObservableCollection<Message> collection,
             IReadOnlyCollection<int> messagesIds,
-            int dialogId)
+            int dialogId,
+            int unreadCount)
         {
             var newMessages = await MessagesClient.GetMessagesByIds(messagesIds);
             if (newMessages.Any())
             {
-                collection.AddUpdate(newMessages);
+                collection.AddUpdate(newMessages, unreadCount);
                 _ = DurableCacheManager.SaveMessages(dialogId, collection);
             }
         }
 
         public static void AddUpdate(
             this CustomObservableCollection<Message> collection,
-            IReadOnlyCollection<Message> newMessages)
+            IReadOnlyCollection<Message> newMessages,
+            int unreadCount)
         {
             lock (collection)
             {
@@ -68,24 +71,18 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                             if (collection[i].ConversationMessageId < newMessage.ConversationMessageId)
                             {
                                 collection.Insert(i, newMessage);
-                                newMessage.SetRead();
                                 break;
                             }
                         }
                 }
 
                 if (oldMessagesToAppend.Any())
-                {
-                    foreach (var newMessage in oldMessagesToAppend)
-                    {
-                        newMessage.SetRead();
-                    }
-
                     collection.AddRange(oldMessagesToAppend);
-                }
-                
+
                 if (newMessagesToPrepend.Any())
                     collection.InsertRange(0, newMessagesToPrepend);
+
+                collection.UpdateRead(unreadCount);
             }
         }
 
@@ -95,6 +92,21 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         private static void UpdateMessage(Message newMessage, Message foundMessage)
         {
             foundMessage.SetText(newMessage.Text);
+        }
+
+        private static void UpdateRead(this CustomObservableCollection<Message> collection, int unreadCount)
+        {
+            var leastUnread = unreadCount;
+            foreach (var message in collection)
+            {
+                if (message.SenderId == Authorization.UserId || leastUnread == 0)
+                    message.SetRead(true);
+                else
+                {
+                    leastUnread--;
+                    message.SetRead(false);
+                }
+            }
         }
     }
 }

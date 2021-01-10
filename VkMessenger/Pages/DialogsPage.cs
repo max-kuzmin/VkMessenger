@@ -117,8 +117,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OnDialogTapped(object sender, ItemTappedEventArgs e)
         {
             var dialog = (Dialog)e.Item;
-            _ = dialog.SetReadWithMessagesAndPublish();
-
             MessagesPage messagesPage;
             if (messagesPages.ContainsKey(dialog.Id))
             {
