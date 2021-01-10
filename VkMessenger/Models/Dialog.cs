@@ -1,9 +1,10 @@
-﻿using ru.MaxKuzmin.VkMessenger.Collections;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using Newtonsoft.Json;
+using ru.MaxKuzmin.VkMessenger.Extensions;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
@@ -13,10 +14,10 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     /// </summary>
     public class Dialog : INotifyPropertyChanged
     {
-        public CustomObservableCollection<Profile> Profiles { get; set; }
+        public ObservableCollection<Profile> Profiles { get; set; }
         public Group? Group { get; set; }
         public Chat? Chat { get; set; }
-        public CustomObservableCollection<Message> Messages { get; set; }
+        public ObservableCollection<Message> Messages { get; set; }
         public DialogType Type { get; set; }
         public int UnreadCount { get; set; }
         [JsonIgnore]
@@ -84,23 +85,19 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Chat = chat;
             UnreadCount = unreadCount;
 
-            Messages = new CustomObservableCollection<Message>(messages ?? Array.Empty<Message>());
+            Messages = new ObservableCollection<Message>(messages ?? Array.Empty<Message>());
 
             Messages.CollectionChanged += (s, e) =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
             };
 
-            Profiles = new CustomObservableCollection<Profile>(profiles ?? Array.Empty<Profile>());
+            Profiles = new ObservableCollection<Profile>(profiles ?? Array.Empty<Profile>());
         }
 
         public void SetReadWithMessages()
         {
-            foreach (var message in Messages.ToArray()) //To prevent enumeration exception
-            {
-                message.SetRead(true);
-            }
-
+            Messages.UpdateRead(0);
             SetUnreadCount(0);
         }
 

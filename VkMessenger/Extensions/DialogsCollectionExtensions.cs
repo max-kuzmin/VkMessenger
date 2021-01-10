@@ -1,7 +1,7 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Clients;
-using ru.MaxKuzmin.VkMessenger.Collections;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,7 +13,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// Update dialogs from API. Can be used during setup of page or with <see cref="LongPolling"/>
         /// </summary>
         public static async Task Update(
-            this CustomObservableCollection<Dialog> collection)
+            this ObservableCollection<Dialog> collection)
         {
             var newDialogs = await DialogsClient.GetDialogs();
             if (newDialogs.Any())
@@ -27,7 +27,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// Update dialogs from API. Can be used during setup of page or with <see cref="LongPolling"/>
         /// </summary>
         public static async Task UpdateByIds(
-            this CustomObservableCollection<Dialog> collection,
+            this ObservableCollection<Dialog> collection,
             IReadOnlyCollection<int> dialogIds)
         {
             var newDialogs = await DialogsClient.GetDialogsByIds(dialogIds);
@@ -38,7 +38,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             }
         }
 
-        public static async Task GetFromCache(this CustomObservableCollection<Dialog> collection)
+        public static async Task GetFromCache(this ObservableCollection<Dialog> collection)
         {
             var cached = await DurableCacheManager.GetDialogs();
             if (cached != null)
@@ -46,36 +46,39 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         }
 
         private static void AddUpdate(
-            this CustomObservableCollection<Dialog> collection,
+            this ObservableCollection<Dialog> collection,
             IReadOnlyCollection<Dialog> newDialogs)
         {
-            var dialogsToInsert = new List<Dialog>();
-
-            foreach (var newDialog in newDialogs)
+            lock (collection)
             {
-                var foundDialog = collection.FirstOrDefault(m => m.Id == newDialog.Id);
-                if (foundDialog != null)
+                var dialogsToInsert = new List<Dialog>();
+
+                foreach (var newDialog in newDialogs)
                 {
-                    var oldLastMessage = foundDialog.Messages.First();
-                    var newLastMessage = newDialog.Messages.First();
-
-                    UpdateDialog(newDialog, foundDialog);
-
-                    // Move dialog to top, because it was updated
-                    if (collection.IndexOf(foundDialog) != collection.Count - 1
-                        && oldLastMessage.Id != newLastMessage.Id)
+                    var foundDialog = collection.FirstOrDefault(m => m.Id == newDialog.Id);
+                    if (foundDialog != null)
                     {
-                        collection.Remove(foundDialog);
-                        dialogsToInsert.Add(foundDialog);
+                        var oldLastMessage = foundDialog.Messages.First();
+                        var newLastMessage = newDialog.Messages.First();
+
+                        UpdateDialog(newDialog, foundDialog);
+
+                        // Move dialog to top, because it was updated
+                        if (collection.IndexOf(foundDialog) != collection.Count - 1
+                            && oldLastMessage.Id != newLastMessage.Id)
+                        {
+                            collection.Remove(foundDialog);
+                            dialogsToInsert.Add(foundDialog);
+                        }
+                    }
+                    else
+                    {
+                        dialogsToInsert.Add(newDialog);
                     }
                 }
-                else
-                {
-                    dialogsToInsert.Add(newDialog);
-                }
-            }
 
-            collection.InsertRange(0, dialogsToInsert);
+                collection.PrependRange(dialogsToInsert);
+            }
         }
 
         /// <summary>
@@ -94,13 +97,16 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// <summary>
         /// Update user status in every dialog
         /// </summary>
-        public static void SetOnline(this IReadOnlyCollection<Dialog> dialogs, ISet<(int UserId, bool Status)> updates)
+        public static void SetOnline(this ObservableCollection<Dialog> collection, ISet<(int UserId, bool Status)> updates)
         {
-            foreach (var dialog in dialogs.ToArray()) //To prevent enumeration exception
+            lock (collection) //To prevent enumeration exception
             {
-                foreach (var (userId, status) in updates)
+                foreach (var dialog in collection)
                 {
-                    dialog.SetOnline(userId, status);
+                    foreach (var (userId, status) in updates)
+                    {
+                        dialog.SetOnline(userId, status);
+                    }
                 }
             }
         }

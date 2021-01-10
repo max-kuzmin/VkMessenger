@@ -1,7 +1,7 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Clients;
-using ru.MaxKuzmin.VkMessenger.Collections;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,7 +13,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// Update messages from API. Can be used during setup of page or with <see cref="LongPolling"/>
         /// </summary>
         public static async Task Update(
-            this CustomObservableCollection<Message> collection,
+            this ObservableCollection<Message> collection,
             int dialogId,
             int unreadCount,
             int? offset = null)
@@ -30,7 +30,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// Update messages from API. Can be used during setup of page or with <see cref="LongPolling"/>
         /// </summary>
         public static async Task UpdateByIds(
-            this CustomObservableCollection<Message> collection,
+            this ObservableCollection<Message> collection,
             IReadOnlyCollection<int> messagesIds,
             int dialogId,
             int unreadCount)
@@ -44,43 +44,44 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         }
 
         public static void AddUpdate(
-            this CustomObservableCollection<Message> collection,
+            this ObservableCollection<Message> collection,
             IReadOnlyCollection<Message> newMessages,
             int unreadCount)
         {
-            var newestExistingId = collection.First().ConversationMessageId;
-            var oldestExistingId = collection.Last().ConversationMessageId;
-
-            var oldMessagesToAppend = new List<Message>();
-            var newMessagesToPrepend = new List<Message>();
-
-            foreach (var newMessage in newMessages)
+            lock (collection)
             {
-                var foundMessage = collection.FirstOrDefault(m => m.Id == newMessage.Id);
-                if (foundMessage != null)
-                    UpdateMessage(newMessage, foundMessage);
-                else if (newestExistingId < newMessage.ConversationMessageId)
-                    newMessagesToPrepend.Add(newMessage);
-                else if (oldestExistingId > newMessage.ConversationMessageId)
-                    oldMessagesToAppend.Add(newMessage);
-                else
-                    for (int i = 0; i < collection.Count; i++)
-                    {
-                        if (collection[i].ConversationMessageId < newMessage.ConversationMessageId)
-                        {
-                            collection.Insert(i, newMessage);
-                            break;
-                        }
-                    }
-            }
+                var newestExistingId = collection.First().ConversationMessageId;
+                var oldestExistingId = collection.Last().ConversationMessageId;
 
-            if (oldMessagesToAppend.Any())
+                var oldMessagesToAppend = new List<Message>();
+                var newMessagesToPrepend = new List<Message>();
+
+                foreach (var newMessage in newMessages)
+                {
+                    var foundMessage = collection.FirstOrDefault(m => m.Id == newMessage.Id);
+                    if (foundMessage != null)
+                        UpdateMessage(newMessage, foundMessage);
+                    else if (newestExistingId < newMessage.ConversationMessageId)
+                        newMessagesToPrepend.Add(newMessage);
+                    else if (oldestExistingId > newMessage.ConversationMessageId)
+                        oldMessagesToAppend.Add(newMessage);
+                    else
+                        for (int i = 0; i < collection.Count; i++)
+                        {
+                            if (collection[i].ConversationMessageId < newMessage.ConversationMessageId)
+                            {
+                                collection.Insert(i, newMessage);
+                                break;
+                            }
+                        }
+                }
+
                 collection.AddRange(oldMessagesToAppend);
 
-            if (newMessagesToPrepend.Any())
-                collection.InsertRange(0, newMessagesToPrepend);
+                collection.PrependRange(newMessagesToPrepend);
 
-            collection.UpdateRead(unreadCount);
+                collection.UpdateRead(unreadCount);
+            }
         }
 
         /// <summary>
@@ -91,17 +92,20 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             foundMessage.SetText(newMessage.Text);
         }
 
-        private static void UpdateRead(this CustomObservableCollection<Message> collection, int unreadCount)
+        public static void UpdateRead(this ObservableCollection<Message> collection, int unreadCount)
         {
-            var leastUnread = unreadCount;
-            foreach (var message in collection.ToArray()) //To prevent enumeration exception
+            lock (collection) //To prevent enumeration exception
             {
-                if (message.SenderId == Authorization.UserId || leastUnread == 0)
-                    message.SetRead(true);
-                else
+                var leastUnread = unreadCount;
+                foreach (var message in collection)
                 {
-                    leastUnread--;
-                    message.SetRead(false);
+                    if (message.SenderId == Authorization.UserId || leastUnread == 0)
+                        message.SetRead(true);
+                    else
+                    {
+                        leastUnread--;
+                        message.SetRead(false);
+                    }
                 }
             }
         }

@@ -1,6 +1,5 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Cells;
 using ru.MaxKuzmin.VkMessenger.Clients;
-using ru.MaxKuzmin.VkMessenger.Collections;
 using ru.MaxKuzmin.VkMessenger.Events;
 using ru.MaxKuzmin.VkMessenger.Exceptions;
 using ru.MaxKuzmin.VkMessenger.Extensions;
@@ -8,6 +7,7 @@ using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -20,7 +20,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     public class DialogsPage : BezelInteractionPage, IDisposable
     {
         private readonly Dictionary<int, MessagesPage> messagesPages = new Dictionary<int, MessagesPage>();
-        private readonly CustomObservableCollection<Dialog> dialogs = new CustomObservableCollection<Dialog>();
+        private readonly ObservableCollection<Dialog> dialogs = new ObservableCollection<Dialog>();
 
         private readonly CircleListView dialogsListView = new CircleListView
         {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using ru.MaxKuzmin.VkMessenger.Collections;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Tizen.Applications;
@@ -32,7 +32,7 @@ namespace ru.MaxKuzmin.VkMessenger
                 return;
 
             messages = messages.Take(Consts.BatchSize).ToArray();
-            dialog.Messages = new CustomObservableCollection<Message>(messages);
+            dialog.Messages = new ObservableCollection<Message>(messages);
 
             await SaveDialogs(cached);
         }
