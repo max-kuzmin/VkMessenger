@@ -60,7 +60,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public event PropertyChangedEventHandler? PropertyChanged;
 
         [JsonConstructor]
+#pragma warning disable CS8618
         public Message() { }
+#pragma warning restore CS8618
 
         public Message(
             int id,

@@ -136,7 +136,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var message = (Message)e.Item;
             if (dialog.Messages.Count >= Consts.BatchSize && dialog.Messages.All(i => i.Id >= message.Id))
             {
-                await dialog.Messages.Update(dialog.Id, dialog.Messages.Count);
+                await dialog.Messages.Update(dialog.Id, dialog.UnreadCount, dialog.Messages.Count);
                 messagesListView.ScrollIfExist(message, ScrollToPosition.Center);
             }
         }

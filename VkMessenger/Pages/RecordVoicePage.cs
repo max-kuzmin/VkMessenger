@@ -22,7 +22,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     {
         private readonly Dialog dialog;
         private string? voiceMessageTempPath;
-        private bool isRecording = false;
+        private bool isRecording;
 
         private readonly AudioRecorder audioRecorder = new AudioRecorder(RecorderAudioCodec.Aac, RecorderFileFormat.ThreeGp)
         {

@@ -117,20 +117,13 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         {
             if (bindable is MessageCell cell && newValue is bool value)
             {
-                if (value)
-                {
-                    cell.View.BackgroundColor = Color.Black;
-                }
-                else
-                {
-                    cell.View.BackgroundColor = CustomColors.DarkBlue;
-                }
+                cell.View.BackgroundColor = value ? Color.Black : CustomColors.DarkBlue;
             }
         }
 
         private static void OnVoiceMessageSourcePropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is MessageCell layout && newValue is Uri uri && layout.audioLayout == null)
+            if (bindable is MessageCell layout && layout.audioLayout == null)
             {
                 layout.audioLayout = new AudioLayout();
                 layout.audioLayout.SetBinding(AudioLayout.SourceProperty, nameof(Message.VoiceMessage));

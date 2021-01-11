@@ -1,5 +1,4 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Events;
-using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
 using ru.MaxKuzmin.VkMessenger.Net;
@@ -10,6 +9,9 @@ using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Dtos;
 using Xamarin.Forms;
 using Newtonsoft.Json.Linq;
+#if DEBUG
+using ru.MaxKuzmin.VkMessenger.Extensions;
+#endif
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
 {
@@ -23,12 +25,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
         public static event EventHandler? OnFullReset;
 
-        private static TimeSpan currentRequestInterval = LongPolling.RequestInterval;
-        private static readonly Timer timer = new Timer(
-            async obj => await MainLoop(),
-            null,
-            TimeSpan.FromMilliseconds(-1),
-            TimeSpan.FromMilliseconds(-1));
+        public static CancellationTokenSource? cancellationTokenSource;
 
         private static async Task GetLongPollServer()
         {
@@ -47,17 +44,16 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             var response = json.response;
 
-            if (response?.key == null || response.server == null || response.ts == 0)
-                Logger.Error("One of LongPollingInitResponseDto props is null. Response: " + response.ToJson());
-
             LongPolling.Key = response.key;
             LongPolling.Server = response.server;
             LongPolling.Ts ??= response.ts;
         }
 
-        private static async Task<LongPollingUpdatesJsonDto> SendLongRequest()
+        private static async Task<LongPollingUpdatesJsonDto> SendLongRequest(CancellationToken cancellationToken)
         {
             using var client = new ProxiedWebClient();
+            using var registration = cancellationToken.Register(client.CancelAsync);
+
             var url = "https://" + LongPolling.Server +
                 "?act=a_check" +
                 "&key=" + LongPolling.Key +
@@ -152,28 +148,34 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        public static async void Start()
+        public static async Task Start()
         {
-            await Task.Delay(500);
+            cancellationTokenSource?.Cancel();
 #if DEBUG
             Logger.Info("Long polling started");
 #endif
-            currentRequestInterval = LongPolling.RequestInterval;
-            timer.Change(LongPolling.RequestInterval, TimeSpan.FromMilliseconds(-1));
+            cancellationTokenSource = new CancellationTokenSource();
+            while (!cancellationTokenSource.IsCancellationRequested)
+            {
+                await MainLoop(cancellationTokenSource.Token);
+            }
+#if DEBUG
+            Logger.Info("Long polling stopped");
+#endif
         }
 
         public static void Stop()
         {
 #if DEBUG
-            Logger.Info("Long polling stopped");
+            Logger.Info("Long polling stop requested");
 #endif
-            currentRequestInterval = TimeSpan.FromMilliseconds(-1);
+            cancellationTokenSource?.Cancel();
         }
 
         /// <summary>
         /// <see cref="LongPolling"/> main loop
         /// </summary>
-        private static async Task MainLoop()
+        private static async Task MainLoop(CancellationToken cancellationToken)
         {
             if (Authorization.Token != null)
             {
@@ -184,7 +186,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         await GetLongPollServer();
                     }
 
-                    var json = await SendLongRequest();
+                    var json = await SendLongRequest(cancellationToken);
 
                     if (json.failed != null)
                     {
@@ -195,13 +197,21 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         ParseLongPollingJson(json);
                     }
                 }
+                catch (Exception e) when (e.Message.Contains("The request was canceled")) { }
                 catch (Exception e)
                 {
                     Logger.Error(e);
                 }
-            }
 
-            timer.Change(currentRequestInterval, TimeSpan.FromMilliseconds(-1));
+                try
+                {
+                    await Task.Delay(LongPolling.RequestInterval, cancellationToken);
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
         }
 
         private static void Reset()

@@ -144,7 +144,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 var lastMessagesIds = responseItems
                     .Where(e => e.last_message_id.HasValue)
-                    .Select(e => e.last_message_id.Value).ToList();
+                    .Select(e => e.last_message_id!.Value).ToList();
 
                 var lastMessages = lastMessagesIds.Any()
                     ? await MessagesClient.GetMessagesByIds(lastMessagesIds)

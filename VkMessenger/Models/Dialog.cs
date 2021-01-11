@@ -32,7 +32,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             {
                 return Type switch
                 {
-                    DialogType.User => (Profiles.First().Name + " " + Profiles.First().Surname),
+                    DialogType.User => Profiles.First().Name + " " + Profiles.First().Surname,
                     DialogType.Group when Group != null => Group.Name,
                     DialogType.Chat when Chat != null => Chat.Title,
                     _ => string.Empty
@@ -112,7 +112,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public void SetOnline(int userId, bool online)
         {
-            var profile = Profiles?.FirstOrDefault(p => p.Id == userId);
+            var profile = Profiles.FirstOrDefault(p => p.Id == userId);
             if (profile != null && profile.Online != online)
             {
                 profile.Online = online;
