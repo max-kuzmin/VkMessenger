@@ -235,8 +235,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         protected override bool OnBackButtonPressed()
         {
             _ = dialog.SetReadWithMessagesAndPublish();
-            Navigation.PopAsync();
-            return true;
+            return false;
         }
 
         private void OnFullReset(object s, EventArgs e)
