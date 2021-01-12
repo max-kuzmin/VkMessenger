@@ -155,9 +155,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             Logger.Info("Long polling started");
 #endif
             cancellationTokenSource = new CancellationTokenSource();
-            while (!cancellationTokenSource.IsCancellationRequested)
+            var token = cancellationTokenSource.Token;
+            while (!token.IsCancellationRequested)
             {
-                await MainLoop(cancellationTokenSource.Token);
+                await MainLoop(token);
             }
 #if DEBUG
             Logger.Info("Long polling stopped");
@@ -217,9 +218,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         private static void Reset()
         {
             LongPolling.Ts = null;
-            OnMessageUpdate = null;
-            OnDialogUpdate = null;
-            OnUserStatusUpdate = null;
 
             Device.BeginInvokeOnMainThread(() =>
                 OnFullReset?.Invoke(null, null));

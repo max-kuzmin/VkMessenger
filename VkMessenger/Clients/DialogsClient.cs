@@ -42,11 +42,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 ? new[] { lastMessage }
                 : null;
 
-            if (lastMessage != null && unreadCount == 0)
-            {
-                lastMessage.SetRead(true);
-            }
-
             Dialog result = default!;
 
             // ReSharper disable once SwitchStatementMissingSomeCases

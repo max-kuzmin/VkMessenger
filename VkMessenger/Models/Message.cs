@@ -23,7 +23,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public int ConversationMessageId { get; set; }
         public string Text { get; set; }
-        public bool Read { get; set; }
+        public bool? Read { get; set; }
         public DateTime Date { get; set; }
         public string TimeFormatted { get; set; }
         public Profile? Profile { get; set; }
@@ -87,7 +87,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             VoiceMessage = voiceMessage?.Item1;
             VoiceMessageDuration = voiceMessage?.Item2;
             AttachmentMessages = attachmentMessages ?? Array.Empty<AttachmentMessage>();
-            Read = Profile?.Id == Authorization.UserId;
             FullText = fullText;
             TimeFormatted = date.ToString("HH:mm");
 

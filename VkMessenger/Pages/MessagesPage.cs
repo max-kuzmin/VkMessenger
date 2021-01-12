@@ -241,8 +241,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private void OnFullReset(object s, EventArgs e)
         {
             Dispose();
-            if (Navigation.NavigationStack.Contains(this))
-                InitFromApi();
+            InitFromApi();
         }
     }
 }

@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+#if DEBUG
+using ru.MaxKuzmin.VkMessenger.Loggers;
+#endif
 
 namespace ru.MaxKuzmin.VkMessenger.Extensions
 {
@@ -48,8 +51,14 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             IReadOnlyCollection<Message> newMessages,
             int unreadCount)
         {
+#if DEBUG
+            Logger.Debug("Try to lock Messages " + collection.GetHashCode());
+#endif
             lock (collection)
             {
+#if DEBUG
+                Logger.Debug("Locked Messages " + collection.GetHashCode());
+#endif
                 var newestExistingId = collection.First().ConversationMessageId;
                 var oldestExistingId = collection.Last().ConversationMessageId;
 
@@ -79,9 +88,11 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                 collection.AddRange(oldMessagesToAppend);
 
                 collection.PrependRange(newMessagesToPrepend);
-
-                collection.UpdateRead(unreadCount);
             }
+#if DEBUG
+            Logger.Debug("Unlocked Messages " + collection.GetHashCode());
+#endif
+            collection.UpdateRead(unreadCount);
         }
 
         /// <summary>
@@ -94,20 +105,31 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
 
         public static void UpdateRead(this ObservableCollection<Message> collection, int unreadCount)
         {
+#if DEBUG
+            Logger.Debug("Try to lock Messages " + collection.GetHashCode());
+#endif
             lock (collection) //To prevent enumeration exception
             {
+#if DEBUG
+                Logger.Debug("Locked Messages " + collection.GetHashCode());
+#endif
                 var leastUnread = unreadCount;
                 foreach (var message in collection)
                 {
+                    // If it's current user message or there are must be more unread messages in dialog
                     if (message.SenderId == Authorization.UserId || leastUnread == 0)
                         message.SetRead(true);
-                    else
+                    // If message hasn't Read property set to true
+                    else if (message.Read != true)
                     {
                         leastUnread--;
                         message.SetRead(false);
                     }
                 }
             }
+#if DEBUG
+            Logger.Debug("Unlocked Messages " + collection.GetHashCode());
+#endif
         }
     }
 }

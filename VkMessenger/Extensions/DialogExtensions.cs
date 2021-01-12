@@ -9,7 +9,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
     {
         public static async Task SetReadWithMessagesAndPublish(this Dialog dialog)
         {
-            if (dialog.UnreadCount != 0 || dialog.Messages.Any(m => !m.Read))
+            if (dialog.UnreadCount != 0)
             {
                 dialog.SetReadWithMessages();
 
