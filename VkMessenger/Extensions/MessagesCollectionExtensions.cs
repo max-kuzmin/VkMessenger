@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-#if DEBUG
-using ru.MaxKuzmin.VkMessenger.Loggers;
-#endif
 
 namespace ru.MaxKuzmin.VkMessenger.Extensions
 {
@@ -25,7 +22,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             if (newMessages.Any())
             {
                 collection.AddUpdate(newMessages, unreadCount);
-                _ = DurableCacheManager.SaveMessages(dialogId, collection);
+                _ = DurableCacheManager.SaveMessages(dialogId, collection).ConfigureAwait(false);
             }
         }
 
@@ -42,7 +39,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             if (newMessages.Any())
             {
                 collection.AddUpdate(newMessages, unreadCount);
-                _ = DurableCacheManager.SaveMessages(dialogId, collection);
+                _ = DurableCacheManager.SaveMessages(dialogId, collection).ConfigureAwait(false);
             }
         }
 
@@ -51,14 +48,8 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             IReadOnlyCollection<Message> newMessages,
             int unreadCount)
         {
-#if DEBUG
-            Logger.Debug("Try to lock Messages " + collection.GetHashCode());
-#endif
             lock (collection)
             {
-#if DEBUG
-                Logger.Debug("Locked Messages " + collection.GetHashCode());
-#endif
                 var newestExistingId = collection.First().ConversationMessageId;
                 var oldestExistingId = collection.Last().ConversationMessageId;
 
@@ -86,13 +77,9 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                 }
 
                 collection.AddRange(oldMessagesToAppend);
-
                 collection.PrependRange(newMessagesToPrepend);
+                collection.UpdateRead(unreadCount);
             }
-#if DEBUG
-            Logger.Debug("Unlocked Messages " + collection.GetHashCode());
-#endif
-            collection.UpdateRead(unreadCount);
         }
 
         /// <summary>
@@ -105,14 +92,8 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
 
         public static void UpdateRead(this ObservableCollection<Message> collection, int unreadCount)
         {
-#if DEBUG
-            Logger.Debug("Try to lock Messages " + collection.GetHashCode());
-#endif
             lock (collection) //To prevent enumeration exception
             {
-#if DEBUG
-                Logger.Debug("Locked Messages " + collection.GetHashCode());
-#endif
                 var leastUnread = unreadCount;
                 foreach (var message in collection)
                 {
@@ -127,9 +108,6 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     }
                 }
             }
-#if DEBUG
-            Logger.Debug("Unlocked Messages " + collection.GetHashCode());
-#endif
         }
     }
 }

@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-#if DEBUG
-using ru.MaxKuzmin.VkMessenger.Loggers;
-#endif
 
 namespace ru.MaxKuzmin.VkMessenger.Extensions
 {
@@ -52,14 +49,8 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             this ObservableCollection<Dialog> collection,
             IReadOnlyCollection<Dialog> newDialogs)
         {
-#if DEBUG
-            Logger.Debug("Try to lock Dialogs " + collection.GetHashCode());
-#endif
             lock (collection)
             {
-#if DEBUG
-                Logger.Debug("Locked Dialogs " + collection.GetHashCode());
-#endif
                 var dialogsToInsert = new List<Dialog>();
 
                 foreach (var newDialog in newDialogs)
@@ -88,9 +79,6 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
 
                 collection.PrependRange(dialogsToInsert);
             }
-#if DEBUG
-            Logger.Debug("Unlocked Dialogs " + collection.GetHashCode());
-#endif
         }
 
         /// <summary>
@@ -111,14 +99,8 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
         /// </summary>
         public static void SetOnline(this ObservableCollection<Dialog> collection, ISet<(int UserId, bool Status)> updates)
         {
-#if DEBUG
-            Logger.Debug("Try to lock Dialogs " + collection.GetHashCode());
-#endif
             lock (collection) //To prevent enumeration exception
             {
-#if DEBUG
-                Logger.Debug("Locked Dialogs " + collection.GetHashCode());
-#endif
                 foreach (var dialog in collection)
                 {
                     foreach (var (userId, status) in updates)
@@ -127,9 +109,6 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     }
                 }
             }
-#if DEBUG
-            Logger.Debug("Unlocked Dialogs " + collection.GetHashCode());
-#endif
         }
     }
 }
