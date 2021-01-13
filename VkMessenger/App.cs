@@ -15,13 +15,13 @@ namespace ru.MaxKuzmin.VkMessenger
 
         protected override void OnSleep()
         {
-            Task.Run(LongPollingClient.Stop);
+            LongPollingClient.Stop();
             base.OnSleep();
         }
 
         protected override void OnResume()
         {
-            Task.Run(LongPollingClient.Start);
+            _ = LongPollingClient.Start().ConfigureAwait(false);
             base.OnResume();
         }
     }

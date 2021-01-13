@@ -14,7 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 const string url = "https://vkmessenger.azurewebsites.net/api/crash";
 
                 using var client = new ProxiedWebClient();
-                await client.UploadStringTaskAsync(url, text);
+                await client.UploadStringTaskAsync(url, text).ConfigureAwait(false);
             }
             catch
             {

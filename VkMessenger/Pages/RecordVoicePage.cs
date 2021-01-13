@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Exceptions;
 using ru.MaxKuzmin.VkMessenger.Helpers;
@@ -158,17 +157,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             if (voiceMessageTempPath == null)
                 return;
-            _ = Task.Run(() =>
+            
+            try
             {
-                try
-                {
-                    File.Delete(voiceMessageTempPath);
-                }
-                catch
-                {
-                    // ignored
-                }
-            });
+                File.Delete(voiceMessageTempPath);
+            }
+            catch
+            {
+                // ignored
+            }
         }
     }
 }

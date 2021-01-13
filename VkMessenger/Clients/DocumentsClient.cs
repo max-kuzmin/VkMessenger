@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using ru.MaxKuzmin.VkMessenger.Dtos;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
@@ -15,15 +15,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
-                var uploadLinkResponse = await HttpHelpers.RetryIfEmptyResponse<JsonDto<UploadLinkResponseDto>>(
-                    () => GetUploadLinkJson("audio_message"), e => e?.response != null);
-                var uploadLink = uploadLinkResponse.response.upload_url;
+                var uploadLink = await GetUploadLink("audio_message");
 
                 var fileDescriptor = await UploadFileUsingLink(uploadLink, filePath);
 
-                var saveDocResponse = await HttpHelpers.RetryIfEmptyResponse<JsonDto<SaveDocResponseDto>>(
-                    () => SaveUploadedFileAsDoc(fileDescriptor), e => e?.response != null);
-                var id = saveDocResponse.response.audio_message!.id;
+                var id = await SaveUploadedFileAsDoc(fileDescriptor);
                 return id;
 
             }
@@ -34,63 +30,64 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        public static async Task<string> GetUploadLinkJson(string type)
+        private static async Task<Uri> GetUploadLink(string type)
         {
-            try
-            {
-                var url =
-                    "https://api.vk.com/method/docs.getUploadServer" +
-                    "?v=5.124" +
-                    "&type=" + type +
-                    "&access_token=" + Authorization.Token;
+            var url =
+                "https://api.vk.com/method/docs.getUploadServer" +
+                "?v=5.124" +
+                "&type=" + type +
+                "&access_token=" + Authorization.Token;
 
-                using var client = new ProxiedWebClient();
-                return await client.DownloadStringTaskAsync(url);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                throw;
-            }
+            using var client = new ProxiedWebClient();
+            var uploadLinkResponse = await HttpHelpers.RetryIfEmptyResponse<JsonDto<UploadLinkResponseDto>>(
+                () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+            return uploadLinkResponse.response.upload_url;
         }
 
-        public static async Task<string> UploadFileUsingLink(Uri link, string filePath)
+        private static async Task<string> UploadFileUsingLink(Uri link, string filePath)
         {
-            try
+            var fileData = await File.ReadAllBytesAsync(filePath).ConfigureAwait(false);
+            var fileName = Path.GetFileName(filePath);
+            var fileExt = Path.GetExtension(filePath);
+            var contentType = fileExt switch
             {
-                var fileData = await File.ReadAllBytesAsync(filePath);
-                var fileName = Path.GetFileName(filePath);
-                var fileExt = Path.GetExtension(filePath);
-                var contentType = fileExt switch
-                {
-                    ".3gp" => "video/3gpp",
-                    _ => throw new NotSupportedException("Content type is not supported")
-                };
+                ".3gp" => "video/3gpp",
+                _ => throw new NotSupportedException("Content type is not supported")
+            };
 
-                using var client = new ProxiedWebClient();
-                var json = await client.UploadMultipartAsync(fileData, fileName, contentType, link);
-                var deserialized = JsonConvert.DeserializeObject<UploadFileResponseDto>(json);
-                return deserialized.file;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e);
-                throw;
-            }
+            using var client = new ProxiedWebClient();
+            var deserialized = await HttpHelpers.RetryIfEmptyResponse<UploadFileResponseDto>(
+                () => client.UploadMultipartAsync(fileData, fileName, contentType, link), e => e?.file != null);
+            return deserialized.file;
         }
 
-        public static async Task<string> SaveUploadedFileAsDoc(string fileDesc)
+        private static async Task<long> SaveUploadedFileAsDoc(string fileDesc)
         {
-            try
-            {
-                var url =
+            var url =
                     "https://api.vk.com/method/docs.save" +
                     "?v=5.124" +
                     "&file=" + fileDesc +
                     "&access_token=" + Authorization.Token;
 
-                using var client = new ProxiedWebClient();
-                return await client.DownloadStringTaskAsync(url);
+            using var client = new ProxiedWebClient();
+            var saveDocResponse = await HttpHelpers.RetryIfEmptyResponse<JsonDto<SaveDocResponseDto>>(
+                () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+            return saveDocResponse.response.audio_message!.id;
+        }
+
+        public static async Task<string> DownloadDocumentToTempFile(Uri source)
+        {
+            try
+            {
+                var fileName = source.Segments.Last();
+                var tempFileName = Path.Combine(Path.GetTempPath(), fileName);
+                var client = new ProxiedWebClient();
+                if (!File.Exists(tempFileName))
+                {
+                    await client.DownloadFileTaskAsync(source, tempFileName).ConfigureAwait(false);
+                }
+
+                return tempFileName;
             }
             catch (Exception e)
             {

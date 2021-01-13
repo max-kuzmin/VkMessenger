@@ -64,9 +64,9 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         private static readonly BindableProperty ReadProperty =
             BindableProperty.Create(
                 nameof(Message.Read),
-                typeof(bool),
+                typeof(bool?),
                 typeof(MessageCell),
-                default(bool),
+                default(bool?),
                 propertyChanged: OnReadPropertyChanged);
 
         public static readonly BindableProperty VoiceMessageSourceProperty =

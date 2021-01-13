@@ -1,11 +1,9 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Loggers;
-using ru.MaxKuzmin.VkMessenger.Net;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Tizen.Native;
 using Xamarin.Forms.PlatformConfiguration.TizenSpecific;
@@ -160,14 +158,7 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
 
         private async Task<MediaPlayer> InitPlayer()
         {
-            var fileName = Source!.Segments.Last();
-            var tempFileName = Path.Combine(Path.GetTempPath(), fileName);
-
-            if (!File.Exists(tempFileName))
-            {
-                var client = new ProxiedWebClient();
-                await client.DownloadFileTaskAsync(Source!, tempFileName);
-            }
+            var tempFileName = await DocumentsClient.DownloadDocumentToTempFile(Source!);
 
             OnPauseAllPlayers += PauseThisPlayer;
 

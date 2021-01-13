@@ -14,7 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                 dialog.SetReadWithMessages();
 
                 await DialogsClient.MarkAsRead(dialog.Id);
-                _ = DurableCacheManager.SaveDialog(dialog);
+                _ = DurableCacheManager.SaveDialog(dialog).ConfigureAwait(false);
             }
         }
     }

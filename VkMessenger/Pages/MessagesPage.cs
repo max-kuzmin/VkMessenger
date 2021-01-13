@@ -57,19 +57,24 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             Content = verticalLayout;
 
             swipeLeftRecognizer.Command = new Command(OpenKeyboard);
-            swipeRightRecognizer.Command = new Command(OpenRecorder);
+            swipeRightRecognizer.Command = new Command(OnOpenRecorder);
             messagesListView.GestureRecognizers.Add(swipeLeftRecognizer);
             messagesListView.GestureRecognizers.Add(swipeRightRecognizer);
 
-            Appearing += InitFromApi;
+            Appearing += OnAppearing;
+        }
+
+        private async void OnAppearing(object s, EventArgs e)
+        {
+            await InitFromApi();
         }
 
         /// <summary>
         /// Called on start. If update unsuccessful show error popup and retry
         /// </summary>
-        private async void InitFromApi(object? s = null, EventArgs? e = null)
+        private async Task InitFromApi()
         {
-            Appearing -= InitFromApi;
+            Appearing -= OnAppearing;
 
             var refreshingPopup = dialog.Messages.Count > 1 ? null : new InformationPopup { Text = LocalizedStrings.LoadingMessages };
             refreshingPopup?.Show();
@@ -79,10 +84,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 await dialog.Messages.Update(dialog.Id, dialog.UnreadCount);
                 //Trim to batch size to prevent skipping new messages between cached and 20 loaded on init
                 dialog.Messages.Trim(Consts.BatchSize);
-                //messagesListView.ScrollIfExist(dialog.Messages.FirstOrDefault(), ScrollToPosition.Center);
 
                 messagesListView.ItemTapped += OnItemTapped;
-                messagesListView.ItemAppearing += LoadMoreMessages;
+                messagesListView.ItemAppearing += OnLoadMoreMessages;
                 popupEntryView.Completed += OnTextCompleted;
                 LongPollingClient.OnMessageUpdate += OnMessageUpdate;
                 LongPollingClient.OnFullReset += OnFullReset;
@@ -92,7 +96,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 new CustomPopup(
                         LocalizedStrings.MessagesNoInternetError,
                         LocalizedStrings.Retry,
-                        () => InitFromApi())
+                        async () => await InitFromApi())
                     .Show();
             }
             catch (InvalidSessionException)
@@ -131,7 +135,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void LoadMoreMessages(object sender, ItemVisibilityEventArgs e)
+        private async void OnLoadMoreMessages(object sender, ItemVisibilityEventArgs e)
         {
             var message = (Message)e.Item;
             if (dialog.Messages.Count >= Consts.BatchSize && dialog.Messages.All(i => i.Id >= message.Id))
@@ -155,8 +159,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (items.Any())
             {
                 await dialog.Messages.UpdateByIds(items, dialog.Id, dialog.UnreadCount);
-                // ReSharper disable once AssignmentIsFullyDiscarded
-                _ = Task.Run(() => new Feedback().Play(FeedbackType.Vibration, "Tap"));
+                new Feedback().Play(FeedbackType.Vibration, "Tap");
             }
         }
 
@@ -210,7 +213,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             popupEntryView.IsPopupOpened = true;
         }
 
-        private async void OpenRecorder()
+        private async void OnOpenRecorder()
         {
             _ = dialog.SetReadWithMessagesAndPublish();
             await Navigation.PushAsync(new RecordVoicePage(dialog));
@@ -219,7 +222,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         public void Dispose()
         {
             messagesListView.ItemTapped -= OnItemTapped;
-            messagesListView.ItemAppearing -= LoadMoreMessages;
+            messagesListView.ItemAppearing -= OnLoadMoreMessages;
             popupEntryView.Completed -= OnTextCompleted;
             LongPollingClient.OnMessageUpdate -= OnMessageUpdate;
             LongPollingClient.OnFullReset -= OnFullReset;
@@ -238,10 +241,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             return false;
         }
 
-        private void OnFullReset(object s, EventArgs e)
+        private async void OnFullReset(object s, EventArgs e)
         {
             Dispose();
-            InitFromApi();
+            await InitFromApi();
         }
     }
 }

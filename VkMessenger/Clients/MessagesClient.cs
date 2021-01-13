@@ -30,10 +30,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 Logger.Info($"Updating messages in dialog {dialogId}");
 #endif
 
-                var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<MessagesResponseDto>>(
-                    () => GetMessagesJson(dialogId, offset), e => e?.response != null);
-
-                var response = json.response;
+                var response = await GetMessagesJson(dialogId, offset);
                 var profiles = ProfilesClient.FromDtoArray(response.profiles);
                 var groups = GroupsClient.FromDtoArray(response.groups);
                 return FromDtoArray(response.items, profiles, groups);
@@ -53,10 +50,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 Logger.Info($"Updating messages {messagesIds.ToJson()}");
 #endif
 
-                var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<MessagesResponseDto>>(
-                    () => GetMessagesJsonByIds(messagesIds), e => e?.response != null);
-
-                var response = json.response;
+                var response = await GetMessagesJsonByIds(messagesIds);
                 var profiles = ProfilesClient.FromDtoArray(response.profiles);
                 var groups = GroupsClient.FromDtoArray(response.groups);
                 return FromDtoArray(response.items, profiles, groups);
@@ -192,7 +186,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private static async Task<string> GetMessagesJson(int dialogId, int? offset)
+        private static async Task<MessagesResponseDto> GetMessagesJson(int dialogId, int? offset)
         {
             var url =
                 "https://api.vk.com/method/messages.getHistory" +
@@ -203,12 +197,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&access_token=" + Authorization.Token;
 
             using var client = new ProxiedWebClient();
-            var json = await client.DownloadStringTaskAsync(url);
-#if DEBUG
-            Logger.Debug(json);
-#endif
-            ExceptionHelpers.ThrowIfInvalidSession(json);
-            return json;
+            var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<MessagesResponseDto>>(
+                () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+            return json.response;
         }
 
         public static async Task Send(int dialogId, string? text, string? voiceMessagePath)
@@ -238,10 +229,9 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 }
 
                 using var client = new ProxiedWebClient();
-                var json = await client.DownloadStringTaskAsync(url);
-#if DEBUG
-                Logger.Debug(json);
-#endif
+                await HttpHelpers.RetryIfEmptyResponse<JsonDto<long>>(
+                    () => client.DownloadStringTaskAsync(url),
+                    e => e?.response != null);
             }
             catch (Exception e)
             {
@@ -250,7 +240,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
-        private static async Task<string> GetMessagesJsonByIds(IReadOnlyCollection<int> messagesIds)
+        private static async Task<MessagesResponseDto> GetMessagesJsonByIds(IReadOnlyCollection<int> messagesIds)
         {
             var url =
                 "https://api.vk.com/method/messages.getById" +
@@ -260,12 +250,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&access_token=" + Authorization.Token;
 
             using var client = new ProxiedWebClient();
-            var json = await client.DownloadStringTaskAsync(url);
-#if DEBUG
-            Logger.Debug(json);
-#endif
-            ExceptionHelpers.ThrowIfInvalidSession(json);
-            return json;
+            var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<MessagesResponseDto>>(
+                () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+
+            return json.response;
         }
     }
 }

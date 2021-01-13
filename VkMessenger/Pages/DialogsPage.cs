@@ -36,17 +36,22 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             dialogsListView.ItemsSource = dialogs;
             Content = dialogsListView;
 
-            _ = dialogs.GetFromCache();
+            Appearing += OnAppearing;
+        }
 
-            Appearing += InitFromApi;
+        private async void OnAppearing(object s, EventArgs e)
+        {
+            await dialogs.GetFromCache();
+            dialogsListView.ScrollIfExist(dialogs.FirstOrDefault(), ScrollToPosition.Center);
+            await InitFromApi();
         }
 
         /// <summary>
         /// Called on start. If update unsuccessful show error popup and retry
         /// </summary>
-        private async void InitFromApi(object? sender = null, EventArgs? args = null)
+        private async Task InitFromApi()
         {
-            Appearing -= InitFromApi;
+            Appearing -= OnAppearing;
 
             var refreshingPopup = dialogs.Any() ? null : new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
             refreshingPopup?.Show();
@@ -56,7 +61,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 await dialogs.Update();
                 //Trim to batch size to prevent skipping new dialogs between cached and 20 loaded on init
                 dialogs.Trim(Consts.BatchSize);
-                //dialogsListView.ScrollIfExist(dialogs.FirstOrDefault(), ScrollToPosition.Center);
 
                 dialogsListView.ItemTapped += OnDialogTapped;
                 LongPollingClient.OnMessageUpdate += OnMessageUpdate;
@@ -69,7 +73,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 new CustomPopup(
                     LocalizedStrings.DialogsNoInternetError,
                     LocalizedStrings.Retry,
-                    () => InitFromApi())
+                    async () => await InitFromApi())
                     .Show();
             }
             catch (InvalidSessionException)
@@ -100,15 +104,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OnDialogUpdate(object s, DialogEventArgs e)
         {
             await dialogs.UpdateByIds(e.DialogIds.ToArray());
-            // ReSharper disable once AssignmentIsFullyDiscarded
-            _ = Task.Run(() => new Feedback().Play(FeedbackType.Vibration, "Tap"));
+            new Feedback().Play(FeedbackType.Vibration, "Tap");
         }
 
         private async void OnMessageUpdate(object s, MessageEventArgs e)
         {
             await dialogs.UpdateByIds(e.Data.Select(i => i.DialogId).ToArray());
-            // ReSharper disable once AssignmentIsFullyDiscarded
-            _ = Task.Run(() => new Feedback().Play(FeedbackType.Vibration, "Tap"));
+            new Feedback().Play(FeedbackType.Vibration, "Tap");
         }
 
         /// <summary>
@@ -140,10 +142,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             LongPollingClient.OnFullReset -= OnFullReset;
         }
 
-        private void OnFullReset(object s, EventArgs e)
+        private async void OnFullReset(object s, EventArgs e)
         {
             Dispose();
-            InitFromApi();
+            await InitFromApi();
         }
     }
 }

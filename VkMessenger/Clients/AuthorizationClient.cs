@@ -69,9 +69,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using var client = new ProxiedWebClient();
             var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<UserDto[]>>(
                 () => client.DownloadStringTaskAsync(url), e => e?.response != null);
-#if DEBUG
-            Logger.Debug(json.ToString());
-#endif
 
             Authorization.SetPhoto(json.response.First().photo_50);
         }

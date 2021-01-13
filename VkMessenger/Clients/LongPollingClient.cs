@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Dtos;
-using Xamarin.Forms;
 using Newtonsoft.Json.Linq;
 #if DEBUG
 using ru.MaxKuzmin.VkMessenger.Extensions;
@@ -38,9 +37,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             using var client = new ProxiedWebClient();
             var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<LongPollingInitResponseDto>>(
                 () => client.DownloadStringTaskAsync(url), e => e?.response != null);
-#if DEBUG
-            Logger.Debug(json.ToString());
-#endif
 
             var response = json.response;
 
@@ -63,9 +59,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             var json = await HttpHelpers.RetryIfEmptyResponse<LongPollingUpdatesJsonDto>(
                 () => client.DownloadStringTaskAsync(url), e => e != null);
-#if DEBUG
-            Logger.Debug(json.ToString());
-#endif
 
             return json;
         }
@@ -125,8 +118,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 #if DEBUG
                 Logger.Info("Messages update: " + messageEventArgs.Data.Select(i => i.MessageId).ToJson());
 #endif
-                Device.BeginInvokeOnMainThread(() =>
-                    OnMessageUpdate?.Invoke(null, messageEventArgs));
+                OnMessageUpdate?.Invoke(null, messageEventArgs);
             }
 
             if (dialogEventArgs.DialogIds.Any())
@@ -134,8 +126,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 #if DEBUG
                 Logger.Info("Dialogs update: " + dialogEventArgs.DialogIds.ToJson());
 #endif
-                Device.BeginInvokeOnMainThread(() =>
-                    OnDialogUpdate?.Invoke(null, dialogEventArgs));
+                OnDialogUpdate?.Invoke(null, dialogEventArgs);
             }
 
             if (userStatusEventArgs.Data.Any())
@@ -143,8 +134,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 #if DEBUG
                 Logger.Info("Online status changed for users: " + userStatusEventArgs.Data.Select(i => i.UserId).ToJson());
 #endif
-                Device.BeginInvokeOnMainThread(() =>
-                    OnUserStatusUpdate?.Invoke(null, userStatusEventArgs));
+                OnUserStatusUpdate?.Invoke(null, userStatusEventArgs);
             }
         }
 
@@ -219,8 +209,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             LongPolling.Ts = null;
 
-            Device.BeginInvokeOnMainThread(() =>
-                OnFullReset?.Invoke(null, null));
+            OnFullReset?.Invoke(null, null);
         }
     }
 }
