@@ -6,21 +6,18 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
 {
     public static class CollectionExtensions
     {
-        public static void Trim<T>(this ObservableCollection<T> collection, int batchSize)
+        public static void Trim<T>(this Collection<T> collection, int batchSize)
         {
             if (collection.Count <= batchSize)
                 return;
 
-            lock (collection)
+            while (collection.Count > batchSize)
             {
-                while (collection.Count > batchSize)
-                {
-                    collection.RemoveAt(collection.Count - 1);
-                }
+                collection.RemoveAt(collection.Count - 1);
             }
         }
 
-        public static void PrependRange<T>(this ObservableCollection<T> collection, IReadOnlyCollection<T> items)
+        public static void PrependRange<T>(this Collection<T> collection, IReadOnlyCollection<T> items)
         {
             if (!items.Any())
                 return;
@@ -31,7 +28,7 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
             }
         }
 
-        public static void AddRange<T>(this ObservableCollection<T> collection, IReadOnlyCollection<T> items)
+        public static void AddRange<T>(this Collection<T> collection, IReadOnlyCollection<T> items)
         {
             if (!items.Any())
                 return;

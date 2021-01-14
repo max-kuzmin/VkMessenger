@@ -118,7 +118,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             if (unreadCount > 0)
             {
                 cell.unreadCount.Text = $"({unreadCount})";
-                cell.View.BackgroundColor = CustomColors.DarkBlue;
+                cell.View.BackgroundColor = Consts.DarkBlue;
             }
             else
             {

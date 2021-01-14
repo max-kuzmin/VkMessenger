@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using Newtonsoft.Json;
-using ru.MaxKuzmin.VkMessenger.Extensions;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Models
@@ -14,10 +13,10 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     /// </summary>
     public class Dialog : INotifyPropertyChanged
     {
-        public ObservableCollection<Profile> Profiles { get; set; }
+        public IReadOnlyCollection<Profile> Profiles { get; set; }
         public Group? Group { get; set; }
         public Chat? Chat { get; set; }
-        public ObservableCollection<Message> Messages { get; set; }
+        public IReadOnlyCollection<Message> Messages { get; set; }
         public DialogType Type { get; set; }
         public int UnreadCount { get; set; }
         [JsonIgnore]
@@ -85,20 +84,14 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Chat = chat;
             UnreadCount = unreadCount;
 
-            Messages = new ObservableCollection<Message>(messages ?? Array.Empty<Message>());
-
-            Messages.CollectionChanged += (s, e) =>
+            var messagesCollection = new ObservableCollection<Message>(messages ?? Array.Empty<Message>());
+            messagesCollection.CollectionChanged += (s, e) =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
             };
+            Messages = messagesCollection;
 
             Profiles = new ObservableCollection<Profile>(profiles ?? Array.Empty<Profile>());
-        }
-
-        public void SetReadWithMessages()
-        {
-            Messages.UpdateRead(0);
-            SetUnreadCount(0);
         }
 
         public void SetUnreadCount(int unreadCount)

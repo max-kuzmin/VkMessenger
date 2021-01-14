@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Dtos;
 using ru.MaxKuzmin.VkMessenger.Loggers;
-using ru.MaxKuzmin.VkMessenger.Models;
+using ru.MaxKuzmin.VkMessenger.Managers;
 using ru.MaxKuzmin.VkMessenger.Net;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
@@ -36,7 +36,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "https://api.vk.com/method/docs.getUploadServer" +
                 "?v=5.124" +
                 "&type=" + type +
-                "&access_token=" + Authorization.Token;
+                "&access_token=" + AuthorizationManager.Token;
 
             using var client = new ProxiedWebClient();
             var uploadLinkResponse = await HttpHelpers.RetryIfEmptyResponse<JsonDto<UploadLinkResponseDto>>(
@@ -67,7 +67,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     "https://api.vk.com/method/docs.save" +
                     "?v=5.124" +
                     "&file=" + fileDesc +
-                    "&access_token=" + Authorization.Token;
+                    "&access_token=" + AuthorizationManager.Token;
 
             using var client = new ProxiedWebClient();
             var saveDocResponse = await HttpHelpers.RetryIfEmptyResponse<JsonDto<SaveDocResponseDto>>(

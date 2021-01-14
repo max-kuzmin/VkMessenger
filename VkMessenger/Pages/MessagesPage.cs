@@ -1,17 +1,14 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Cells;
 using ru.MaxKuzmin.VkMessenger.Clients;
-using ru.MaxKuzmin.VkMessenger.Events;
-using ru.MaxKuzmin.VkMessenger.Exceptions;
 using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Models;
-using ru.MaxKuzmin.VkMessenger.pages;
-using System;
+using System;   
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
+using ru.MaxKuzmin.VkMessenger.Helpers;
 using ru.MaxKuzmin.VkMessenger.Layouts;
-using Tizen.System;
+using ru.MaxKuzmin.VkMessenger.Managers;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -61,6 +58,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             messagesListView.GestureRecognizers.Add(swipeLeftRecognizer);
             messagesListView.GestureRecognizers.Add(swipeRightRecognizer);
 
+            messagesListView.ItemTapped += OnItemTapped;
+            messagesListView.ItemAppearing += OnLoadMoreMessages;
+            popupEntryView.Completed += OnTextCompleted;
+            LongPollingClient.OnFullReset += OnFullReset;
             Appearing += OnAppearing;
         }
 
@@ -79,41 +80,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var refreshingPopup = dialog.Messages.Count > 1 ? null : new InformationPopup { Text = LocalizedStrings.LoadingMessages };
             refreshingPopup?.Show();
 
-            try
-            {
-                await dialog.Messages.Update(dialog.Id, dialog.UnreadCount);
-                //Trim to batch size to prevent skipping new messages between cached and 20 loaded on init
-                dialog.Messages.Trim(Consts.BatchSize);
-
-                messagesListView.ItemTapped += OnItemTapped;
-                messagesListView.ItemAppearing += OnLoadMoreMessages;
-                popupEntryView.Completed += OnTextCompleted;
-                LongPollingClient.OnMessageUpdate += OnMessageUpdate;
-                LongPollingClient.OnFullReset += OnFullReset;
-            }
-            catch (WebException)
-            {
-                new CustomPopup(
-                        LocalizedStrings.MessagesNoInternetError,
-                        LocalizedStrings.Retry,
-                        async () => await InitFromApi())
-                    .Show();
-            }
-            catch (InvalidSessionException)
-            {
-                new CustomPopup(
-                        LocalizedStrings.InvalidSessionError,
-                        LocalizedStrings.Ok,
-                        AuthorizationClient.CleanUserAndExit)
-                    .Show();
-            }
-            catch (Exception ex)
-            {
-                new CustomPopup(
-                        ex.ToString(),
-                        LocalizedStrings.Ok)
-                    .Show();
-            }
+            await NetExceptionCatchHelpers.CatchNetException(
+                async () =>
+                {
+                    await MessagesManager.UpdateMessagesFromApi(dialog);
+                    //Trim to batch size to prevent skipping new messages between cached and 20 loaded on init
+                    MessagesManager.TrimMessages(dialog);
+                },
+                InitFromApi,
+                LocalizedStrings.MessagesNoInternetError,
+                true);
 
             refreshingPopup?.Dismiss();
         }
@@ -123,7 +99,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (popupEntryView.IsPopupOpened)
                 return;
 
-            _ = dialog.SetReadWithMessagesAndPublish();
+            _ = DialogsManager.SetDialogAndMessagesReadAndPublish(dialog);
 
             var message = (Message)e.Item;
             if (message.FullScreenAllowed)
@@ -140,26 +116,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var message = (Message)e.Item;
             if (dialog.Messages.Count >= Consts.BatchSize && dialog.Messages.All(i => i.Id >= message.Id))
             {
-                await dialog.Messages.Update(dialog.Id, dialog.UnreadCount, dialog.Messages.Count);
+                await MessagesManager.UpdateMessagesFromApi(dialog, dialog.Messages.Count);
                 messagesListView.ScrollIfExist(message, ScrollToPosition.Center);
-            }
-        }
-
-        /// <summary>
-        /// Update messages collection
-        /// </summary>
-        private async void OnMessageUpdate(object sender, MessageEventArgs args)
-        {
-            var items = args.Data
-                .Where(e => e.DialogId == dialog.Id)
-                .Select(e => e.MessageId)
-                .Reverse()
-                .ToArray();
-
-            if (items.Any())
-            {
-                await dialog.Messages.UpdateByIds(items, dialog.Id, dialog.UnreadCount);
-                new Feedback().Play(FeedbackType.Vibration, "Tap");
             }
         }
 
@@ -168,63 +126,41 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async void OnTextCompleted(object? sender = null, EventArgs? args = null)
         {
-            _ = dialog.SetReadWithMessagesAndPublish();
+            _ = DialogsManager.SetDialogAndMessagesReadAndPublish(dialog);
 
             var text = popupEntryView.Text;
             if (string.IsNullOrEmpty(text))
-            {
                 return;
-            }
 
-            try
-            {
-                await MessagesClient.Send(dialog.Id, text, null);
-                popupEntryView.Text = string.Empty;
-            }
-            catch (WebException)
-            {
-                new CustomPopup(
-                        LocalizedStrings.SendMessageNoInternetError,
-                        LocalizedStrings.Retry,
-                        () => OnTextCompleted())
-                    .Show();
-            }
-            catch (InvalidSessionException)
-            {
-                new CustomPopup(
-                        LocalizedStrings.InvalidSessionError,
-                        LocalizedStrings.Ok,
-                        AuthorizationClient.CleanUserAndExit)
-                    .Show();
-            }
-            catch (Exception ex)
-            {
-                new CustomPopup(
-                        ex.ToString(),
-                        LocalizedStrings.Ok,
-                        Application.Current.Quit)
-                    .Show();
-            }
+            await NetExceptionCatchHelpers.CatchNetException(
+                async () =>
+                {
+                    await MessagesClient.Send(dialog.Id, text, null);
+                    popupEntryView.Text = string.Empty;
+                },
+                () =>
+                {
+                 OnTextCompleted();
+                 return Task.CompletedTask;
+                },
+                LocalizedStrings.SendMessageNoInternetError,
+                false);
         }
 
         private void OpenKeyboard()
         {
-            _ = dialog.SetReadWithMessagesAndPublish();
+            _ = DialogsManager.SetDialogAndMessagesReadAndPublish(dialog);
             popupEntryView.IsPopupOpened = true;
         }
 
         private async void OnOpenRecorder()
         {
-            _ = dialog.SetReadWithMessagesAndPublish();
+            _ = DialogsManager.SetDialogAndMessagesReadAndPublish(dialog);
             await Navigation.PushAsync(new RecordVoicePage(dialog));
         }
 
         public void Dispose()
         {
-            messagesListView.ItemTapped -= OnItemTapped;
-            messagesListView.ItemAppearing -= OnLoadMoreMessages;
-            popupEntryView.Completed -= OnTextCompleted;
-            LongPollingClient.OnMessageUpdate -= OnMessageUpdate;
             LongPollingClient.OnFullReset -= OnFullReset;
         }
 
@@ -237,13 +173,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <inheritdoc />
         protected override bool OnBackButtonPressed()
         {
-            _ = dialog.SetReadWithMessagesAndPublish();
+            _ = DialogsManager.SetDialogAndMessagesReadAndPublish(dialog);
             return false;
         }
 
         private async void OnFullReset(object s, EventArgs e)
         {
-            Dispose();
             await InitFromApi();
         }
     }

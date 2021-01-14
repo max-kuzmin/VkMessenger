@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Exceptions;
 using ru.MaxKuzmin.VkMessenger.Helpers;
@@ -111,40 +112,23 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (voiceMessageTempPath == null)
                 return;
 
-            try
-            {
-                sendButton.IsEnabled = false;
-                await MessagesClient.Send(dialog.Id, null, voiceMessageTempPath);
-                DeleteTempFile();
-                await Navigation.PopAsync();
-            }
-            catch (WebException)
-            {
-                new CustomPopup(
-                        LocalizedStrings.SendMessageNoInternetError,
-                        LocalizedStrings.Ok,
-                        () => OnSendButtonPressed(sender, e))
-                    .Show();
-            }
-            catch (InvalidSessionException)
-            {
-                new CustomPopup(
-                        LocalizedStrings.InvalidSessionError,
-                        LocalizedStrings.Ok,
-                        AuthorizationClient.CleanUserAndExit)
-                    .Show();
-            }
-            catch (Exception ex)
-            {
-                new CustomPopup(
-                        ex.ToString(),
-                        LocalizedStrings.Ok)
-                    .Show();
-            }
-            finally
-            {
-                sendButton.IsEnabled = true;
-            }
+            await NetExceptionCatchHelpers.CatchNetException(
+                async () =>
+                {
+                    sendButton.IsEnabled = false;
+                    await MessagesClient.Send(dialog.Id, null, voiceMessageTempPath);
+                    DeleteTempFile();
+                    await Navigation.PopAsync();
+                },
+                () =>
+                {
+                    OnSendButtonPressed(sender, e);
+                    return Task.CompletedTask;
+                },
+                LocalizedStrings.SendMessageNoInternetError,
+                false);
+
+            sendButton.IsEnabled = true;
         }
 
         public void Dispose()
@@ -157,7 +141,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             if (voiceMessageTempPath == null)
                 return;
-            
+
             try
             {
                 File.Delete(voiceMessageTempPath);

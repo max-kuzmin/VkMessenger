@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Dtos;
+using ru.MaxKuzmin.VkMessenger.Managers;
 using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
@@ -158,7 +159,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "https://api.vk.com/method/messages.getConversations" +
                 "?v=5.124" +
                 "&extended=1" +
-                "&access_token=" + Authorization.Token;
+                "&access_token=" + AuthorizationManager.Token;
 
             using var client = new ProxiedWebClient();
             var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<DialogsResponseDto>>(
@@ -175,7 +176,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     "https://api.vk.com/method/messages.markAsRead" +
                     "?v=5.124" +
                     "&peer_id=" + dialogId +
-                    "&access_token=" + Authorization.Token;
+                    "&access_token=" + AuthorizationManager.Token;
 
                 using var client = new ProxiedWebClient();
                 var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<int>>(
@@ -197,7 +198,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "?v=5.124" +
                 "&extended=1" +
                 "&peer_ids=" + dialogIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
-                "&access_token=" + Authorization.Token;
+                "&access_token=" + AuthorizationManager.Token;
 
             using var client = new ProxiedWebClient();
             var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<DialogsByIdsResponseDto>>(

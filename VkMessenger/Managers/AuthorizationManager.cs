@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Threading.Tasks;
+using ru.MaxKuzmin.VkMessenger.Clients;
 using Tizen.Applications;
 using Xamarin.Forms;
+using Application = Xamarin.Forms.Application;
 
-namespace ru.MaxKuzmin.VkMessenger.Models
+namespace ru.MaxKuzmin.VkMessenger.Managers
 {
-    public static class Authorization
+    public static class AuthorizationManager
     {
-        public const int ClientId = 6872680;
-
         private const string TokenKey = "Token2";
         private const string UserIdKey = "UserId";
         private const string PhotoKey = "Photo";
@@ -24,7 +25,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                     token = Preference.Contains(TokenKey) ? Preference.Get<string>(TokenKey) : null;
                 return token;
             }
-            set
+            private set
             {
                 if (value != null)
                 {
@@ -46,7 +47,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                     userId = Preference.Contains(UserIdKey) ? Preference.Get<int>(UserIdKey) : 0;
                 return userId;
             }
-            set
+            private set
             {
                 Preference.Set(UserIdKey, value);
                 userId = value;
@@ -63,7 +64,28 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
         }
 
-        public static void SetPhoto(Uri url)
+        public static async Task<bool> AuthorizeFromUrl(string url)
+        {
+            var result = AuthorizationClient.SetUserFromUrl(url);
+            if (result.HasValue)
+            {
+                Token = result.Value.Token;
+                UserId = result.Value.UserId;
+
+                var photoUrl = await AuthorizationClient.GetPhoto(Token, UserId);
+                SetPhoto(photoUrl);
+            }
+
+            return result.HasValue;
+        }
+
+        public static void CleanUserAndExit()
+        {
+            Token = null;
+            Application.Current.Quit();
+        }
+
+        private static void SetPhoto(Uri url)
         {
             Preference.Set(PhotoKey, url.ToString());
             photoSource = ImageSource.FromUri(url);

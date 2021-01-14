@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Dtos;
+using ru.MaxKuzmin.VkMessenger.Managers;
 using Group = ru.MaxKuzmin.VkMessenger.Models.Group;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
@@ -194,7 +195,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&extended=1" +
                 "&offset=" + (offset ?? 0) +
                 "&peer_id=" + dialogId +
-                "&access_token=" + Authorization.Token;
+                "&access_token=" + AuthorizationManager.Token;
 
             using var client = new ProxiedWebClient();
             var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<MessagesResponseDto>>(
@@ -210,7 +211,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     "https://api.vk.com/method/messages.send" +
                     "?v=5.124" +
                     "&peer_id=" + dialogId +
-                    "&access_token=" + Authorization.Token;
+                    "&access_token=" + AuthorizationManager.Token;
 
                 if (text != null)
                 {
@@ -220,7 +221,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 else if (voiceMessagePath != null)
                 {
                     var id = await DocumentsClient.UploadAudioFile(voiceMessagePath);
-                    url += "&attachment=audio_message" + Authorization.UserId + "_" + id;
+                    url += "&attachment=audio_message" + AuthorizationManager.UserId + "_" + id;
                     url += "&random_id=" + BitConverter.ToInt32(Md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(voiceMessagePath)), 0);
                 }
                 else
@@ -247,7 +248,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "?v=5.124" +
                 "&extended=1" +
                 "&message_ids=" + messagesIds.Aggregate(string.Empty, (seed, item) => seed + "," + item).Substring(1) +
-                "&access_token=" + Authorization.Token;
+                "&access_token=" + AuthorizationManager.Token;
 
             using var client = new ProxiedWebClient();
             var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<MessagesResponseDto>>(

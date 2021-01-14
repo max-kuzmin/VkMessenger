@@ -47,15 +47,14 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 else if (Profile != null)
                     return Profile.Id;
                 else
-                    return Authorization.UserId;
+                    return 0;
             }
         }
 
         [JsonIgnore]
         public ImageSource? Photo =>
             Profile?.Photo ??
-            Group?.Photo ??
-            Authorization.Photo;
+            Group?.Photo;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using ru.MaxKuzmin.VkMessenger.Clients;
-using ru.MaxKuzmin.VkMessenger.Models;
+using ru.MaxKuzmin.VkMessenger.Managers;
 #if DEBUG
 using Tizen;
 #endif
@@ -32,7 +32,7 @@ namespace ru.MaxKuzmin.VkMessenger.Loggers
 #if DEBUG
             Log.Error(Tag, e.ToString(), file, caller, line);
 #endif
-            _ = CrashReporterClient.SendAsync($"{e}\nAppVersion: {Version}\nUserId: {Authorization.UserId}");
+            _ = CrashReporterClient.SendAsync($"{e}\nAppVersion: {Version}\nUserId: {AuthorizationManager.UserId}");
         }
 
         public static void ErrorAndAwait(object e, [CallerFilePath] string? file = null, [CallerMemberName] string? caller = null, [CallerLineNumber] int line = 0)
@@ -40,7 +40,7 @@ namespace ru.MaxKuzmin.VkMessenger.Loggers
 #if DEBUG
             Log.Error(Tag, e.ToString(), file, caller, line);
 #endif
-            CrashReporterClient.Send($"{e}\nAppVersion: {Version}\nUserId: {Authorization.UserId}");
+            CrashReporterClient.Send($"{e}\nAppVersion: {Version}\nUserId: {AuthorizationManager.UserId}");
         }
     }
 }

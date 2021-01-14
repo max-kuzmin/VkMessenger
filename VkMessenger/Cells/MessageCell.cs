@@ -1,6 +1,7 @@
 ﻿using System;
 using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Layouts;
+using ru.MaxKuzmin.VkMessenger.Managers;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Xamarin.Forms;
 
@@ -92,7 +93,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             wrapperLayout.Children.Add(text);
             outerLayout.Children.Add(wrapperLayout);
             View = outerLayout;
-            View.BackgroundColor = CustomColors.DarkBlue;
+            View.BackgroundColor = Consts.DarkBlue;
         }
 
         private static void OnSenderIdPropertyChanged(BindableObject bindable, object oldValue, object newValue)
@@ -100,7 +101,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             if (bindable is MessageCell cell && newValue is int value)
             {
                 cell.senderId = value;
-                if (cell.senderId != Authorization.UserId)
+                if (cell.senderId != AuthorizationManager.UserId)
                 {
                     cell.wrapperLayout.LowerChild(cell.photoWrapperLayout);
                     cell.text.HorizontalTextAlignment = TextAlignment.Start;
@@ -117,7 +118,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
         {
             if (bindable is MessageCell cell && newValue is bool value)
             {
-                cell.View.BackgroundColor = value ? Color.Black : CustomColors.DarkBlue;
+                cell.View.BackgroundColor = value ? Color.Black : Consts.DarkBlue;
             }
         }
 
@@ -131,7 +132,7 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 layout.wrapperLayout.Children.Add(layout.audioLayout);
                 layout.wrapperLayout.Children.Remove(layout.text);
 
-                if (layout.senderId != Authorization.UserId)
+                if (layout.senderId != AuthorizationManager.UserId)
                 {
                     layout.wrapperLayout.LowerChild(layout.audioLayout);
                     layout.wrapperLayout.LowerChild(layout.photoWrapperLayout);

@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using ru.MaxKuzmin.VkMessenger.Clients;
+﻿using ru.MaxKuzmin.VkMessenger.Managers;
 using ru.MaxKuzmin.VkMessenger.Pages;
 using Xamarin.Forms;
 
@@ -15,13 +14,13 @@ namespace ru.MaxKuzmin.VkMessenger
 
         protected override void OnSleep()
         {
-            LongPollingClient.Stop();
+            LongPollingManager.Stop();
             base.OnSleep();
         }
 
         protected override void OnResume()
         {
-            _ = LongPollingClient.Start().ConfigureAwait(false);
+            _ = LongPollingManager.Start().ConfigureAwait(false);
             base.OnResume();
         }
     }

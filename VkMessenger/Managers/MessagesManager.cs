@@ -1,53 +1,43 @@
-﻿using ru.MaxKuzmin.VkMessenger.Clients;
-using ru.MaxKuzmin.VkMessenger.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using ru.MaxKuzmin.VkMessenger.Clients;
+using ru.MaxKuzmin.VkMessenger.Extensions;
+using ru.MaxKuzmin.VkMessenger.Models;
 
-namespace ru.MaxKuzmin.VkMessenger.Extensions
+namespace ru.MaxKuzmin.VkMessenger.Managers
 {
-    public static class MessagesCollectionExtensions
+    public static class MessagesManager
     {
-        /// <summary>
-        /// Update messages from API. Can be used during setup of page or with <see cref="LongPolling"/>
-        /// </summary>
-        public static async Task Update(
-            this ObservableCollection<Message> collection,
-            int dialogId,
-            int unreadCount,
-            int? offset = null)
+        public static async Task UpdateMessagesFromApi(Dialog dialog, int? offset = null)
         {
-            var newMessages = await MessagesClient.GetMessages(dialogId, offset);
+            var collection = dialog.Messages;
+            var newMessages = await MessagesClient.GetMessages(dialog.Id, offset);
             if (newMessages.Any())
             {
-                collection.AddUpdate(newMessages, unreadCount);
-                _ = DurableCacheManager.SaveMessages(dialogId, collection).ConfigureAwait(false);
+                AddUpdateMessagesInCollection(dialog, newMessages, dialog.UnreadCount);
+                _ = DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
             }
         }
 
-        /// <summary>
-        /// Update messages from API. Can be used during setup of page or with <see cref="LongPolling"/>
-        /// </summary>
-        public static async Task UpdateByIds(
-            this ObservableCollection<Message> collection,
-            IReadOnlyCollection<int> messagesIds,
-            int dialogId,
-            int unreadCount)
+        public static async Task UpdateMessagesFromApiByIds(Dialog dialog, IReadOnlyCollection<int> messagesIds)
         {
+            var collection = dialog.Messages;
             var newMessages = await MessagesClient.GetMessagesByIds(messagesIds);
             if (newMessages.Any())
             {
-                collection.AddUpdate(newMessages, unreadCount);
-                _ = DurableCacheManager.SaveMessages(dialogId, collection).ConfigureAwait(false);
+                AddUpdateMessagesInCollection(dialog, newMessages, dialog.UnreadCount);
+                _ = DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
             }
         }
 
-        public static void AddUpdate(
-            this ObservableCollection<Message> collection,
-            IReadOnlyCollection<Message> newMessages,
-            int unreadCount)
+        public static void AddUpdateMessagesInCollection(Dialog dialog, IReadOnlyCollection<Message> newMessages, int unreadCount)
         {
+            var collection = dialog.Messages as Collection<Message>;
+            if (collection == null)
+                return;
+
             lock (collection)
             {
                 var newestExistingId = collection.First().ConversationMessageId;
@@ -78,27 +68,20 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
 
                 collection.AddRange(oldMessagesToAppend);
                 collection.PrependRange(newMessagesToPrepend);
-                collection.UpdateRead(unreadCount);
+                UpdateMessagesRead(dialog, unreadCount);
             }
         }
 
-        /// <summary>
-        /// Update message data without recreating it
-        /// </summary>
-        private static void UpdateMessage(Message newMessage, Message foundMessage)
+        public static void UpdateMessagesRead(Dialog dialog, int unreadCount)
         {
-            foundMessage.SetText(newMessage.Text);
-        }
-
-        public static void UpdateRead(this ObservableCollection<Message> collection, int unreadCount)
-        {
+            var collection = dialog.Messages;
             lock (collection) //To prevent enumeration exception
             {
                 var leastUnread = unreadCount;
                 foreach (var message in collection)
                 {
                     // If it's current user message or there are must be more unread messages in dialog
-                    if (message.SenderId == Authorization.UserId || leastUnread == 0)
+                    if (message.SenderId == AuthorizationManager.UserId || leastUnread == 0)
                         message.SetRead(true);
                     // If message hasn't Read property set to true
                     else if (message.Read != true)
@@ -108,6 +91,26 @@ namespace ru.MaxKuzmin.VkMessenger.Extensions
                     }
                 }
             }
+        }
+
+        public static void TrimMessages(Dialog dialog)
+        {
+            var collection = dialog.Messages as Collection<Message>;
+            if (collection == null)
+                return;
+
+            lock (collection)
+            {
+                collection.Trim(Consts.BatchSize);
+            }
+        }
+
+        /// <summary>
+        /// Update message data without recreating it
+        /// </summary>
+        private static void UpdateMessage(Message newMessage, Message foundMessage)
+        {
+            foundMessage.SetText(newMessage.Text);
         }
     }
 }

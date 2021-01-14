@@ -8,7 +8,7 @@ using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
 using Tizen.Applications;
 
-namespace ru.MaxKuzmin.VkMessenger
+namespace ru.MaxKuzmin.VkMessenger.Managers
 {
     public static class DurableCacheManager
     {

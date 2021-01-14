@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ru.MaxKuzmin.VkMessenger.Exceptions;
-using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 
 namespace ru.MaxKuzmin.VkMessenger.Net
@@ -25,7 +24,7 @@ namespace ru.MaxKuzmin.VkMessenger.Net
 #if DEBUG
                     Logger.Debug(json, file, caller, line);
 #endif
-                    ExceptionHelpers.ThrowIfInvalidSession(json);
+                    ThrowIfInvalidSession(json);
 
                     var dto = JsonConvert.DeserializeObject<T>(json);
                     if (dto != null && condition(dto))
@@ -37,6 +36,14 @@ namespace ru.MaxKuzmin.VkMessenger.Net
 
             Logger.Error(typeof(T).Name + " is null. Response: " + (json ?? string.Empty));
             throw new EmptyHttpResponseException();
+        }
+
+        private static void ThrowIfInvalidSession(string? response)
+        {
+            if (response?.Contains("invalid session") == true)
+            {
+                throw new InvalidSessionException();
+            }
         }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using FFImageLoading.Forms;
-using ru.MaxKuzmin.VkMessenger.Models;
 using ru.MaxKuzmin.VkMessenger.Localization;
+using ru.MaxKuzmin.VkMessenger.Models;
 using Tizen.Applications;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
-namespace ru.MaxKuzmin.VkMessenger.pages
+namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class MessagePage : BezelInteractionPage
     {
@@ -33,7 +33,7 @@ namespace ru.MaxKuzmin.VkMessenger.pages
             HorizontalTextAlignment = TextAlignment.Center,
             VerticalTextAlignment = TextAlignment.Center,
             Margin = new Thickness(30, 10, 30, 0),
-            TextColor = CustomColors.BrightBlue,
+            TextColor = Consts.BrightBlue,
             TextDecorations = TextDecorations.Underline,
             Text = text
         };

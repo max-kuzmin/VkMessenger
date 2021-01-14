@@ -1,5 +1,6 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Localization;
+using ru.MaxKuzmin.VkMessenger.Managers;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 
@@ -68,7 +69,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
              ");
 
             var url = ((UrlWebViewSource)loginWebView.Source).Url;
-            if (await AuthorizationClient.SetUserFromUrl(url))
+
+            if (await AuthorizationManager.AuthorizeFromUrl(url))
             {
                 loginWebView.Navigated -= OnNavigated;
                 Navigation.InsertPageBefore(new DialogsPage(), Navigation.NavigationStack[0]);
