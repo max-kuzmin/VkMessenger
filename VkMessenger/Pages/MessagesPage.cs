@@ -14,10 +14,12 @@ using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    public class MessagesPage : BezelInteractionPage, IDisposable
+    public class MessagesPage : BezelInteractionPage, IResettable
     {
         private readonly StackLayout verticalLayout = new StackLayout();
-        private readonly Dialog dialog;
+        private readonly int dialogId;
+        private readonly MessagesManager messagesManager;
+        private readonly DialogsManager dialogsManager;
 
         private readonly SwipeGestureRecognizer swipeLeftRecognizer = new SwipeGestureRecognizer
         {
@@ -42,13 +44,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             IsVisible = false
         };
 
-        public MessagesPage(Dialog dialog)
+        public MessagesPage(int dialogId, MessagesManager messagesManager, DialogsManager dialogsManager, bool isInitRequired)
         {
-            this.dialog = dialog;
+            this.dialogId = dialogId;
+            this.messagesManager = messagesManager;
+            this.dialogsManager = dialogsManager;
 
             NavigationPage.SetHasNavigationBar(this, false);
             SetBinding(RotaryFocusObjectProperty, new Binding { Source = messagesListView });
-            messagesListView.ItemsSource = this.dialog.Messages;
+            messagesListView.ItemsSource = messagesManager.GetMessages(dialogId);
             verticalLayout.Children.Add(messagesListView);
             verticalLayout.Children.Add(popupEntryView);
             Content = verticalLayout;
@@ -61,8 +65,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             messagesListView.ItemTapped += OnItemTapped;
             messagesListView.ItemAppearing += OnLoadMoreMessages;
             popupEntryView.Completed += OnTextCompleted;
-            LongPollingClient.OnFullReset += OnFullReset;
-            Appearing += OnAppearing;
+
+            if (isInitRequired)
+                Appearing += OnAppearing;
         }
 
         private async void OnAppearing(object s, EventArgs e)
@@ -77,15 +82,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             Appearing -= OnAppearing;
 
-            var refreshingPopup = dialog.Messages.Count > 1 ? null : new InformationPopup { Text = LocalizedStrings.LoadingMessages };
+            var messagesCount = messagesManager.GetMessages(dialogId).Count;
+            var refreshingPopup = messagesCount > 1 ? null : new InformationPopup { Text = LocalizedStrings.LoadingMessages };
             refreshingPopup?.Show();
 
             await NetExceptionCatchHelpers.CatchNetException(
                 async () =>
                 {
-                    await MessagesManager.UpdateMessagesFromApi(dialog);
+                    await messagesManager.UpdateMessagesFromApi(dialogId);
                     //Trim to batch size to prevent skipping new messages between cached and 20 loaded on init
-                    MessagesManager.TrimMessages(dialog);
+                    messagesManager.TrimMessages(dialogId);
                 },
                 InitFromApi,
                 LocalizedStrings.MessagesNoInternetError,
@@ -99,7 +105,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (popupEntryView.IsPopupOpened)
                 return;
 
-            _ = DialogsManager.SetDialogAndMessagesReadAndPublish(dialog);
+            _ = dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
 
             var message = (Message)e.Item;
             if (message.FullScreenAllowed)
@@ -114,9 +120,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OnLoadMoreMessages(object sender, ItemVisibilityEventArgs e)
         {
             var message = (Message)e.Item;
-            if (dialog.Messages.Count >= Consts.BatchSize && dialog.Messages.All(i => i.Id >= message.Id))
+            var messages = this.messagesManager.GetMessages(dialogId);
+            if (messages.Count >= Consts.BatchSize && messages.All(i => i.Id >= message.Id))
             {
-                await MessagesManager.UpdateMessagesFromApi(dialog, dialog.Messages.Count);
+                await messagesManager.UpdateMessagesFromApi(dialogId, messages.Count);
                 messagesListView.ScrollIfExist(message, ScrollToPosition.Center);
             }
         }
@@ -126,7 +133,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async void OnTextCompleted(object? sender = null, EventArgs? args = null)
         {
-            _ = DialogsManager.SetDialogAndMessagesReadAndPublish(dialog);
+            _ = dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
 
             var text = popupEntryView.Text;
             if (string.IsNullOrEmpty(text))
@@ -135,7 +142,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             await NetExceptionCatchHelpers.CatchNetException(
                 async () =>
                 {
-                    await MessagesClient.Send(dialog.Id, text, null);
+                    await MessagesClient.Send(dialogId, text, null);
                     popupEntryView.Text = string.Empty;
                 },
                 () =>
@@ -149,19 +156,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private void OpenKeyboard()
         {
-            _ = DialogsManager.SetDialogAndMessagesReadAndPublish(dialog);
+            _ = dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
             popupEntryView.IsPopupOpened = true;
         }
 
         private async void OnOpenRecorder()
         {
-            _ = DialogsManager.SetDialogAndMessagesReadAndPublish(dialog);
-            await Navigation.PushAsync(new RecordVoicePage(dialog));
-        }
-
-        public void Dispose()
-        {
-            LongPollingClient.OnFullReset -= OnFullReset;
+            _ = dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
+            await Navigation.PushAsync(new RecordVoicePage(dialogId));
         }
 
         protected override void OnDisappearing()
@@ -173,11 +175,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <inheritdoc />
         protected override bool OnBackButtonPressed()
         {
-            _ = DialogsManager.SetDialogAndMessagesReadAndPublish(dialog);
+            _ = dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
             return false;
         }
 
-        private async void OnFullReset(object s, EventArgs e)
+        public async Task Reset()
         {
             await InitFromApi();
         }

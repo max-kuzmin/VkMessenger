@@ -1,4 +1,6 @@
-﻿using ru.MaxKuzmin.VkMessenger.Managers;
+﻿using System.Collections.ObjectModel;
+using ru.MaxKuzmin.VkMessenger.Managers;
+using ru.MaxKuzmin.VkMessenger.Models;
 using ru.MaxKuzmin.VkMessenger.Pages;
 using Xamarin.Forms;
 
@@ -6,21 +8,29 @@ namespace ru.MaxKuzmin.VkMessenger
 {
     public class App : Application
     {
-        protected override void OnStart()
+        private readonly ObservableCollection<Dialog> collection;
+        private readonly LongPollingManager longPollingManager;
+        private readonly DialogsManager dialogsManager;
+        private readonly MessagesManager messagesManager;
+
+        public App()
         {
-            MainPage = new NavigationMainPage();
-            base.OnStart();
+            collection = new ObservableCollection<Dialog>();
+            messagesManager = new MessagesManager(collection);
+            dialogsManager = new DialogsManager(collection, messagesManager);
+            longPollingManager = new LongPollingManager(dialogsManager, messagesManager, NavigationProxy);
+            MainPage = new NavigationMainPage(dialogsManager, messagesManager);
         }
 
         protected override void OnSleep()
         {
-            LongPollingManager.Stop();
+            longPollingManager.Stop();
             base.OnSleep();
         }
 
         protected override void OnResume()
         {
-            _ = LongPollingManager.Start().ConfigureAwait(false);
+            _ = longPollingManager.Start().ConfigureAwait(false);
             base.OnResume();
         }
     }

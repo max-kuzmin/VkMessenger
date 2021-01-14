@@ -8,20 +8,27 @@ using ru.MaxKuzmin.VkMessenger.Models;
 
 namespace ru.MaxKuzmin.VkMessenger.Managers
 {
-    public static class DialogsManager
+    public class DialogsManager
     {
-        private static readonly ObservableCollection<Dialog> collection = new ObservableCollection<Dialog>();
+        private readonly ObservableCollection<Dialog> collection;
+        private readonly MessagesManager messagesManager;
 
-        public static IReadOnlyCollection<Dialog> Collection => collection;
+        public IReadOnlyCollection<Dialog> Collection => collection;
 
-        public static async Task UpdateDialogsFromCache()
+        public DialogsManager(ObservableCollection<Dialog> collection, MessagesManager messagesManager)
+        {
+            this.collection = collection;
+            this.messagesManager = messagesManager;
+        }
+
+        public async Task UpdateDialogsFromCache()
         {
             var cached = await DurableCacheManager.GetDialogs();
             if (cached != null)
                 AddUpdateDialogsInCollection(cached);
         }
 
-        public static async Task UpdateDialogsFromApi()
+        public async Task UpdateDialogsFromApi()
         {
             var newDialogs = await DialogsClient.GetDialogs();
             if (newDialogs.Any())
@@ -31,7 +38,10 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        public static async Task UpdateDialogsFromApiByIds(IReadOnlyCollection<int> dialogIds)
+        /// <summary>
+        /// Returns updated messages ids
+        /// </summary>
+        public async Task<int[]> UpdateDialogsFromApiByIds(IReadOnlyCollection<int> dialogIds)
         {
             var newDialogs = await DialogsClient.GetDialogsByIds(dialogIds);
             if (newDialogs.Any())
@@ -39,12 +49,14 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 AddUpdateDialogsInCollection(newDialogs);
                 _ = DurableCacheManager.SaveDialogs(collection);
             }
+
+            return newDialogs.SelectMany(e => e.Messages.Select(m => m.Id)).Distinct().ToArray();
         }
 
         /// <summary>
         /// Update user status in every dialog
         /// </summary>
-        public static void SetDialogsOnline(IReadOnlyCollection<(int UserId, bool Status)> updates)
+        public void SetDialogsOnline(IReadOnlyCollection<(int UserId, bool Status)> updates)
         {
             lock (collection) //To prevent enumeration exception
             {
@@ -58,7 +70,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        public static void TrimDialogs()
+        public void TrimDialogs()
         {
             lock (collection)
             {
@@ -66,24 +78,43 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        public static void SetDialogAndMessagesRead(Dialog dialog)
+        public void SetDialogAndMessagesRead(int dialogId)
         {
-            MessagesManager.UpdateMessagesRead(dialog, 0);
+            var dialog = collection.FirstOrDefault(e => e.Id == dialogId);
+            if (dialog == null)
+                return;
+
+            messagesManager.UpdateMessagesRead(dialogId, 0);
             dialog.SetUnreadCount(0);
         }
 
-        public static async Task SetDialogAndMessagesReadAndPublish(Dialog dialog)
+        public async Task SetDialogAndMessagesReadAndPublish(int dialogId)
         {
+            var dialog = collection.FirstOrDefault(e => e.Id == dialogId);
+            if (dialog == null)
+                return;
+
             if (dialog.UnreadCount != 0)
             {
-                SetDialogAndMessagesRead(dialog);
+                SetDialogAndMessagesRead(dialogId);
 
                 await DialogsClient.MarkAsRead(dialog.Id);
                 await DurableCacheManager.SaveDialog(dialog).ConfigureAwait(false);
             }
         }
 
-        private static void AddUpdateDialogsInCollection(IReadOnlyCollection<Dialog> newDialogs)
+        public void SetAllDialogsInitRequired()
+        {
+            lock (collection)
+            {
+                foreach (var dialog in collection)
+                {
+                    dialog.IsInitRequired = true;
+                }
+            }
+        }
+
+        private void AddUpdateDialogsInCollection(IReadOnlyCollection<Dialog> newDialogs)
         {
             lock (collection)
             {
@@ -120,13 +151,13 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         /// <summary>
         /// Update dialog data without recreating it
         /// </summary>
-        private static void UpdateDialog(Dialog newDialog, Dialog foundDialog)
+        private void UpdateDialog(Dialog newDialog, Dialog foundDialog)
         {
             foreach (var newProfile in newDialog.Profiles)
             {
                 foundDialog.SetOnline(newProfile.Id, newDialog.Online);
             }
-            MessagesManager.AddUpdateMessagesInCollection(foundDialog, newDialog.Messages, newDialog.UnreadCount);
+            messagesManager.AddUpdateMessagesInCollection(foundDialog.Id, newDialog.Messages, newDialog.UnreadCount);
             foundDialog.SetUnreadCount(newDialog.UnreadCount);
         }
     }

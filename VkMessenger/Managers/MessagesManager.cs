@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,32 +9,54 @@ using ru.MaxKuzmin.VkMessenger.Models;
 
 namespace ru.MaxKuzmin.VkMessenger.Managers
 {
-    public static class MessagesManager
+    public class MessagesManager
     {
-        public static async Task UpdateMessagesFromApi(Dialog dialog, int? offset = null)
+        private readonly IReadOnlyCollection<Dialog> dialogsCollection;
+
+        public IReadOnlyCollection<Message> GetMessages(int dialogId) =>
+            dialogsCollection.FirstOrDefault(e => e.Id == dialogId)?.Messages ?? Array.Empty<Message>();
+
+        public MessagesManager(IReadOnlyCollection<Dialog> dialogsCollection)
         {
+            this.dialogsCollection = dialogsCollection;
+        }
+
+        public async Task UpdateMessagesFromApi(int dialogId, int? offset = null)
+        {
+            var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
+            if (dialog == null)
+                return;
+
             var collection = dialog.Messages;
             var newMessages = await MessagesClient.GetMessages(dialog.Id, offset);
             if (newMessages.Any())
             {
-                AddUpdateMessagesInCollection(dialog, newMessages, dialog.UnreadCount);
+                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount);
                 _ = DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
             }
         }
 
-        public static async Task UpdateMessagesFromApiByIds(Dialog dialog, IReadOnlyCollection<int> messagesIds)
+        public async Task UpdateMessagesFromApiByIds(int dialogId, IReadOnlyCollection<int> messagesIds)
         {
+            var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
+            if (dialog == null)
+                return;
+
             var collection = dialog.Messages;
             var newMessages = await MessagesClient.GetMessagesByIds(messagesIds);
             if (newMessages.Any())
             {
-                AddUpdateMessagesInCollection(dialog, newMessages, dialog.UnreadCount);
+                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount);
                 _ = DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
             }
         }
 
-        public static void AddUpdateMessagesInCollection(Dialog dialog, IReadOnlyCollection<Message> newMessages, int unreadCount)
+        public void AddUpdateMessagesInCollection(int dialogId, IReadOnlyCollection<Message> newMessages, int unreadCount)
         {
+            var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
+            if (dialog == null)
+                return;
+
             var collection = dialog.Messages as Collection<Message>;
             if (collection == null)
                 return;
@@ -68,12 +91,16 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
                 collection.AddRange(oldMessagesToAppend);
                 collection.PrependRange(newMessagesToPrepend);
-                UpdateMessagesRead(dialog, unreadCount);
+                UpdateMessagesRead(dialogId, unreadCount);
             }
         }
 
-        public static void UpdateMessagesRead(Dialog dialog, int unreadCount)
+        public void UpdateMessagesRead(int dialogId, int unreadCount)
         {
+            var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
+            if (dialog == null)
+                return;
+
             var collection = dialog.Messages;
             lock (collection) //To prevent enumeration exception
             {
@@ -93,8 +120,12 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        public static void TrimMessages(Dialog dialog)
+        public void TrimMessages(int dialogId)
         {
+            var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
+            if (dialog == null)
+                return;
+
             var collection = dialog.Messages as Collection<Message>;
             if (collection == null)
                 return;

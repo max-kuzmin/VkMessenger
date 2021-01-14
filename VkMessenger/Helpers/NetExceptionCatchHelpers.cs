@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
-using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Exceptions;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Managers;

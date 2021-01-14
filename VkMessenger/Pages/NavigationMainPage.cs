@@ -5,14 +5,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class NavigationMainPage : NavigationPage
     {
-        public NavigationMainPage()
+        public NavigationMainPage(DialogsManager dialogsManager, MessagesManager messagesManager)
         {
             SetHasNavigationBar(this, false);
 
             if (AuthorizationManager.Token != null)
-                PushAsync(new DialogsPage());
+                PushAsync(new DialogsPage(dialogsManager, messagesManager));
             else
-                PushAsync(new AuthorizationPage());
+                PushAsync(new AuthorizationPage(dialogsManager, messagesManager));
         }
     }
 }

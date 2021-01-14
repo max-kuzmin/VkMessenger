@@ -20,6 +20,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public DialogType Type { get; set; }
         public int UnreadCount { get; set; }
         [JsonIgnore]
+        public bool IsInitRequired = true;
+        [JsonIgnore]
         public string Text => Messages.FirstOrDefault()?.PreviewText ?? string.Empty;
         [JsonIgnore]
         public bool Online => Type == DialogType.User && Profiles.First().Online;

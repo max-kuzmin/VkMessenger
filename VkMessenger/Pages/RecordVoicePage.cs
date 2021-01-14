@@ -1,14 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Clients;
-using ru.MaxKuzmin.VkMessenger.Exceptions;
 using ru.MaxKuzmin.VkMessenger.Helpers;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Loggers;
-using ru.MaxKuzmin.VkMessenger.Models;
 using Tizen.Multimedia;
 using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
@@ -20,7 +17,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class RecordVoicePage : ContentPage, IDisposable
     {
-        private readonly Dialog dialog;
+        private readonly int dialogId;
         private string? voiceMessageTempPath;
         private bool isRecording;
 
@@ -53,9 +50,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             IsEnabled = false
         };
 
-        public RecordVoicePage(Dialog dialog)
+        public RecordVoicePage(int dialogId)
         {
-            this.dialog = dialog;
+            this.dialogId = dialogId;
 
             recordButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
             sendButton.On<TizenConfig>().SetStyle(ButtonStyle.Bottom);
@@ -116,7 +113,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 async () =>
                 {
                     sendButton.IsEnabled = false;
-                    await MessagesClient.Send(dialog.Id, null, voiceMessageTempPath);
+                    await MessagesClient.Send(dialogId, null, voiceMessageTempPath);
                     DeleteTempFile();
                     await Navigation.PopAsync();
                 },

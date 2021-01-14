@@ -8,11 +8,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 {
     public class AuthorizationPage : ContentPage
     {
+        private readonly DialogsManager dialogsManager;
+        private readonly MessagesManager messagesManager;
         private readonly WebView loginWebView = new WebView();
         private InformationPopup? refreshingPopup;
 
-        public AuthorizationPage()
+        public AuthorizationPage(DialogsManager dialogsManager, MessagesManager messagesManager)
         {
+            this.dialogsManager = dialogsManager;
+            this.messagesManager = messagesManager;
             NavigationPage.SetHasNavigationBar(this, false);
             BackgroundColor = Color.White;
             Content = loginWebView;
@@ -73,7 +77,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (await AuthorizationManager.AuthorizeFromUrl(url))
             {
                 loginWebView.Navigated -= OnNavigated;
-                Navigation.InsertPageBefore(new DialogsPage(), Navigation.NavigationStack[0]);
+                Navigation.InsertPageBefore(new DialogsPage(dialogsManager, messagesManager), Navigation.NavigationStack[0]);
                 await Navigation.PopToRootAsync();
             }
         }

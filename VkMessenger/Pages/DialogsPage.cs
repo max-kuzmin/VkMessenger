@@ -1,5 +1,4 @@
 ﻿using ru.MaxKuzmin.VkMessenger.Cells;
-using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Models;
@@ -13,8 +12,11 @@ using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    public class DialogsPage : BezelInteractionPage, IDisposable
+    public class DialogsPage : BezelInteractionPage, IResettable
     {
+        private readonly DialogsManager dialogsManager;
+        private readonly MessagesManager messagesManager;
+
         private readonly CircleListView dialogsListView = new CircleListView
         {
             ItemTemplate = new DataTemplate(typeof(DialogCell)),
@@ -22,22 +24,23 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             VerticalScrollBarVisibility = ScrollBarVisibility.Never
         };
 
-        public DialogsPage()
+        public DialogsPage(DialogsManager dialogsManager, MessagesManager messagesManager)
         {
+            this.dialogsManager = dialogsManager;
+            this.messagesManager = messagesManager;
             NavigationPage.SetHasNavigationBar(this, false);
             SetBinding(RotaryFocusObjectProperty, new Binding { Source = dialogsListView });
-            dialogsListView.ItemsSource = DialogsManager.Collection;
+            dialogsListView.ItemsSource = dialogsManager.Collection;
             Content = dialogsListView;
 
             dialogsListView.ItemTapped += OnDialogTapped;
-            LongPollingClient.OnFullReset += OnFullReset;
             Appearing += OnAppearing;
         }
 
         private async void OnAppearing(object s, EventArgs e)
         {
-            await DialogsManager.UpdateDialogsFromCache();
-            dialogsListView.ScrollIfExist(DialogsManager.Collection.FirstOrDefault(), ScrollToPosition.Center);
+            await dialogsManager.UpdateDialogsFromCache();
+            dialogsListView.ScrollIfExist(dialogsManager.Collection.FirstOrDefault(), ScrollToPosition.Center);
             await InitFromApi();
         }
 
@@ -48,15 +51,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             Appearing -= OnAppearing;
 
-            var refreshingPopup = DialogsManager.Collection.Any() ? null : new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
+            var refreshingPopup = dialogsManager.Collection.Any() ? null : new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
             refreshingPopup?.Show();
 
             await NetExceptionCatchHelpers.CatchNetException(
                 async () =>
                 {
-                    await DialogsManager.UpdateDialogsFromApi();
+                    await dialogsManager.UpdateDialogsFromApi();
                     //Trim to batch size to prevent skipping new dialogs between cached and 20 loaded on init
-                    DialogsManager.TrimDialogs();
+                    dialogsManager.TrimDialogs();
                 },
                 InitFromApi,
                 LocalizedStrings.DialogsNoInternetError,
@@ -71,16 +74,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OnDialogTapped(object sender, ItemTappedEventArgs e)
         {
             var dialog = (Dialog)e.Item;
-            await Navigation.PushAsync(new MessagesPage(dialog));
+            await Navigation.PushAsync(new MessagesPage(dialog.Id, messagesManager, dialogsManager, dialog.IsInitRequired));
+            dialog.IsInitRequired = false;
         }
 
-        public void Dispose()
+        public async Task Reset()
         {
-            LongPollingClient.OnFullReset -= OnFullReset;
-        }
-
-        private async void OnFullReset(object s, EventArgs e)
-        {
+            dialogsManager.SetAllDialogsInitRequired();
             await InitFromApi();
         }
     }

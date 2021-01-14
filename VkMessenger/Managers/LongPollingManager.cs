@@ -9,21 +9,33 @@ using ru.MaxKuzmin.VkMessenger.Dtos;
 using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
+using ru.MaxKuzmin.VkMessenger.Pages;
 using Tizen.System;
+using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Managers
 {
-    public static class LongPollingManager
+    public class LongPollingManager
     {
-        private static string? Key;
-        private static string? Server;
-        private static int? Ts;
-        public static readonly TimeSpan LongPoolingRequestInterval = TimeSpan.FromSeconds(2);
+        private readonly DialogsManager dialogsManager;
+        private readonly MessagesManager messagesManager;
+        private readonly INavigation navigation;
+        private string? Key;
+        private string? Server;
+        private int? Ts;
+        public readonly TimeSpan LongPoolingRequestInterval = TimeSpan.FromSeconds(2);
 
-        public static event EventHandler? OnFullReset;
-        public static CancellationTokenSource? cancellationTokenSource;
+        public CancellationTokenSource? cancellationTokenSource;
 
-        public static async Task Start()
+        public LongPollingManager(DialogsManager dialogsManager, MessagesManager messagesManager, INavigation navigation)
+        {
+            this.dialogsManager = dialogsManager;
+            this.messagesManager = messagesManager;
+            this.navigation = navigation;
+        }
+
+
+        public async Task Start()
         {
             cancellationTokenSource?.Cancel();
 #if DEBUG
@@ -40,7 +52,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 #endif
         }
 
-        public static void Stop()
+        public void Stop()
         {
 #if DEBUG
             Logger.Info("Long polling stop requested");
@@ -51,7 +63,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         /// <summary>
         /// <see cref="LongPollingManager"/> main loop
         /// </summary>
-        private static async Task MainLoop(CancellationToken cancellationToken)
+        private async Task MainLoop(CancellationToken cancellationToken)
         {
             if (AuthorizationManager.Token != null)
             {
@@ -69,7 +81,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
                     if (json.failed != null)
                     {
-                        Reset();
+                        await Reset();
                     }
                     else
                     {
@@ -93,7 +105,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        private static async Task ParseLongPollingJson(LongPollingUpdatesJsonDto json)
+        private async Task ParseLongPollingJson(LongPollingUpdatesJsonDto json)
         {
             Ts = json.ts;
 
@@ -112,11 +124,15 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                     case 5:
                         {
                             if (update.Length >= 4)
+                            {
                                 parsedUpdates.MessageUpdatesData.Add(new MessageUpdatesData
                                 {
                                     MessageId = update[1].Value<int>(),
                                     DialogId = update[3].Value<int>()
                                 });
+                                parsedUpdates.UpdatedDialogIds.Add(update[3].Value<int>());
+                            }
+
                             break;
                         }
                     case 6:
@@ -153,20 +169,24 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 }
             }
 
+            if (parsedUpdates.UpdatedDialogIds.Any())
+            {
+#if DEBUG
+                Logger.Info("Dialogs update: " + parsedUpdates.UpdatedDialogIds.ToJson());
+#endif
+                var updatedMessagesIds = await HandleDialogUpdates(parsedUpdates.UpdatedDialogIds);
+
+                //Exclude updated messages from further updates
+                parsedUpdates.MessageUpdatesData = parsedUpdates.MessageUpdatesData
+                    .Where(e => !updatedMessagesIds.Contains(e.MessageId)).ToHashSet();
+            }
+
             if (parsedUpdates.MessageUpdatesData.Any())
             {
 #if DEBUG
                 Logger.Info("Messages update: " + parsedUpdates.MessageUpdatesData.Select(i => i.MessageId).ToJson());
 #endif
                 await HandleMessageUpdates(parsedUpdates.MessageUpdatesData);
-            }
-
-            if (parsedUpdates.UpdatedDialogIds.Any())
-            {
-#if DEBUG
-                Logger.Info("Dialogs update: " + parsedUpdates.UpdatedDialogIds.ToJson());
-#endif
-                await HandleDialogUpdates(parsedUpdates.UpdatedDialogIds);
             }
 
             if (parsedUpdates.UserStatusUpdatesData.Any())
@@ -178,40 +198,38 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        private static async Task HandleMessageUpdates(ISet<MessageUpdatesData> updates)
+        private async Task HandleMessageUpdates(ISet<MessageUpdatesData> updates)
         {
             var groups = updates.GroupBy(e => e.DialogId).ToArray();
-
-            // Update dialogs
-            await DialogsManager.UpdateDialogsFromApiByIds(groups.Select(i => i.Key).ToArray());
-
-            // Update messages in dialogs
             foreach (var group in groups)
             {
-                var messageIds = group.Select(e => e.MessageId).ToArray();
-                var dialog = DialogsManager.Collection.FirstOrDefault(e => e.Id == group.Key);
-                if (dialog != null)
-                    await MessagesManager.UpdateMessagesFromApiByIds(dialog, messageIds);
+                var messageIds = group.Select(e => e.MessageId).Distinct().ToArray();
+                await messagesManager.UpdateMessagesFromApiByIds(group.Key, messageIds);
             }
 
             new Feedback().Play(FeedbackType.Vibration, "Tap");
         }
 
-        private static void HandleUserStatusUpdates(ISet<UserStatusUpdatesData> updates)
+        private void HandleUserStatusUpdates(ISet<UserStatusUpdatesData> updates)
         {
-            DialogsManager.SetDialogsOnline(updates.Select(e => (e.UserId, e.Status)).ToArray());
+            dialogsManager.SetDialogsOnline(updates.Select(e => (e.UserId, e.Status)).ToArray());
         }
 
-        private static async Task HandleDialogUpdates(ISet<int> dialogIds)
+        private async Task<int[]> HandleDialogUpdates(ISet<int> dialogIds)
         {
-            await DialogsManager.UpdateDialogsFromApiByIds(dialogIds.ToArray());
+            var updatedMessagesIds = await dialogsManager.UpdateDialogsFromApiByIds(dialogIds.ToArray());
             new Feedback().Play(FeedbackType.Vibration, "Tap");
+            return updatedMessagesIds;
         }
 
-        private static void Reset()
+        private async Task Reset()
         {
             Ts = null;
-            OnFullReset?.Invoke(null, null);
+
+            foreach (var page in navigation.NavigationStack.OfType<IResettable>())
+            {
+                await page.Reset();
+            }
         }
     }
 }
