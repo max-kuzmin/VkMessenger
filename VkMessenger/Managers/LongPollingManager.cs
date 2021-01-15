@@ -88,7 +88,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                         await ParseLongPollingJson(json);
                     }
                 }
-                catch (Exception e) when (e.Message.Contains("The request was canceled")) { }
+                catch (Exception e) when (e.Message.Contains("was canceled")) { }
                 catch (Exception e)
                 {
                     Logger.Error(e);
