@@ -5,7 +5,7 @@
     <description xml:lang="ru-ru">Мессенджер ВКонтакте для смарт-часов Samsung</description>
     <description xml:lang="en-us">VK Messenger for Samsung smart watches</description>
     <profile name="wearable" />
-    <ui-application appid="ru.MaxKuzmin.VkMessenger" exec="VkMessenger.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" hw-acceleration="on" splash-screen-display="true" launch_mode="single">
+    <ui-application appid="ru.MaxKuzmin.VkMessenger" exec="VkMessenger.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" hw-acceleration="on" splash-screen-display="false" launch_mode="single">
         <label>VkMessenger</label>
         <icon>Icon.png</icon>
         <label xml:lang="en-us">VK Messenger</label>

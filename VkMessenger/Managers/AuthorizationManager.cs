@@ -64,7 +64,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        public static async Task<bool> AuthorizeFromUrl(string url)
+        public static async Task<bool> AuthorizeFromUrl(Uri url)
         {
             var result = AuthorizationClient.SetUserFromUrl(url);
             if (result.HasValue)

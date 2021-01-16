@@ -1,4 +1,5 @@
-﻿using ru.MaxKuzmin.VkMessenger.Clients;
+﻿using System;
+using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Managers;
 using Tizen.Wearable.CircularUI.Forms;
@@ -20,7 +21,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             NavigationPage.SetHasNavigationBar(this, false);
             BackgroundColor = Color.White;
             Content = loginWebView;
-            loginWebView.Navigated += OnNavigated;
+            Appearing += OnAppearing;
         }
 
         private async void OnNavigated(object sender, WebNavigatedEventArgs e)
@@ -38,41 +39,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             refreshingPopup?.Dismiss();
             refreshingPopup = null;
 
-            loginWebView.Eval(@"
-                function hide(elem) {
-                    var elems = document.getElementsByClassName(elem);
-                    if (elems.length > 0) elems[0].style.display = 'none';
-                }
+            var script = AuthorizationPageScript.Script
+                .Replace("{PleaseWait}", LocalizedStrings.PleaseWait);
+            loginWebView.Eval(script);
 
-                function white(elem) {
-                    var elems = document.getElementsByClassName(elem);
-                    if (elems.length > 0) elems[0].style.backgroundColor = 'white';
-                }
-
-                function hideAll() {
-                    if (document.getElementsByClassName('button').length === 0) {
-                        document.body.innerText = '" + LocalizedStrings.PleaseWait + @"';
-                        document.body.style.textAlign = 'center';
-                        document.body.style.paddingTop = '150px';
-                    }
-
-                    hide('mh_btn_label');
-                    hide('near_btn');
-                    hide('fi_header fi_header_light');
-                    hide('button wide_button gray_button');
-
-                    document.body.style.marginLeft = '50px';
-                    document.body.style.marginRight = '50px';
-                    document.body.style.backgroundColor = 'white';
-                    white('basis__content mcont');
-                    white('vk__page');
-                }
-
-                window.addEventListener('load', e => hideAll());
-                hideAll();
-             ");
-
-            var url = ((UrlWebViewSource)loginWebView.Source).Url;
+            var url = new Uri(((UrlWebViewSource)loginWebView.Source).Url);
 
             if (await AuthorizationManager.AuthorizeFromUrl(url))
             {
@@ -82,7 +53,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             }
         }
 
-        protected override void OnAppearing()
+        private void OnAppearing(object sender, EventArgs e)
         {
             refreshingPopup?.Dismiss();
             refreshingPopup = new InformationPopup
@@ -90,8 +61,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 Text = LocalizedStrings.LoadingAuthPage
             };
             refreshingPopup.Show();
+            loginWebView.Navigated += OnNavigated;
             loginWebView.Source = AuthorizationClient.GetAuthorizeUri();
-            base.OnAppearing();
         }
     }
 }

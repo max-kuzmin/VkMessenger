@@ -16,20 +16,20 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         private const int DocsFlag = 131072;
         private const int AppClientId = 6872680;
 
-        public static string GetAuthorizeUri()
+        public static Uri GetAuthorizeUri()
         {
-            return
+            return new Uri(
                 "https://oauth.vk.com/authorize" +
                 "?client_id=" + AppClientId +
                 "&scope=" + (MessagesAccessFlag + OfflineAccessFlag + DocsFlag) +
                 "&response_type=token" +
-                "&v=5.124";
+                "&v=5.124");
         }
 
-        public static (string Token, int UserId)? SetUserFromUrl(string url)
+        public static (string Token, int UserId)? SetUserFromUrl(Uri url)
         {
-            var token = string.Concat(Regex.Match(url, @"access_token=(\d|\w)*").Value.Skip(13));
-            var userIdString = string.Concat(Regex.Match(url, @"user_id=\d*").Value.Skip(8));
+            var token = string.Concat(Regex.Match(url.OriginalString, @"access_token=(\d|\w)*").Value.Skip(13));
+            var userIdString = string.Concat(Regex.Match(url.OriginalString, @"user_id=\d*").Value.Skip(8));
 
             if (token.Length == TokenLength && int.TryParse(userIdString, out var userId))
                 return (token, userId);
