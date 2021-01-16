@@ -99,9 +99,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
-#if DEBUG
                 Logger.Info("Updating dialogs");
-#endif
 
                 var response = await GetDialogsJson();
                 var responseItems = response.items;
@@ -122,9 +120,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
-#if DEBUG
                 Logger.Info($"Updating dialogs {dialogIds.ToJson()}");
-#endif
 
                 var response = await GetDialogsJsonByIds(dialogIds);
                 var responseItems = response.items;
@@ -172,6 +168,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
+                Logger.Info($"Marking messages as read in dialog {dialogId}");
+
                 var url =
                     "https://api.vk.com/method/messages.markAsRead" +
                     "?v=5.124" +

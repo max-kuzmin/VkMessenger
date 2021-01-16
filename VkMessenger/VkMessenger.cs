@@ -47,8 +47,8 @@ namespace ru.MaxKuzmin.VkMessenger
                 MaxMemoryCacheSize = 1024 * 1024 * 5,
 #if DEBUG
                 Logger = new FfImageLoadingLogger(),
-                VerbosePerformanceLogging = true,
-                VerboseLogging = true
+                VerbosePerformanceLogging = false,
+                VerboseLogging = false
 #endif
             };
 

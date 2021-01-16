@@ -24,7 +24,7 @@ namespace ru.MaxKuzmin.VkMessenger
 
         protected override void OnSleep()
         {
-            longPollingManager.Stop();
+            _ = longPollingManager.Stop().ConfigureAwait(false);
             base.OnSleep();
         }
 

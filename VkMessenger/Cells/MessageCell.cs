@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FFImageLoading.Forms;
 using ru.MaxKuzmin.VkMessenger.Layouts;
 using ru.MaxKuzmin.VkMessenger.Managers;
@@ -39,7 +40,9 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             Padding = new Thickness(10, 0),
             VerticalOptions = LayoutOptions.FillAndExpand,
             HorizontalOptions = LayoutOptions.Fill,
-            Rotation = -180
+            Rotation = 180,
+            BackgroundColor = Consts.DarkBlue, // Workaround for white background
+            Margin = new Thickness(0, 0, 0, -1) // Workaround for white background
         };
 
         private readonly StackLayout photoWrapperLayout = new StackLayout
@@ -93,7 +96,6 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             wrapperLayout.Children.Add(text);
             outerLayout.Children.Add(wrapperLayout);
             View = outerLayout;
-            View.BackgroundColor = Consts.DarkBlue;
         }
 
         private static void OnSenderIdPropertyChanged(BindableObject bindable, object oldValue, object newValue)
@@ -116,9 +118,9 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
 
         private static void OnReadPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is MessageCell cell && newValue is bool value)
+            if (bindable is MessageCell cell && cell.View is StackLayout stack && newValue is bool value)
             {
-                cell.View.BackgroundColor = value ? Color.Black : Consts.DarkBlue;
+                stack.Children.First().BackgroundColor = value ? Color.Black : Consts.DarkBlue;
             }
         }
 

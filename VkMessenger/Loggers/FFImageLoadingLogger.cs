@@ -7,9 +7,7 @@ namespace ru.MaxKuzmin.VkMessenger.Loggers
     {
         public void Debug(string message)
         {
-#if DEBUG
             Logger.Debug(message);
-#endif
         }
 
         public void Error(string errorMessage)

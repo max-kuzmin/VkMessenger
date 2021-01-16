@@ -27,9 +27,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
-#if DEBUG
                 Logger.Info($"Updating messages in dialog {dialogId}");
-#endif
 
                 var response = await GetMessagesJson(dialogId, offset);
                 var profiles = ProfilesClient.FromDtoArray(response.profiles);
@@ -47,9 +45,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
-#if DEBUG
                 Logger.Info($"Updating messages {messagesIds.ToJson()}");
-#endif
 
                 var response = await GetMessagesJsonByIds(messagesIds);
                 var profiles = ProfilesClient.FromDtoArray(response.profiles);
@@ -207,6 +203,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         {
             try
             {
+                Logger.Info($"Sending message in dialog {dialogId}");
+
                 var url =
                     "https://api.vk.com/method/messages.send" +
                     "?v=5.124" +

@@ -24,8 +24,18 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         private string? Server;
         private int? Ts;
         public readonly TimeSpan LongPoolingRequestInterval = TimeSpan.FromSeconds(2);
+        public const string CanceledException = "canceled";
 
-        public CancellationTokenSource? cancellationTokenSource;
+        private CancellationTokenSource? startingTokenSource, stoppingTokenSource, startedTokenSource;
+        private Status status = Status.Stopped;
+
+        enum Status
+        {
+            Starting,
+            Stopping,
+            Started,
+            Stopped
+        }
 
         public LongPollingManager(DialogsManager dialogsManager, MessagesManager messagesManager, INavigation navigation)
         {
@@ -37,27 +47,84 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
         public async Task Start()
         {
-            cancellationTokenSource?.Cancel();
-#if DEBUG
-            Logger.Info("Long polling started");
-#endif
-            cancellationTokenSource = new CancellationTokenSource();
-            var token = cancellationTokenSource.Token;
-            while (!token.IsCancellationRequested)
+            switch (status)
             {
-                await MainLoop(token);
+                case Status.Starting:
+                    startingTokenSource?.Cancel();
+                    break;
+                case Status.Started:
+                    return;
+                case Status.Stopped:
+                    break;
+                case Status.Stopping:
+                    stoppingTokenSource?.Cancel();
+                    return;
             }
-#if DEBUG
+
+            try
+            {
+                Logger.Info("Long polling start requested");
+
+                startingTokenSource = new CancellationTokenSource();
+                var token = startingTokenSource.Token;
+                status = Status.Starting;
+                await Task.Delay(TimeSpan.FromSeconds(3), token);
+            }
+            catch
+            {
+                return;
+            }
+
+            try
+            {
+                Logger.Info("Long polling started");
+
+                startedTokenSource?.Cancel();
+                startedTokenSource = new CancellationTokenSource();
+                var token = startedTokenSource.Token;
+                status = Status.Started;
+                while (!token.IsCancellationRequested)
+                {
+                    await MainLoop(token);
+                }
+            }
+            catch { }
+
             Logger.Info("Long polling stopped");
-#endif
         }
 
-        public void Stop()
+        public async Task Stop()
         {
-#if DEBUG
-            Logger.Info("Long polling stop requested");
-#endif
-            cancellationTokenSource?.Cancel();
+            switch (status)
+            {
+                case Status.Starting:
+                    startingTokenSource?.Cancel();
+                    return;
+                case Status.Stopped:
+                    return;
+                case Status.Started:
+                    break;
+                case Status.Stopping:
+                    stoppingTokenSource?.Cancel();
+                    break;
+            }
+
+            try
+            {
+                Logger.Info("Long polling stop requested");
+
+                stoppingTokenSource = new CancellationTokenSource();
+                var token = stoppingTokenSource.Token;
+                status = Status.Stopping;
+                await Task.Delay(TimeSpan.FromSeconds(3), token);
+            }
+            catch
+            {
+                return;
+            }
+
+            startedTokenSource?.Cancel();
+            status = Status.Stopped;
         }
 
         /// <summary>
@@ -88,20 +155,13 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                         await ParseLongPollingJson(json);
                     }
                 }
-                catch (Exception e) when (e.Message.Contains("was canceled")) { }
+                catch (Exception e) when (e.Message.Contains(CanceledException)) { }
                 catch (Exception e)
                 {
                     Logger.Error(e);
                 }
 
-                try
-                {
-                    await Task.Delay(LongPoolingRequestInterval, cancellationToken);
-                }
-                catch
-                {
-                    // ignored
-                }
+                await Task.Delay(LongPoolingRequestInterval, cancellationToken);
             }
         }
 
@@ -171,9 +231,8 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
             if (parsedUpdates.UpdatedDialogIds.Any())
             {
-#if DEBUG
-                Logger.Info("Dialogs update: " + parsedUpdates.UpdatedDialogIds.ToJson());
-#endif
+                Logger.Info($"Long pooling dialogs update {parsedUpdates.UpdatedDialogIds.ToJson()}");
+
                 var updatedMessagesIds = await HandleDialogUpdates(parsedUpdates.UpdatedDialogIds);
 
                 //Exclude updated messages from further updates
@@ -183,17 +242,15 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
             if (parsedUpdates.MessageUpdatesData.Any())
             {
-#if DEBUG
-                Logger.Info("Messages update: " + parsedUpdates.MessageUpdatesData.Select(i => i.MessageId).ToJson());
-#endif
+                Logger.Info($"Long pooling messages update {parsedUpdates.MessageUpdatesData.Select(e => e.MessageId).ToJson()}");
+
                 await HandleMessageUpdates(parsedUpdates.MessageUpdatesData);
             }
 
             if (parsedUpdates.UserStatusUpdatesData.Any())
             {
-#if DEBUG
-                Logger.Info("Online status changed for users: " + parsedUpdates.UserStatusUpdatesData.Select(i => i.UserId).ToJson());
-#endif
+                Logger.Info($"Long pooling online status changed for users {parsedUpdates.UserStatusUpdatesData.Select(e => e.UserId).ToJson()}");
+
                 HandleUserStatusUpdates(parsedUpdates.UserStatusUpdatesData);
             }
         }
