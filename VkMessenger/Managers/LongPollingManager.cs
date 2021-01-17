@@ -204,9 +204,13 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                     case 13:
                     case 14:
                     case 51:
-                    case 52:
                         {
                             parsedUpdates.UpdatedDialogIds.Add(update[1].Value<int>());
+                            break;
+                        }
+                    case 52:
+                        {
+                            parsedUpdates.UpdatedDialogIds.Add(update[2].Value<int>());
                             break;
                         }
                     case 8:
