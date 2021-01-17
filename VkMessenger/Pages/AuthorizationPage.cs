@@ -11,13 +11,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     {
         private readonly DialogsManager dialogsManager;
         private readonly MessagesManager messagesManager;
+        private readonly LongPollingManager longPollingManager;
         private readonly WebView loginWebView = new WebView();
         private InformationPopup? refreshingPopup;
 
-        public AuthorizationPage(DialogsManager dialogsManager, MessagesManager messagesManager)
+        public AuthorizationPage(DialogsManager dialogsManager, MessagesManager messagesManager, LongPollingManager longPollingManager)
         {
             this.dialogsManager = dialogsManager;
             this.messagesManager = messagesManager;
+            this.longPollingManager = longPollingManager;
             NavigationPage.SetHasNavigationBar(this, false);
             BackgroundColor = Color.White;
             Content = loginWebView;
@@ -50,11 +52,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 loginWebView.Navigated -= OnNavigated;
                 Navigation.InsertPageBefore(new DialogsPage(dialogsManager, messagesManager), Navigation.NavigationStack[0]);
                 await Navigation.PopToRootAsync();
+                _ = longPollingManager.Start().ConfigureAwait(false);
             }
         }
 
         private void OnAppearing(object sender, EventArgs e)
         {
+            _ = longPollingManager.Stop().ConfigureAwait(false);
             refreshingPopup?.Dismiss();
             refreshingPopup = new InformationPopup
             {

@@ -42,6 +42,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             await dialogsManager.UpdateDialogsFromCache();
             dialogsListView.ScrollIfExist(dialogsManager.Collection.FirstOrDefault(), ScrollToPosition.Center);
             await InitFromApi();
+            dialogsListView.ScrollIfExist(dialogsManager.Collection.FirstOrDefault(), ScrollToPosition.Center);
         }
 
         /// <summary>

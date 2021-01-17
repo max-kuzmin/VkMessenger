@@ -19,7 +19,7 @@ namespace ru.MaxKuzmin.VkMessenger
             messagesManager = new MessagesManager(collection);
             dialogsManager = new DialogsManager(collection, messagesManager);
             longPollingManager = new LongPollingManager(dialogsManager, messagesManager, NavigationProxy);
-            MainPage = new NavigationMainPage(dialogsManager, messagesManager);
+            MainPage = new NavigationMainPage(dialogsManager, messagesManager, longPollingManager);
         }
 
         protected override void OnSleep()
