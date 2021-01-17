@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Dtos;
+using ru.MaxKuzmin.VkMessenger.Exceptions;
 using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
@@ -23,8 +24,8 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         private string? Key;
         private string? Server;
         private int? Ts;
-        public readonly TimeSpan LongPoolingRequestInterval = TimeSpan.FromSeconds(2);
-        public const string CanceledException = "canceled";
+        private readonly TimeSpan LongPoolingRequestInterval = TimeSpan.FromSeconds(2);
+        private const string CanceledException = "canceled";
 
         private CancellationTokenSource? startingTokenSource, stoppingTokenSource, startedTokenSource;
         private Status status = Status.Stopped;
@@ -83,10 +84,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 startedTokenSource = new CancellationTokenSource();
                 var token = startedTokenSource.Token;
                 status = Status.Started;
-                while (!token.IsCancellationRequested)
-                {
-                    await MainLoop(token);
-                }
+                await MainLoop(token);
             }
             catch { }
 
@@ -132,33 +130,36 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         /// </summary>
         private async Task MainLoop(CancellationToken cancellationToken)
         {
-            if (AuthorizationManager.Token != null)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                try
+                if (AuthorizationManager.Token != null)
                 {
-                    if (Ts == null || Server == null || Key == null)
+                    try
                     {
-                        var response = await LongPollingClient.GetLongPollServer();
-                        Key = response.key;
-                        Server = response.server;
-                        Ts ??= response.ts;
-                    }
+                        if (Ts == null || Server == null || Key == null)
+                        {
+                            var response = await LongPollingClient.GetLongPollServer();
+                            Key = response.key;
+                            Server = response.server;
+                            Ts ??= response.ts;
+                        }
 
-                    var json = await LongPollingClient.SendLongRequest(Server, Key, Ts.Value, cancellationToken);
+                        var json = await LongPollingClient.SendLongRequest(Server, Key, Ts.Value, cancellationToken);
 
-                    if (json.failed != null)
-                    {
-                        await Reset();
+                        if (json.failed != null)
+                        {
+                            await Reset();
+                        }
+                        else
+                        {
+                            await ParseLongPollingJson(json);
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        await ParseLongPollingJson(json);
+                        if (!e.Message.Contains(CanceledException))
+                            Logger.Error(e);
                     }
-                }
-                catch (Exception e) when (e.Message.Contains(CanceledException)) { }
-                catch (Exception e)
-                {
-                    Logger.Error(e);
                 }
 
                 await Task.Delay(LongPoolingRequestInterval, cancellationToken);
