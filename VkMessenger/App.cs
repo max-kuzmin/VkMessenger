@@ -18,8 +18,9 @@ namespace ru.MaxKuzmin.VkMessenger
             collection = new ObservableCollection<Dialog>();
             messagesManager = new MessagesManager(collection);
             dialogsManager = new DialogsManager(collection, messagesManager);
-            longPollingManager = new LongPollingManager(dialogsManager, messagesManager, NavigationProxy);
+            longPollingManager = new LongPollingManager(dialogsManager, messagesManager);
             MainPage = new NavigationMainPage(dialogsManager, messagesManager, longPollingManager);
+            longPollingManager.Navigation = MainPage.Navigation;
         }
 
         protected override void OnSleep()

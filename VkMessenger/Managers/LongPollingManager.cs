@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Dtos;
-using ru.MaxKuzmin.VkMessenger.Exceptions;
 using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
@@ -20,7 +19,6 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
     {
         private readonly DialogsManager dialogsManager;
         private readonly MessagesManager messagesManager;
-        private readonly INavigation navigation;
         private string? Key;
         private string? Server;
         private int? Ts;
@@ -38,11 +36,12 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             Stopped
         }
 
-        public LongPollingManager(DialogsManager dialogsManager, MessagesManager messagesManager, INavigation navigation)
+        public INavigation? Navigation { get; set; }
+
+        public LongPollingManager(DialogsManager dialogsManager, MessagesManager messagesManager)
         {
             this.dialogsManager = dialogsManager;
             this.messagesManager = messagesManager;
-            this.navigation = navigation;
         }
 
 
@@ -286,9 +285,14 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
         private async Task Reset()
         {
+            Logger.Info("Long pooling reset");
+
             Ts = null;
 
-            foreach (var page in navigation.NavigationStack.OfType<IResettable>())
+            if (Navigation == null)
+                return;
+
+            foreach (var page in Navigation.NavigationStack.OfType<IResettable>())
             {
                 await page.Reset();
             }
