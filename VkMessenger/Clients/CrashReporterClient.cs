@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Net;
 
 namespace ru.MaxKuzmin.VkMessenger.Clients
@@ -14,22 +15,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 const string url = "https://vkmessenger.azurewebsites.net/api/crash";
 
                 using var client = new ProxiedWebClient();
-                await client.UploadStringTaskAsync(url, text).ConfigureAwait(false);
-            }
-            catch
-            {
-                // ignored
-            }
-        }
-
-        public static void Send(string text)
-        {
-            try
-            {
-                const string url = "https://vkmessenger.azurewebsites.net/api/crash";
-
-                using var client = new ProxiedWebClient();
-                client.UploadString(url, text);
+                await client.PostAsync(new Uri(url), text).ConfigureAwait(false);
             }
             catch
             {

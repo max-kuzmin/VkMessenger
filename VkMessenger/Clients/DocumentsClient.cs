@@ -40,7 +40,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using var client = new ProxiedWebClient();
             var uploadLinkResponse = await HttpHelpers.RetryIfEmptyResponse<JsonDto<UploadLinkResponseDto>>(
-                () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+                () => client.GetAsync(new Uri(url)), e => e?.response != null);
             return uploadLinkResponse.response.upload_url;
         }
 
@@ -57,7 +57,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using var client = new ProxiedWebClient();
             var deserialized = await HttpHelpers.RetryIfEmptyResponse<UploadFileResponseDto>(
-                () => client.UploadMultipartAsync(fileData, fileName, contentType, link), e => e?.file != null);
+                () => client.UploadFileAsync(fileData, fileName, contentType, link), e => e?.file != null);
             return deserialized.file;
         }
 
@@ -71,7 +71,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using var client = new ProxiedWebClient();
             var saveDocResponse = await HttpHelpers.RetryIfEmptyResponse<JsonDto<SaveDocResponseDto>>(
-                () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+                () => client.GetAsync(new Uri(url)), e => e?.response != null);
             return saveDocResponse.response.audio_message!.id;
         }
 
@@ -84,7 +84,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var client = new ProxiedWebClient();
                 if (!File.Exists(tempFileName))
                 {
-                    await client.DownloadFileTaskAsync(source, tempFileName).ConfigureAwait(false);
+                    await client.DownloadFileAsync(source, tempFileName).ConfigureAwait(false);
                 }
 
                 return tempFileName;

@@ -50,7 +50,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 using var client = new ProxiedWebClient();
                 var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<UserDto[]>>(
-                    () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+                    () => client.GetAsync(new Uri(url)), e => e?.response != null);
 
                 return json.response.First().photo_50;
             }

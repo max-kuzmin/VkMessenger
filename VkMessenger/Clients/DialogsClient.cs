@@ -159,7 +159,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using var client = new ProxiedWebClient();
             var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<DialogsResponseDto>>(
-                () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+                () => client.GetAsync(new Uri(url)), e => e?.response != null);
             
             return json.response;
         }
@@ -178,7 +178,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
                 using var client = new ProxiedWebClient();
                 var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<int>>(
-                    () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+                    () => client.GetAsync(new Uri(url)), e => e?.response != null);
 
                 return json.response == 1;
             }
@@ -200,7 +200,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using var client = new ProxiedWebClient();
             var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<DialogsByIdsResponseDto>>(
-                () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+                () => client.GetAsync(new Uri(url)), e => e?.response != null);
 
             return json.response;
         }

@@ -1,4 +1,5 @@
-﻿using ru.MaxKuzmin.VkMessenger.Net;
+﻿using System;
+using ru.MaxKuzmin.VkMessenger.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Dtos;
@@ -20,7 +21,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using var client = new ProxiedWebClient();
             var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<LongPollingInitResponseDto>>(
-                () => client.DownloadStringTaskAsync(url), e => e?.response != null);
+                () => client.GetAsync(new Uri(url)), e => e?.response != null);
 
             return json.response;
         }
@@ -28,7 +29,6 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
         public static async Task<LongPollingUpdatesJsonDto> SendLongRequest(string server, string key, int ts, CancellationToken cancellationToken)
         {
             using var client = new ProxiedWebClient();
-            using var registration = cancellationToken.Register(client.CancelAsync);
 
             var url = "https://" + server +
                 "?act=a_check" +
@@ -38,7 +38,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 "&version=3";
 
             var json = await HttpHelpers.RetryIfEmptyResponse<LongPollingUpdatesJsonDto>(
-                () => client.DownloadStringTaskAsync(url), e => e != null);
+                () => client.GetAsync(new Uri(url), cancellationToken), e => e != null);
 
             return json;
         }

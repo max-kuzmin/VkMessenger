@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Managers;
 using Tizen;
@@ -27,10 +28,10 @@ namespace ru.MaxKuzmin.VkMessenger.Loggers
             _ = CrashReporterClient.SendAsync($"{e}\nAppVersion: {Version}\nUserId: {AuthorizationManager.UserId}");
         }
 
-        public static void ErrorAndAwait(object e, [CallerFilePath] string? file = null, [CallerMemberName] string? caller = null, [CallerLineNumber] int line = 0)
+        public static async Task ErrorAndAwait(object e, [CallerFilePath] string? file = null, [CallerMemberName] string? caller = null, [CallerLineNumber] int line = 0)
         {
             Log.Error(Tag, e.ToString(), file, caller, line);
-            CrashReporterClient.Send($"{e}\nAppVersion: {Version}\nUserId: {AuthorizationManager.UserId}");
+            await CrashReporterClient.SendAsync($"{e}\nAppVersion: {Version}\nUserId: {AuthorizationManager.UserId}");
         }
     }
 }
