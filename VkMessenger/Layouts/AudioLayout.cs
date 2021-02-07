@@ -163,7 +163,7 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             OnPauseAllPlayers += PauseThisPlayer;
 
             timer = new Timer(
-                obj => UpdateDurationLabel(),
+                obj => Device.InvokeOnMainThreadAsync(UpdateDurationLabel),
                 null,
                 TimeSpan.FromMilliseconds(-1),
                 TimeSpan.FromSeconds(timerInterval));
@@ -217,11 +217,11 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             if (player == null)
                 return;
 
+            OnPauseAllPlayers?.Invoke(this, null);
             playButton.IsEnabled = true;
             playButton.ImageSource = ImageResources.PauseSymbol;
             await player.Start();
             timer?.Change(TimeSpan.Zero, TimeSpan.FromSeconds(timerInterval));
-            OnPauseAllPlayers?.Invoke(this, null);
         }
 
         private void OnPlaybackCompleted(object s, EventArgs e)

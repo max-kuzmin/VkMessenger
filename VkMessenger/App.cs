@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using ru.MaxKuzmin.VkMessenger.Layouts;
 using ru.MaxKuzmin.VkMessenger.Managers;
 using ru.MaxKuzmin.VkMessenger.Models;
 using ru.MaxKuzmin.VkMessenger.Pages;
@@ -26,6 +27,7 @@ namespace ru.MaxKuzmin.VkMessenger
         protected override void OnSleep()
         {
             _ = longPollingManager.Stop().ConfigureAwait(false);
+            AudioLayout.PauseAllPlayers();
             base.OnSleep();
         }
 
