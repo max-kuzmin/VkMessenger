@@ -85,7 +85,10 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 status = Status.Started;
                 await MainLoop(token);
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
 
             Logger.Info("Long polling stopped");
         }

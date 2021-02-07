@@ -16,10 +16,9 @@ namespace ru.MaxKuzmin.VkMessenger.Net
         public ProxiedWebClient()
         {
             string proxyAddress = ConnectionManager.GetProxy(AddressFamily.IPv4);
-            var handler = new HttpClientHandler
-            {
-                Proxy = new WebProxy(proxyAddress)
-            };
+            var handler = new HttpClientHandler();
+            if (!string.IsNullOrWhiteSpace(proxyAddress))
+                handler.Proxy = new WebProxy(proxyAddress);
             httpClient = new HttpClient(handler, true);
         }
 

@@ -32,7 +32,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             if (newMessages.Any())
             {
                 AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount);
-                _ = DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
+                await DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
             }
         }
 
@@ -47,7 +47,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             if (newMessages.Any())
             {
                 AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount);
-                _ = DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
+                await DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
             }
         }
 

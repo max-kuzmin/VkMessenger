@@ -34,7 +34,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             if (newDialogs.Any())
             {
                 AddUpdateDialogsInCollection(newDialogs);
-                _ = DurableCacheManager.SaveDialogs(collection);
+                await DurableCacheManager.SaveDialogs(collection);
             }
         }
 
@@ -47,7 +47,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             if (newDialogs.Any())
             {
                 AddUpdateDialogsInCollection(newDialogs);
-                _ = DurableCacheManager.SaveDialogs(collection);
+                await DurableCacheManager.SaveDialogs(collection);
             }
 
             return newDialogs.SelectMany(e => e.Messages.Select(m => m.Id)).Distinct().ToArray();

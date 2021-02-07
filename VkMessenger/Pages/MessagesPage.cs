@@ -105,7 +105,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (popupEntryView.IsPopupOpened)
                 return;
 
-            _ = dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
+            await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
 
             var message = (Message)e.Item;
             if (message.FullScreenAllowed)
@@ -133,7 +133,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async void OnTextCompleted(object? sender = null, EventArgs? args = null)
         {
-            _ = dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
+            await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
 
             var text = popupEntryView.Text;
             if (string.IsNullOrEmpty(text))
@@ -154,15 +154,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 false);
         }
 
-        private void OpenKeyboard()
+        private async void OpenKeyboard()
         {
-            _ = dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
+            await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
             popupEntryView.IsPopupOpened = true;
         }
 
         private async void OnOpenRecorder()
         {
-            _ = dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
+            await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
             await Navigation.PushAsync(new RecordVoicePage(dialogId));
         }
 
@@ -170,13 +170,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             AudioLayout.PauseAllPlayers();
             base.OnDisappearing();
-        }
-
-        /// <inheritdoc />
-        protected override bool OnBackButtonPressed()
-        {
-            _ = dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
-            return false;
         }
 
         public async Task Reset()
