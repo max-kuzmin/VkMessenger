@@ -99,10 +99,10 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         switch (item.type)
                         {
                             case "photo":
-                                var photoUri = item.photo?.sizes.SingleOrDefault(i => i.type == "q");
-                                if (photoUri == null)
-                                    Logger.Error("Uri for photo attachment is null. Attachment: " + item.ToJson());
-                                else
+                                var photoUri = item.photo?.sizes.SingleOrDefault(i => i.type == "q") 
+                                               ?? item.photo?.sizes.FirstOrDefault();
+
+                                if (photoUri != null)
                                     attachmentImages.Add(new AttachmentImage { Url = photoUri.url, IsSticker = false });
                                 break;
 

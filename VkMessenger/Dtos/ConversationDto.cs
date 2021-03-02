@@ -9,6 +9,8 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
 
         public int? last_message_id { get; set; }
 
+        public CanWriteDto? can_write { get; set; }
+
         public ChatSettingsDto? chat_settings { get; set; }
     }
 }

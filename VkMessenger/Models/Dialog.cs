@@ -13,18 +13,20 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     /// </summary>
     public class Dialog : INotifyPropertyChanged
     {
+        // Can be empty for chats (channels)
         public IReadOnlyCollection<Profile> Profiles { get; set; }
         public Group? Group { get; set; }
         public Chat? Chat { get; set; }
         public IReadOnlyCollection<Message> Messages { get; set; }
         public DialogType Type { get; set; }
         public int UnreadCount { get; set; }
+        public bool CanWrite { get; set; }
         [JsonIgnore]
         public bool IsInitRequired = true;
         [JsonIgnore]
         public string Text => Messages.FirstOrDefault()?.PreviewText ?? string.Empty;
         [JsonIgnore]
-        public bool Online => Type == DialogType.User && Profiles.First().Online;
+        public bool Online => Type == DialogType.User && Profiles.FirstOrDefault()?.Online == true;
 
         [JsonIgnore]
         public string Title
@@ -78,13 +80,14 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public event PropertyChangedEventHandler? PropertyChanged;
 
         [JsonConstructor]
-        public Dialog(DialogType type, Group? group, Chat? chat, int unreadCount,
+        public Dialog(DialogType type, Group? group, Chat? chat, int unreadCount, bool canWrite,
             IReadOnlyCollection<Profile>? profiles, IReadOnlyCollection<Message>? messages)
         {
             Type = type;
             Group = group;
             Chat = chat;
             UnreadCount = unreadCount;
+            CanWrite = canWrite;
 
             var messagesCollection = new ObservableCollection<Message>(messages ?? Array.Empty<Message>());
             messagesCollection.CollectionChanged += (s, e) =>

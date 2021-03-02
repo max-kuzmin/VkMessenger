@@ -156,12 +156,18 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OpenKeyboard()
         {
+            if (!dialogsManager.CanWrite(dialogId))
+                return;
+
             await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
             popupEntryView.IsPopupOpened = true;
         }
 
         private async void OnOpenRecorder()
         {
+            if (!dialogsManager.CanWrite(dialogId))
+                return;
+
             await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
             await Navigation.PushAsync(new RecordVoicePage(dialogId));
         }

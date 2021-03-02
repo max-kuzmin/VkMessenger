@@ -34,7 +34,13 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             if (newDialogs.Any())
             {
                 AddUpdateDialogsInCollection(newDialogs);
-                await DurableCacheManager.SaveDialogs(collection);
+
+                Dialog[] copy;
+                lock (collection)
+                {
+                    copy = collection.ToArray();
+                }
+                await DurableCacheManager.SaveDialogs(copy);
             }
         }
 
@@ -47,7 +53,13 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             if (newDialogs.Any())
             {
                 AddUpdateDialogsInCollection(newDialogs);
-                await DurableCacheManager.SaveDialogs(collection);
+
+                Dialog[] copy;
+                lock (collection)
+                {
+                    copy = collection.ToArray();
+                }
+                await DurableCacheManager.SaveDialogs(copy);
             }
 
             return newDialogs.SelectMany(e => e.Messages.Select(m => m.Id)).Distinct().ToArray();
@@ -80,7 +92,12 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
         public void SetDialogAndMessagesRead(int dialogId)
         {
-            var dialog = collection.FirstOrDefault(e => e.Id == dialogId);
+            Dialog? dialog;
+            lock (collection)
+            {
+                dialog = collection.FirstOrDefault(e => e.Id == dialogId);
+            }
+
             if (dialog == null)
                 return;
 
@@ -90,7 +107,12 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
         public async Task SetDialogAndMessagesReadAndPublish(int dialogId)
         {
-            var dialog = collection.FirstOrDefault(e => e.Id == dialogId);
+            Dialog? dialog;
+            lock (collection)
+            {
+                dialog = collection.FirstOrDefault(e => e.Id == dialogId);
+            }
+
             if (dialog == null)
                 return;
 
@@ -114,6 +136,22 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
+        public bool CanWrite(int dialogId)
+        {
+            lock (collection)
+            {
+                return collection.FirstOrDefault(e => e.Id == dialogId)?.CanWrite == true;
+            }
+        }
+
+        public Dialog? First()
+        {
+            lock (collection)
+            {
+                return collection.FirstOrDefault();
+            }
+        }
+
         private void AddUpdateDialogsInCollection(IReadOnlyCollection<Dialog> newDialogs)
         {
             lock (collection)
@@ -125,13 +163,16 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                     var foundDialog = collection.FirstOrDefault(m => m.Id == newDialog.Id);
                     if (foundDialog != null)
                     {
-                        var oldLastMessage = foundDialog.Messages.First();
-                        var newLastMessage = newDialog.Messages.First();
+                        // It's important to get first message before UpdateDialog
+                        var oldLastMessage = foundDialog.Messages.FirstOrDefault();
+                        var newLastMessage = newDialog.Messages.FirstOrDefault();
 
                         UpdateDialog(newDialog, foundDialog);
 
                         // Move dialog to top, because it was updated
                         if (collection.IndexOf(foundDialog) != collection.Count - 1
+                            && oldLastMessage != null
+                            && newLastMessage != null
                             && oldLastMessage.Id != newLastMessage.Id)
                         {
                             collection.Remove(foundDialog);

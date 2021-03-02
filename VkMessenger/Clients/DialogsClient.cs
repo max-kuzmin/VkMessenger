@@ -35,6 +35,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             var peerId = Math.Abs(conversation.peer.id); // id in peerDto can be negative
             var dialogType = Enum.Parse<DialogType>(conversation.peer.type, true);
             var unreadCount = conversation.unread_count ?? 0;
+            var canWrite = conversation.can_write?.allowed != false;
 
             var lastMessage = dialog.last_message != null
                 ? MessagesClient.FromDto(dialog.last_message, profiles, groups)
@@ -51,7 +52,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 case DialogType.User:
                     {
                         var dialogProfiles = profiles.Where(p => p.Id == peerId).ToArray();
-                        result = new Dialog(dialogType, null, null, unreadCount, dialogProfiles, messages);
+                        result = new Dialog(dialogType, null, null, unreadCount, canWrite, dialogProfiles, messages);
                         break;
                     }
                 case DialogType.Group:
@@ -60,7 +61,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         if (group == null)
                             Logger.Error("DialogType.Group parse error, group not found. Dialog:" + dialog.ToJson());
 
-                        result = new Dialog(dialogType, group, null, unreadCount, null, messages);
+                        result = new Dialog(dialogType, group, null, unreadCount, canWrite, null, messages);
                         break;
                     }
                 case DialogType.Chat:
@@ -70,6 +71,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         {
                             Title = chatSettings.title,
                             Id = peerId,
+                            // Photo can be empty for chats (channels)
                             Photo = chatSettings.photo?.photo_50 != null
                                 ? ImageSource.FromUri(chatSettings.photo.photo_50)
                                 : (chatSettings.photo?.photo_100 != null
@@ -77,17 +79,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                                     : null)
                         };
 
-                        if (chatSettings.photo != null && chatSettings.photo.photo_50 == null && chatSettings.photo.photo_100 == null)
-                            Logger.Error("chatSettings.photo.photo_50 and 100 is not found. Dialog:" + dialog.ToJson());
-
+                        // Can be empty for chats (channels)
                         var dialogProfiles = profiles
                             .Where(p => chatSettings.active_ids?.Any(i => Math.Abs(i) == p.Id) == true)
                             .ToArray();
 
-                        if (!dialogProfiles.Any())
-                            Logger.Error("DialogType.Chat parse error, profile not found. Dialog:" + dialog.ToJson());
-
-                        result = new Dialog(dialogType, null, chat, unreadCount, dialogProfiles, messages);
+                        result = new Dialog(dialogType, null, chat, unreadCount, canWrite, dialogProfiles, messages);
                         break;
                     }
             }

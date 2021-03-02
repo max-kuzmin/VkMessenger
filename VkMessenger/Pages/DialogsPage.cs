@@ -40,9 +40,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OnAppearing(object s, EventArgs e)
         {
             await dialogsManager.UpdateDialogsFromCache();
-            dialogsListView.ScrollIfExist(dialogsManager.Collection.FirstOrDefault(), ScrollToPosition.Center);
+            dialogsListView.ScrollIfExist(dialogsManager.First(), ScrollToPosition.Center);
             await InitFromApi();
-            dialogsListView.ScrollIfExist(dialogsManager.Collection.FirstOrDefault(), ScrollToPosition.Center);
+            dialogsListView.ScrollIfExist(dialogsManager.First(), ScrollToPosition.Center);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             Appearing -= OnAppearing;
 
-            var refreshingPopup = dialogsManager.Collection.Any() ? null : new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
+            var refreshingPopup = dialogsManager.First() != null ? null : new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
             refreshingPopup?.Show();
 
             await NetExceptionCatchHelpers.CatchNetException(
