@@ -123,10 +123,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             // Possible to delete current user messages that is not older than 1d
             if (dialogId == AuthorizationManager.UserId
                 || message.Profile?.Id != AuthorizationManager.UserId
-                || message.Date < DateTime.Now.AddDays(-1))
+                || message.Date < DateTime.Now.AddDays(-1)
+                || message.Deleted)
                 return;
 
-            await NetExceptionCatchHelpers.CatchNetException(() => messagesManager.DeleteMessage(dialogId, message.Id),
+            await NetExceptionCatchHelpers.CatchNetException(
+                () => messagesManager.DeleteMessage(dialogId, message.Id),
                 () =>
                 {
                     OnItemLongPressed(sender, e);

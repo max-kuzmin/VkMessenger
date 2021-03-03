@@ -54,7 +54,10 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         public void AddUpdateMessagesInCollection(int dialogId, IReadOnlyCollection<Message> newMessages, int unreadCount)
         {
             var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
-            var collection = dialog?.Messages as Collection<Message>;
+            if (dialog == null)
+                return;
+
+            var collection = dialog.Messages as Collection<Message>;
             if (collection == null)
                 return;
 
@@ -120,7 +123,10 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         public void TrimMessages(int dialogId)
         {
             var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
-            var collection = dialog?.Messages as Collection<Message>;
+            if (dialog == null)
+                return;
+
+            var collection = dialog.Messages as Collection<Message>;
             if (collection == null)
                 return;
 
@@ -133,7 +139,10 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         public async Task DeleteMessage(int dialogId, int messageId)
         {
             var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
-            var collection = dialog?.Messages as Collection<Message>;
+            if (dialog == null)
+                return;
+            
+            var collection = dialog.Messages as Collection<Message>;
             if (collection == null)
                 return;
 
@@ -142,10 +151,10 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             lock (collection)
             {
                 var message = collection.FirstOrDefault(e => e.Id == messageId);
-                if (message == null)
-                    return;
-                collection.Remove(message);
+                message?.SetDeleted(true);
             }
+
+            await DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -154,6 +163,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         private static void UpdateMessage(Message newMessage, Message foundMessage)
         {
             foundMessage.SetText(newMessage.Text);
+            foundMessage.SetDeleted(newMessage.Deleted);
         }
     }
 }

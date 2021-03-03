@@ -173,7 +173,8 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     attachmentUris,
                     attachmentMessages,
                     voiceMessage,
-                    otherAttachments);
+                    otherAttachments,
+                    message.deleted > 0);
 
             }
             catch (Exception e)
@@ -252,10 +253,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     "&access_token=" + AuthorizationManager.Token +
                     "&delete_for_all=1";
 
+                const int cantDeleteForEverybodyCode = 924;
+
                 using var client = new ProxiedWebClient();
                 await HttpHelpers.RetryIfEmptyResponse<JsonDto<object>>(
                     () => client.GetAsync(new Uri(url)),
-                    e => e?.response != null);
+                    e => e?.response != null || e?.error?.error_code == cantDeleteForEverybodyCode);
             }
             catch (Exception e)
             {

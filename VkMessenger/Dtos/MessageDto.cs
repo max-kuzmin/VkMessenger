@@ -19,5 +19,7 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
         public MessageDto[]? fwd_messages { get; set; }
 
         public AttachmentDto[]? attachments { get; set; }
+
+        public int deleted { get; set; }
     }
 }

@@ -15,6 +15,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     {
         private const int MaxLength = 150;
         private const string PaperClip = "📎";
+        private const string TrashCan = "🗑";
 
         /// <summary>
         /// Positive number
@@ -36,6 +37,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public int? VoiceMessageDuration { get; set; }
         public IReadOnlyCollection<AttachmentMessage> AttachmentMessages { get; set; }
         public bool FullScreenAllowed { get; set; }
+        public bool Deleted { get; set; }
 
         [JsonIgnore]
         public int SenderId
@@ -74,7 +76,8 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             IReadOnlyCollection<Uri>? attachmentUris,
             IReadOnlyCollection<AttachmentMessage>? attachmentMessages,
             (Uri, int)? voiceMessage,
-            IReadOnlyCollection<string> otherAttachments)
+            IReadOnlyCollection<string> otherAttachments,
+            bool deleted)
         {
             Id = id;
             ConversationMessageId = conversationMessageId;
@@ -88,6 +91,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             AttachmentMessages = attachmentMessages ?? Array.Empty<AttachmentMessage>();
             FullText = fullText;
             TimeFormatted = date.ToString("HH:mm");
+            Deleted = deleted;
 
             if (fullText.Length > MaxLength)
             {
@@ -98,6 +102,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             {
                 Text = fullText;
             }
+
+            if (Deleted)
+                Text = $"{TrashCan} {Text}";
 
             if (AttachmentMessages.Any())
             {
@@ -150,6 +157,18 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             {
                 Text = text;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
+            }
+        }
+
+        public void SetDeleted(bool value)
+        {
+            if (Deleted != value)
+            {
+                Deleted = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Deleted)));
+
+                if (value && !Text.StartsWith(TrashCan))
+                    SetText($"{TrashCan} {Text}");
             }
         }
     }

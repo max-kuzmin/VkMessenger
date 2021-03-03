@@ -8,5 +8,6 @@ namespace ru.MaxKuzmin.VkMessenger
 
         public static readonly Color DarkBlue = Color.FromHex("00354A");
         public static readonly Color BrightBlue = Color.FromHex("6464ff");
+        public static readonly Color DarkestGray = Color.FromHex("444444");
     }
 }
