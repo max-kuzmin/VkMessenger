@@ -192,4 +192,7 @@
   <data name="VoiceMessageLimit" xml:space="preserve">
     <value>Voice message limit of 5 minutes has reached. Recording stopped.</value>
   </data>
+  <data name="DeleteMessageNoInternetError" xml:space="preserve">
+    <value>Can't delete message. No internet connection</value>
+  </data>
 </root>

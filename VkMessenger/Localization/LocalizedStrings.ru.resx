@@ -192,4 +192,7 @@
   <data name="VoiceMessageLimit" xml:space="preserve">
     <value>Достигнут лимит записи аудио сообщения (5 минут). Запись остановлена.</value>
   </data>
+  <data name="String1" xml:space="preserve">
+    <value>Невозможно удалить сообщение. Нет интернет соединения</value>
+  </data>
 </root>

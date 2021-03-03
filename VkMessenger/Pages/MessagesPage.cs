@@ -63,6 +63,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             messagesListView.GestureRecognizers.Add(swipeRightRecognizer);
 
             messagesListView.ItemTapped += OnItemTapped;
+            messagesListView.ItemLongPressed += OnItemLongPressed;
             messagesListView.ItemAppearing += OnLoadMoreMessages;
             popupEntryView.Completed += OnTextCompleted;
 
@@ -110,6 +111,29 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var message = (Message)e.Item;
             if (message.FullScreenAllowed)
                 await Navigation.PushAsync(new MessagePage(message));
+        }
+
+        private async void OnItemLongPressed(object sender, ItemLongPressedEventArgs e)
+        {
+            if (popupEntryView.IsPopupOpened)
+                return;
+
+            var message = (Message)e.Item;
+
+            // Possible to delete current user messages that is not older than 1d
+            if (dialogId == AuthorizationManager.UserId
+                || message.Profile?.Id != AuthorizationManager.UserId
+                || message.Date < DateTime.Now.AddDays(-1))
+                return;
+
+            await NetExceptionCatchHelpers.CatchNetException(() => messagesManager.DeleteMessage(dialogId, message.Id),
+                () =>
+                {
+                    OnItemLongPressed(sender, e);
+                    return Task.CompletedTask;
+                },
+                LocalizedStrings.DeleteMessageNoInternetError,
+                false);
         }
 
         /// <summary>

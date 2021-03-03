@@ -54,10 +54,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         public void AddUpdateMessagesInCollection(int dialogId, IReadOnlyCollection<Message> newMessages, int unreadCount)
         {
             var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
-            if (dialog == null)
-                return;
-
-            var collection = dialog.Messages as Collection<Message>;
+            var collection = dialog?.Messages as Collection<Message>;
             if (collection == null)
                 return;
 
@@ -123,16 +120,31 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         public void TrimMessages(int dialogId)
         {
             var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
-            if (dialog == null)
-                return;
-
-            var collection = dialog.Messages as Collection<Message>;
+            var collection = dialog?.Messages as Collection<Message>;
             if (collection == null)
                 return;
 
             lock (collection)
             {
                 collection.Trim(Consts.BatchSize);
+            }
+        }
+
+        public async Task DeleteMessage(int dialogId, int messageId)
+        {
+            var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
+            var collection = dialog?.Messages as Collection<Message>;
+            if (collection == null)
+                return;
+
+            await MessagesClient.DeleteMessage(messageId);
+
+            lock (collection)
+            {
+                var message = collection.FirstOrDefault(e => e.Id == messageId);
+                if (message == null)
+                    return;
+                collection.Remove(message);
             }
         }
 

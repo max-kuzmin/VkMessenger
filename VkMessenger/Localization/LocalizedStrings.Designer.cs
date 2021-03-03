@@ -79,6 +79,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t delete message. No internet connection.
+        /// </summary>
+        internal static string DeleteMessageNoInternetError {
+            get {
+                return ResourceManager.GetString("DeleteMessageNoInternetError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t load dialogs. No internet connection.
         /// </summary>
         internal static string DialogsNoInternetError {

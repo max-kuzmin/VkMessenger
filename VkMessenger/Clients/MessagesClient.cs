@@ -239,6 +239,31 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             }
         }
 
+        public static async Task DeleteMessage(int messageId)
+        {
+            try
+            {
+                Logger.Info($"Removing message {messageId}");
+
+                var url =
+                    "https://api.vk.com/method/messages.delete" +
+                    "?v=5.124" +
+                    "&message_ids=" + messageId +
+                    "&access_token=" + AuthorizationManager.Token +
+                    "&delete_for_all=1";
+
+                using var client = new ProxiedWebClient();
+                await HttpHelpers.RetryIfEmptyResponse<JsonDto<object>>(
+                    () => client.GetAsync(new Uri(url)),
+                    e => e?.response != null);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+                throw;
+            }
+        }
+
         private static async Task<MessagesResponseDto> GetMessagesJsonByIds(IReadOnlyCollection<int> messagesIds)
         {
             var url =
