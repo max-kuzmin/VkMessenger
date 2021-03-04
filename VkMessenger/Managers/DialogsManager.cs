@@ -198,7 +198,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             {
                 foundDialog.SetOnline(newProfile.Id, newDialog.Online);
             }
-            messagesManager.AddUpdateMessagesInCollection(foundDialog.Id, newDialog.Messages, newDialog.UnreadCount);
+            messagesManager.AddUpdateMessagesInCollection(foundDialog.Id, newDialog.Messages, newDialog.UnreadCount, false);
             foundDialog.SetUnreadCount(newDialog.UnreadCount);
         }
     }

@@ -81,14 +81,6 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
                 default(Uri),
                 propertyChanged: OnVoiceMessageSourcePropertyChanged);
 
-        public static readonly BindableProperty DeletedProperty =
-            BindableProperty.Create(
-                nameof(Message.Deleted),
-                typeof(bool?),
-                typeof(MessageCell),
-                default(bool?),
-                propertyChanged: OnDeletedPropertyChanged);
-
         public MessageCell()
         {
             photo.SetBinding(CachedImage.SourceProperty, nameof(Message.Photo));
@@ -97,7 +89,6 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             this.SetBinding(SenderIdProperty, nameof(Message.SenderId));
             this.SetBinding(ReadProperty, nameof(Message.Read));
             this.SetBinding(VoiceMessageSourceProperty, nameof(Message.VoiceMessage));
-            this.SetBinding(DeletedProperty, nameof(Message.Deleted));
 
             photoWrapperLayout.Children.Add(photo);
             photoWrapperLayout.Children.Add(time);
@@ -105,14 +96,6 @@ namespace ru.MaxKuzmin.VkMessenger.Cells
             wrapperLayout.Children.Add(text);
             outerLayout.Children.Add(wrapperLayout);
             View = outerLayout;
-        }
-
-        private static void OnDeletedPropertyChanged(BindableObject bindable, object oldValue, object newValue)
-        {
-            if (bindable is MessageCell cell && newValue is bool value && value)
-            {
-                cell.text.TextColor = Consts.DarkestGray;
-            }
         }
 
         private static void OnSenderIdPropertyChanged(BindableObject bindable, object oldValue, object newValue)

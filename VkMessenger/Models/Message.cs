@@ -15,7 +15,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     {
         private const int MaxLength = 150;
         private const string PaperClip = "📎";
-        private const string TrashCan = "🗑";
 
         /// <summary>
         /// Positive number
@@ -103,9 +102,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 Text = fullText;
             }
 
-            if (Deleted)
-                Text = $"{TrashCan} {Text}";
-
             if (AttachmentMessages.Any())
             {
                 Text += $"\n{PaperClip} {LocalizedStrings.Message}";
@@ -157,18 +153,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             {
                 Text = text;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
-            }
-        }
-
-        public void SetDeleted(bool value)
-        {
-            if (Deleted != value)
-            {
-                Deleted = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Deleted)));
-
-                if (value && !Text.StartsWith(TrashCan))
-                    SetText($"{TrashCan} {Text}");
             }
         }
     }

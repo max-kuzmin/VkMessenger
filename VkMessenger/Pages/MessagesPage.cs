@@ -128,7 +128,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 return;
 
             await NetExceptionCatchHelpers.CatchNetException(
-                () => messagesManager.DeleteMessage(dialogId, message.Id),
+                () => MessagesClient.DeleteMessage(message.Id),
                 () =>
                 {
                     OnItemLongPressed(sender, e);

@@ -31,7 +31,8 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             var newMessages = await MessagesClient.GetMessages(dialog.Id, offset);
             if (newMessages.Any())
             {
-                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount);
+                var isLastMessagesUpdate = offset == null;
+                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount, isLastMessagesUpdate);
                 await DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
             }
         }
@@ -46,12 +47,12 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             var newMessages = await MessagesClient.GetMessagesByIds(messagesIds);
             if (newMessages.Any())
             {
-                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount);
+                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount, false);
                 await DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
             }
         }
 
-        public void AddUpdateMessagesInCollection(int dialogId, IReadOnlyCollection<Message> newMessages, int unreadCount)
+        public void AddUpdateMessagesInCollection(int dialogId, IReadOnlyCollection<Message> newMessages, int unreadCount, bool isLastMessagesUpdate)
         {
             var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
             if (dialog == null)
@@ -72,21 +73,42 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 foreach (var newMessage in newMessages)
                 {
                     var foundMessage = collection.FirstOrDefault(m => m.Id == newMessage.Id);
-                    if (foundMessage != null)
+                    if (newMessage.Deleted)
+                    {
+                        if (foundMessage != null)
+                            collection.Remove(foundMessage);
+                    }
+                    else if (foundMessage != null)
                         UpdateMessage(newMessage, foundMessage);
                     else if (newestExistingId < newMessage.ConversationMessageId)
                         newMessagesToPrepend.Add(newMessage);
                     else if (oldestExistingId > newMessage.ConversationMessageId)
                         oldMessagesToAppend.Add(newMessage);
                     else
-                        for (int i = 0; i < collection.Count; i++)
+                        for (int newIndex = 0; newIndex < collection.Count; newIndex++)
                         {
-                            if (collection[i].ConversationMessageId < newMessage.ConversationMessageId)
+                            if (collection[newIndex].ConversationMessageId < newMessage.ConversationMessageId)
                             {
-                                collection.Insert(i, newMessage);
+                                collection.Insert(newIndex, newMessage);
                                 break;
                             }
                         }
+                }
+
+                // Delete messages, that was not returned by update of last messages in dialog
+                if (isLastMessagesUpdate)
+                {
+                    var oldestNewId = newMessages.Last().ConversationMessageId;
+                    for (int id = oldestNewId + 1; id <= newestExistingId; id++)
+                    {
+                        var newMessage = newMessages.FirstOrDefault(e => e.ConversationMessageId == id);
+                        if (newMessage != null)
+                            continue;
+
+                        var oldMessage = collection.FirstOrDefault(e => e.ConversationMessageId == id);
+                        if (oldMessage != null)
+                            collection.Remove(oldMessage);
+                    }
                 }
 
                 collection.AddRange(oldMessagesToAppend);
@@ -136,34 +158,12 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        public async Task DeleteMessage(int dialogId, int messageId)
-        {
-            var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
-            if (dialog == null)
-                return;
-            
-            var collection = dialog.Messages as Collection<Message>;
-            if (collection == null)
-                return;
-
-            await MessagesClient.DeleteMessage(messageId);
-
-            lock (collection)
-            {
-                var message = collection.FirstOrDefault(e => e.Id == messageId);
-                message?.SetDeleted(true);
-            }
-
-            await DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
-        }
-
         /// <summary>
         /// Update message data without recreating it
         /// </summary>
         private static void UpdateMessage(Message newMessage, Message foundMessage)
         {
             foundMessage.SetText(newMessage.Text);
-            foundMessage.SetDeleted(newMessage.Deleted);
         }
     }
 }
