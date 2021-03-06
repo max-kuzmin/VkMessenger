@@ -14,7 +14,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         private readonly IReadOnlyCollection<Dialog> dialogsCollection;
 
         public IReadOnlyCollection<Message> GetMessages(int dialogId) =>
-            dialogsCollection.FirstOrDefault(e => e.Id == dialogId)?.Messages ?? Array.Empty<Message>();
+            FirstOrDefaultWithLock(dialogId)?.Messages ?? Array.Empty<Message>();
 
         public MessagesManager(IReadOnlyCollection<Dialog> dialogsCollection)
         {
@@ -23,7 +23,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
         public async Task UpdateMessagesFromApi(int dialogId, int? offset = null)
         {
-            var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
+            var dialog = FirstOrDefaultWithLock(dialogId);
             if (dialog == null)
                 return;
 
@@ -32,14 +32,15 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             if (newMessages.Any())
             {
                 var isLastMessagesUpdate = offset == null;
-                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount, isLastMessagesUpdate);
+                //Trim to batch size to prevent skipping new messages between cached and 20 loaded on init
+                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount, isLastMessagesUpdate, true);
                 await DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
             }
         }
 
         public async Task UpdateMessagesFromApiByIds(int dialogId, IReadOnlyCollection<int> messagesIds)
         {
-            var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
+            var dialog = FirstOrDefaultWithLock(dialogId);
             if (dialog == null)
                 return;
 
@@ -47,14 +48,14 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             var newMessages = await MessagesClient.GetMessagesByIds(messagesIds);
             if (newMessages.Any())
             {
-                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount, false);
+                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount, false, false);
                 await DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
             }
         }
 
-        public void AddUpdateMessagesInCollection(int dialogId, IReadOnlyCollection<Message> newMessages, int unreadCount, bool isLastMessagesUpdate)
+        public void AddUpdateMessagesInCollection(int dialogId, IReadOnlyCollection<Message> newMessages, int unreadCount, bool isLastMessagesUpdate, bool trim)
         {
-            var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
+            var dialog = FirstOrDefaultWithLock(dialogId);
             if (dialog == null)
                 return;
 
@@ -114,12 +115,15 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 collection.AddRange(oldMessagesToAppend);
                 collection.PrependRange(newMessagesToPrepend);
                 UpdateMessagesRead(dialogId, unreadCount);
+
+                if (trim)
+                    collection.Trim(Consts.BatchSize);
             }
         }
 
         public void UpdateMessagesRead(int dialogId, int unreadCount)
         {
-            var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
+            var dialog = FirstOrDefaultWithLock(dialogId);
             if (dialog == null)
                 return;
 
@@ -142,28 +146,20 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        public void TrimMessages(int dialogId)
-        {
-            var dialog = dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
-            if (dialog == null)
-                return;
-
-            var collection = dialog.Messages as Collection<Message>;
-            if (collection == null)
-                return;
-
-            lock (collection)
-            {
-                collection.Trim(Consts.BatchSize);
-            }
-        }
-
         /// <summary>
         /// Update message data without recreating it
         /// </summary>
         private static void UpdateMessage(Message newMessage, Message foundMessage)
         {
             foundMessage.SetText(newMessage.Text);
+        }
+
+        private Dialog? FirstOrDefaultWithLock(int dialogId)
+        {
+            lock (dialogsCollection)
+            {
+                return dialogsCollection.FirstOrDefault(e => e.Id == dialogId);
+            }
         }
     }
 }

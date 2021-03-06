@@ -21,6 +21,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public DialogType Type { get; set; }
         public int UnreadCount { get; set; }
         public bool CanWrite { get; set; }
+        /// <summary>
+        /// Indicates that dialog will be fully updated when messages page open next time
+        /// </summary>
         [JsonIgnore]
         public bool IsInitRequired = true;
         [JsonIgnore]

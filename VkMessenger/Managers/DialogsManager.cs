@@ -13,6 +13,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         private readonly ObservableCollection<Dialog> collection;
         private readonly MessagesManager messagesManager;
 
+        // ReSharper disable once InconsistentlySynchronizedField
         public IReadOnlyCollection<Dialog> Collection => collection;
 
         public DialogsManager(ObservableCollection<Dialog> collection, MessagesManager messagesManager)
@@ -25,7 +26,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         {
             var cached = await DurableCacheManager.GetDialogs();
             if (cached != null)
-                AddUpdateDialogsInCollection(cached);
+                AddUpdateDialogsInCollection(cached, false);
         }
 
         public async Task UpdateDialogsFromApi()
@@ -33,14 +34,10 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             var newDialogs = await DialogsClient.GetDialogs();
             if (newDialogs.Any())
             {
-                AddUpdateDialogsInCollection(newDialogs);
-
-                Dialog[] copy;
-                lock (collection)
-                {
-                    copy = collection.ToArray();
-                }
-                await DurableCacheManager.SaveDialogs(copy);
+                //Trim to batch size to prevent skipping new dialogs between cached and 20 loaded on init
+                AddUpdateDialogsInCollection(newDialogs, true);
+                // ReSharper disable once InconsistentlySynchronizedField
+                await DurableCacheManager.SaveDialogs(collection);
             }
         }
 
@@ -52,14 +49,9 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             var newDialogs = await DialogsClient.GetDialogsByIds(dialogIds);
             if (newDialogs.Any())
             {
-                AddUpdateDialogsInCollection(newDialogs);
-
-                Dialog[] copy;
-                lock (collection)
-                {
-                    copy = collection.ToArray();
-                }
-                await DurableCacheManager.SaveDialogs(copy);
+                AddUpdateDialogsInCollection(newDialogs, false);
+                // ReSharper disable once InconsistentlySynchronizedField
+                await DurableCacheManager.SaveDialogs(collection);
             }
 
             return newDialogs.SelectMany(e => e.Messages.Select(m => m.Id)).Distinct().ToArray();
@@ -82,22 +74,9 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        public void TrimDialogs()
-        {
-            lock (collection)
-            {
-                collection.Trim(Consts.BatchSize);
-            }
-        }
-
         public void SetDialogAndMessagesRead(int dialogId)
         {
-            Dialog? dialog;
-            lock (collection)
-            {
-                dialog = collection.FirstOrDefault(e => e.Id == dialogId);
-            }
-
+            var dialog = FirstOrDefaultWithLock(dialogId);
             if (dialog == null)
                 return;
 
@@ -107,12 +86,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
         public async Task SetDialogAndMessagesReadAndPublish(int dialogId)
         {
-            Dialog? dialog;
-            lock (collection)
-            {
-                dialog = collection.FirstOrDefault(e => e.Id == dialogId);
-            }
-
+            var dialog = FirstOrDefaultWithLock(dialogId);
             if (dialog == null)
                 return;
 
@@ -138,10 +112,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
         public bool CanWrite(int dialogId)
         {
-            lock (collection)
-            {
-                return collection.FirstOrDefault(e => e.Id == dialogId)?.CanWrite == true;
-            }
+            return FirstOrDefaultWithLock(dialogId)?.CanWrite == true;
         }
 
         public Dialog? First()
@@ -152,7 +123,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        private void AddUpdateDialogsInCollection(IReadOnlyCollection<Dialog> newDialogs)
+        private void AddUpdateDialogsInCollection(IReadOnlyCollection<Dialog> newDialogs, bool trim)
         {
             lock (collection)
             {
@@ -195,6 +166,9 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 }
 
                 collection.PrependRange(dialogsToInsert);
+
+                if (trim)
+                    collection.Trim(Consts.BatchSize);
             }
         }
 
@@ -207,8 +181,16 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             {
                 foundDialog.SetOnline(newProfile.Id, newDialog.Online);
             }
-            messagesManager.AddUpdateMessagesInCollection(foundDialog.Id, newDialog.Messages, newDialog.UnreadCount, false);
+            messagesManager.AddUpdateMessagesInCollection(foundDialog.Id, newDialog.Messages, newDialog.UnreadCount, false, false);
             foundDialog.SetUnreadCount(newDialog.UnreadCount);
+        }
+
+        private Dialog? FirstOrDefaultWithLock(int dialogId)
+        {
+            lock (collection)
+            {
+                return collection.FirstOrDefault(e => e.Id == dialogId);
+            }
         }
     }
 }

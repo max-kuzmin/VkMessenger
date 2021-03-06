@@ -41,8 +41,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             await dialogsManager.UpdateDialogsFromCache();
             dialogsListView.ScrollIfExist(dialogsManager.First(), ScrollToPosition.Center);
-            await InitFromApi();
-            dialogsListView.ScrollIfExist(dialogsManager.First(), ScrollToPosition.Center);
+            Appearing -= OnAppearing;
         }
 
         /// <summary>
@@ -50,8 +49,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async Task InitFromApi()
         {
-            Appearing -= OnAppearing;
-
             var refreshingPopup = dialogsManager.First() != null ? null : new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
             refreshingPopup?.Show();
 
@@ -59,8 +56,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 async () =>
                 {
                     await dialogsManager.UpdateDialogsFromApi();
-                    //Trim to batch size to prevent skipping new dialogs between cached and 20 loaded on init
-                    dialogsManager.TrimDialogs();
                 },
                 InitFromApi,
                 LocalizedStrings.DialogsNoInternetError,
@@ -81,7 +76,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         public async Task Reset()
         {
-            dialogsManager.SetAllDialogsInitRequired();
             await InitFromApi();
         }
     }

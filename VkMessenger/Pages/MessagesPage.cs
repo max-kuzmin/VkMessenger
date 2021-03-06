@@ -73,6 +73,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OnAppearing(object s, EventArgs e)
         {
+            Appearing -= OnAppearing;
             await InitFromApi();
         }
 
@@ -81,8 +82,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async Task InitFromApi()
         {
-            Appearing -= OnAppearing;
-
             var messagesCount = messagesManager.GetMessages(dialogId).Count;
             var refreshingPopup = messagesCount > 1 ? null : new InformationPopup { Text = LocalizedStrings.LoadingMessages };
             refreshingPopup?.Show();
@@ -91,8 +90,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 async () =>
                 {
                     await messagesManager.UpdateMessagesFromApi(dialogId);
-                    //Trim to batch size to prevent skipping new messages between cached and 20 loaded on init
-                    messagesManager.TrimMessages(dialogId);
                 },
                 InitFromApi,
                 LocalizedStrings.MessagesNoInternetError,

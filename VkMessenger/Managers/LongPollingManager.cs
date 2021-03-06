@@ -23,10 +23,12 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         private string? Server;
         private int? Ts;
         private readonly TimeSpan LongPoolingRequestInterval = TimeSpan.FromSeconds(2);
+        private readonly TimeSpan LongPoolingStartStopInterval = TimeSpan.FromSeconds(3);
         private const string CanceledException = "canceled";
 
         private CancellationTokenSource? startingTokenSource, stoppingTokenSource, startedTokenSource;
         private Status status = Status.Stopped;
+        private bool isInitialized;
 
         enum Status
         {
@@ -43,7 +45,6 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             this.dialogsManager = dialogsManager;
             this.messagesManager = messagesManager;
         }
-
 
         public async Task Start()
         {
@@ -68,7 +69,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 startingTokenSource = new CancellationTokenSource();
                 var token = startingTokenSource.Token;
                 status = Status.Starting;
-                await Task.Delay(TimeSpan.FromSeconds(3), token);
+                await Task.Delay(LongPoolingStartStopInterval, token);
             }
             catch
             {
@@ -116,7 +117,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 stoppingTokenSource = new CancellationTokenSource();
                 var token = stoppingTokenSource.Token;
                 status = Status.Stopping;
-                await Task.Delay(TimeSpan.FromSeconds(3), token);
+                await Task.Delay(LongPoolingStartStopInterval, token);
             }
             catch
             {
@@ -138,23 +139,20 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 {
                     try
                     {
-                        if (Ts == null || Server == null || Key == null)
+                        if (isInitialized)
                         {
-                            var response = await LongPollingClient.GetLongPollServer();
-                            Key = response.key;
-                            Server = response.server;
-                            Ts ??= response.ts;
-                        }
-
-                        var json = await LongPollingClient.SendLongRequest(Server, Key, Ts.Value, cancellationToken);
-
-                        if (json.failed != null)
-                        {
-                            await Reset();
+                            var json = await LongPollingClient.SendLongRequest(Server!, Key!, Ts!.Value, cancellationToken);
+                            if (json.failed != null)
+                                isInitialized = false;
+                            else
+                                await ParseLongPollingJson(json);
                         }
                         else
                         {
-                            await ParseLongPollingJson(json);
+                            // It's important to get params before reset pages to stay synced with it's content
+                            await GetServer();
+                            await Reset();
+                            isInitialized = true;
                         }
                     }
                     catch (Exception e)
@@ -166,6 +164,14 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
                 await Task.Delay(LongPoolingRequestInterval, cancellationToken);
             }
+        }
+
+        private async Task GetServer()
+        {
+            var response = await LongPollingClient.GetLongPollServer();
+            Key = response.key;
+            Server = response.server;
+            Ts ??= response.ts;
         }
 
         private async Task ParseLongPollingJson(LongPollingUpdatesJsonDto json)
@@ -290,10 +296,10 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         {
             Logger.Info("Long pooling reset");
 
-            Ts = null;
-
             if (Navigation == null)
                 return;
+
+            dialogsManager.SetAllDialogsInitRequired();
 
             foreach (var page in Navigation.NavigationStack.OfType<IResettable>())
             {
