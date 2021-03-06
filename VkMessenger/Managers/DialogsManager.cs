@@ -176,7 +176,16 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                             && oldLastMessage.Id != newLastMessage.Id)
                         {
                             collection.Remove(foundDialog);
-                            dialogsToInsert.Add(foundDialog);
+
+                            for (int newIndex = 0; newIndex < collection.Count; newIndex++)
+                            {
+                                var dialogLastMessage = collection[newIndex].Messages.FirstOrDefault();
+                                if (dialogLastMessage != null && dialogLastMessage.Date < newLastMessage.Date)
+                                {
+                                    collection.Insert(newIndex, foundDialog);
+                                    break;
+                                }
+                            }
                         }
                     }
                     else
