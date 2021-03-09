@@ -23,7 +23,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         private string? Server;
         private int? Ts;
         private readonly TimeSpan LongPoolingRequestInterval = TimeSpan.FromSeconds(2);
-        private readonly TimeSpan LongPoolingStartStopInterval = TimeSpan.FromSeconds(3);
+        private readonly TimeSpan LongPoolingStartStopInterval = TimeSpan.FromSeconds(2);
         private const string CanceledException = "canceled";
 
         private CancellationTokenSource? startingTokenSource, stoppingTokenSource, startedTokenSource;

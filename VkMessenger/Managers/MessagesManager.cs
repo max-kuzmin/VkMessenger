@@ -73,18 +73,23 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
                 foreach (var newMessage in newMessages)
                 {
+                    // Delete found message
                     var foundMessage = collection.FirstOrDefault(m => m.Id == newMessage.Id);
                     if (newMessage.Deleted)
                     {
                         if (foundMessage != null)
                             collection.Remove(foundMessage);
                     }
+                    // Update found message
                     else if (foundMessage != null)
                         UpdateMessage(newMessage, foundMessage);
+                    // Prepend new message
                     else if (newestExistingId < newMessage.ConversationMessageId)
                         newMessagesToPrepend.Add(newMessage);
+                    // Append old message
                     else if (oldestExistingId > newMessage.ConversationMessageId)
                         oldMessagesToAppend.Add(newMessage);
+                    // Find message place in collection
                     else
                         for (int newIndex = 0; newIndex < collection.Count; newIndex++)
                         {

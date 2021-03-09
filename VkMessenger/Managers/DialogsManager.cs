@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -127,45 +128,54 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         {
             lock (collection)
             {
-                var dialogsToInsert = new List<Dialog>();
+                var newDialogsToAppend = new List<Dialog>();
+                var oldDialogsToPrepend = new List<Dialog>();
+
+                var newestExistingDialogTime = collection.FirstOrDefault()?.FirstMessage.Date;
+                var oldestExistingDialogTime = collection.LastOrDefault()?.FirstMessage.Date;
+
+                // If collection is empty, just add all dialogs to it
+                if (newestExistingDialogTime == null || oldestExistingDialogTime == null)
+                {
+                    collection.PrependRange(newDialogs);
+                    return;
+                }
 
                 foreach (var newDialog in newDialogs)
                 {
+                    var newDialogTime = newDialog.FirstMessage.Date;
                     var foundDialog = collection.FirstOrDefault(m => m.Id == newDialog.Id);
+                    Dialog newOrFoundDialog = newDialog;
+
+                    // Update found dialog and remove it from collection
                     if (foundDialog != null)
                     {
-                        // It's important to get first message before UpdateDialog
-                        var oldLastMessage = foundDialog.Messages.FirstOrDefault();
-                        var newLastMessage = newDialog.Messages.FirstOrDefault();
-
                         UpdateDialog(newDialog, foundDialog);
+                        collection.Remove(foundDialog);
+                        newOrFoundDialog = foundDialog;
+                    }
 
-                        // Move dialog to top, because it was updated
-                        if (collection.IndexOf(foundDialog) != collection.Count - 1
-                            && oldLastMessage != null
-                            && newLastMessage != null
-                            && oldLastMessage.Id != newLastMessage.Id)
+                    // Append new or found dialog
+                    if (newestExistingDialogTime < newDialogTime)
+                        newDialogsToAppend.Add(newOrFoundDialog);
+                    // Prepend old or found dialog
+                    else if (oldestExistingDialogTime > newDialogTime)
+                        oldDialogsToPrepend.Add(newOrFoundDialog);
+                    // Find dialog place in collection
+                    else
+                        for (int newIndex = 0; newIndex < collection.Count; newIndex++)
                         {
-                            collection.Remove(foundDialog);
-
-                            for (int newIndex = 0; newIndex < collection.Count; newIndex++)
+                            var dialogTime = collection[newIndex].FirstMessage.Date;
+                            if (dialogTime < newDialogTime)
                             {
-                                var dialogLastMessage = collection[newIndex].Messages.FirstOrDefault();
-                                if (dialogLastMessage != null && dialogLastMessage.Date < newLastMessage.Date)
-                                {
-                                    collection.Insert(newIndex, foundDialog);
-                                    break;
-                                }
+                                collection.Insert(newIndex, newOrFoundDialog);
+                                break;
                             }
                         }
-                    }
-                    else
-                    {
-                        dialogsToInsert.Add(newDialog);
-                    }
                 }
 
-                collection.PrependRange(dialogsToInsert);
+                collection.AddRange(oldDialogsToPrepend);
+                collection.PrependRange(newDialogsToAppend);
 
                 if (trim)
                     collection.Trim(Consts.BatchSize);

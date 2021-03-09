@@ -31,6 +31,21 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         [JsonIgnore]
         public bool Online => Type == DialogType.User && Profiles.FirstOrDefault()?.Online == true;
 
+        /// <summary>
+        /// Dialog always has at least one message
+        /// </summary>
+        [JsonIgnore]
+        public Message FirstMessage
+        {
+            get
+            {
+                lock (Messages)
+                {
+                    return Messages.First();
+                }
+            }
+        }
+
         [JsonIgnore]
         public string Title
         {
