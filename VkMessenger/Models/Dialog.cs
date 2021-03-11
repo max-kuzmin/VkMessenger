@@ -17,7 +17,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public IReadOnlyCollection<Profile> Profiles { get; set; }
         public Group? Group { get; set; }
         public Chat? Chat { get; set; }
-        public IReadOnlyCollection<Message> Messages { get; set; }
+        public ObservableCollection<Message> Messages { get; set; }
         public DialogType Type { get; set; }
         public int UnreadCount { get; set; }
         public bool CanWrite { get; set; }
@@ -114,7 +114,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             };
             Messages = messagesCollection;
 
-            Profiles = new ObservableCollection<Profile>(profiles ?? Array.Empty<Profile>());
+            Profiles = profiles ?? Array.Empty<Profile>();
         }
 
         public void SetUnreadCount(int unreadCount)

@@ -9,10 +9,10 @@ namespace ru.MaxKuzmin.VkMessenger.Net
 {
     internal static class HttpHelpers
     {
-        private const int Retries = 3;
+        private const int Retries = 2;
         private const int IntervalMs = 500;
 
-        public static async Task<T> RetryIfEmptyResponse<T>(Func<Task<string>> apiCall, Func<T, bool> condition,
+        public static async Task<T> RetryIfEmptyResponse<T>(Func<Task<string?>> apiCall, Func<T, bool> condition,
             [CallerFilePath] string? file = null, [CallerMemberName] string? caller = null, [CallerLineNumber] int line = 0)
         {
             string? json = null;

@@ -22,7 +22,7 @@ namespace ru.MaxKuzmin.VkMessenger.Net
             httpClient = new HttpClient(handler, true);
         }
 
-        public async Task<string> UploadFileAsync(byte[] file, string filename, string contentType, Uri url, CancellationToken cancellationToken = default)
+        public async Task<string?> UploadFileAsync(byte[] file, string filename, string contentType, Uri url, CancellationToken cancellationToken = default)
         {
             string boundary = DateTime.Now.Ticks.ToString("x");
             var fileContent = new ByteArrayContent(file)
@@ -35,7 +35,7 @@ namespace ru.MaxKuzmin.VkMessenger.Net
             return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<string> GetAsync(Uri url, CancellationToken cancellationToken = default)
+        public async Task<string?> GetAsync(Uri url, CancellationToken cancellationToken = default)
         {
             var response = await httpClient.GetAsync(url, cancellationToken);
             return await response.Content.ReadAsStringAsync();
@@ -48,7 +48,7 @@ namespace ru.MaxKuzmin.VkMessenger.Net
             await File.WriteAllBytesAsync(path, stream, cancellationToken);
         }
 
-        public async Task<string> PostAsync(Uri url, string text, CancellationToken cancellationToken = default)
+        public async Task<string?> PostAsync(Uri url, string text, CancellationToken cancellationToken = default)
         {
             var response = await httpClient.PostAsync(url, new StringContent(text), cancellationToken);
             return await response.Content.ReadAsStringAsync();

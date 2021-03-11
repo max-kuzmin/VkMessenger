@@ -122,8 +122,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     OnSendButtonPressed(sender, e);
                     return Task.CompletedTask;
                 },
-                LocalizedStrings.SendMessageNoInternetError,
-                false);
+                LocalizedStrings.SendMessageNoInternetError);
 
             sendButton.IsEnabled = true;
         }

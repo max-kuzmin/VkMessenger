@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Clients;
@@ -13,8 +11,8 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
     {
         private readonly IReadOnlyCollection<Dialog> dialogsCollection;
 
-        public IReadOnlyCollection<Message> GetMessages(int dialogId) =>
-            FirstOrDefaultWithLock(dialogId)?.Messages ?? Array.Empty<Message>();
+        public IReadOnlyCollection<Message>? GetMessages(int dialogId) =>
+            FirstOrDefaultWithLock(dialogId)?.Messages;
 
         public MessagesManager(IReadOnlyCollection<Dialog> dialogsCollection)
         {
@@ -59,10 +57,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             if (dialog == null)
                 return;
 
-            var collection = dialog.Messages as Collection<Message>;
-            if (collection == null)
-                return;
-
+            var collection = dialog.Messages;
             lock (collection)
             {
                 var newestExistingId = collection.First().ConversationMessageId;
@@ -148,6 +143,22 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                         message.SetRead(false);
                     }
                 }
+            }
+        }
+
+        public async Task DeleteMessage(int dialogId, int messageId)
+        {
+            await MessagesClient.DeleteMessage(messageId);
+            var dialog = FirstOrDefaultWithLock(dialogId);
+            if (dialog == null)
+                return;
+
+            var collection = dialog.Messages;
+            lock (collection)
+            {
+                var message = collection.FirstOrDefault(e => e.Id == messageId);
+                if (message != null)
+                    collection.Remove(message);
             }
         }
 

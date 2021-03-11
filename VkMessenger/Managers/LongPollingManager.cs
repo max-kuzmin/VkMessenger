@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Dtos;
+using ru.MaxKuzmin.VkMessenger.Exceptions;
 using ru.MaxKuzmin.VkMessenger.Extensions;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Loggers;
 using ru.MaxKuzmin.VkMessenger.Models;
 using ru.MaxKuzmin.VkMessenger.Pages;
@@ -29,6 +33,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         private CancellationTokenSource? startingTokenSource, stoppingTokenSource, startedTokenSource;
         private Status status = Status.Stopped;
         private bool isInitialized;
+        private bool isWarningPopupOpened;
 
         enum Status
         {
@@ -143,7 +148,10 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                         {
                             var json = await LongPollingClient.SendLongRequest(Server!, Key!, Ts!.Value, cancellationToken);
                             if (json.failed != null)
+                            {
                                 isInitialized = false;
+                                isWarningPopupOpened = false;
+                            }
                             else
                                 await ParseLongPollingJson(json);
                         }
@@ -153,6 +161,21 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                             await GetServer();
                             await Reset();
                             isInitialized = true;
+                        }
+                    }
+                    // Show warning popup if GetServer failed (not initialized), if back button on popup pressed,
+                    // it will be dismissed until next initialization
+                    catch (Exception e) when(e is HttpRequestException || e is WebException || e is EmptyHttpResponseException)
+                    {
+                        if (!isInitialized && !isWarningPopupOpened)
+                        {
+                            isWarningPopupOpened = true;
+                            new CustomPopup(
+                                    LocalizedStrings.DialogsNoInternetError,
+                                    LocalizedStrings.Retry,
+                                    () => isWarningPopupOpened = false,
+                                    true)
+                                .Show();
                         }
                     }
                     catch (Exception e)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -83,6 +82,19 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
             messagesManager.UpdateMessagesRead(dialogId, 0);
             dialog.SetUnreadCount(0);
+        }
+
+        public bool GetIsInitRequired(int dialogId)
+        {
+            var dialog = FirstOrDefaultWithLock(dialogId);
+            return dialog != null && dialog.IsInitRequired;
+        }
+
+        public void SetIsInitRequiredToFalse(int dialogId)
+        {
+            var dialog = FirstOrDefaultWithLock(dialogId);
+            if (dialog != null)
+                dialog.IsInitRequired = false;
         }
 
         public async Task SetDialogAndMessagesReadAndPublish(int dialogId)

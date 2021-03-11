@@ -20,6 +20,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private readonly int dialogId;
         private readonly MessagesManager messagesManager;
         private readonly DialogsManager dialogsManager;
+        private RecordVoicePage? recordVoicePage;
 
         private readonly SwipeGestureRecognizer swipeLeftRecognizer = new SwipeGestureRecognizer
         {
@@ -44,7 +45,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             IsVisible = false
         };
 
-        public MessagesPage(int dialogId, MessagesManager messagesManager, DialogsManager dialogsManager, bool isInitRequired)
+        public MessagesPage(int dialogId, MessagesManager messagesManager, DialogsManager dialogsManager)
         {
             this.dialogId = dialogId;
             this.messagesManager = messagesManager;
@@ -67,7 +68,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             messagesListView.ItemAppearing += OnLoadMoreMessages;
             popupEntryView.Completed += OnTextCompleted;
 
-            if (isInitRequired)
+            if (dialogsManager.GetIsInitRequired(this.dialogId))
                 Appearing += OnAppearing;
         }
 
@@ -82,7 +83,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async Task InitFromApi()
         {
-            var messagesCount = messagesManager.GetMessages(dialogId).Count;
+            var messagesCount = messagesManager.GetMessages(dialogId)?.Count;
             var refreshingPopup = messagesCount > 1 ? null : new InformationPopup { Text = LocalizedStrings.LoadingMessages };
             refreshingPopup?.Show();
 
@@ -90,17 +91,17 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 async () =>
                 {
                     await messagesManager.UpdateMessagesFromApi(dialogId);
+                    dialogsManager.SetIsInitRequiredToFalse(dialogId);
                 },
                 InitFromApi,
-                LocalizedStrings.MessagesNoInternetError,
-                true);
+                LocalizedStrings.MessagesNoInternetError);
 
             refreshingPopup?.Dismiss();
         }
 
         private async void OnItemTapped(object sender, ItemTappedEventArgs e)
         {
-            if (popupEntryView.IsPopupOpened)
+            if (popupEntryView.IsPopupOpened || recordVoicePage?.IsVisible == true)
                 return;
 
             await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
@@ -112,11 +113,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OnItemLongPressed(object sender, ItemLongPressedEventArgs e)
         {
-            if (popupEntryView.IsPopupOpened)
+            if (popupEntryView.IsPopupOpened || recordVoicePage?.IsVisible == true)
                 return;
 
             var message = (Message)e.Item;
-
+            
             // Possible to delete current user messages that is not older than 1d
             if (dialogId == AuthorizationManager.UserId
                 || message.Profile?.Id != AuthorizationManager.UserId
@@ -125,14 +126,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 return;
 
             await NetExceptionCatchHelpers.CatchNetException(
-                () => MessagesClient.DeleteMessage(message.Id),
+                () => messagesManager.DeleteMessage(dialogId, message.Id),
                 () =>
                 {
                     OnItemLongPressed(sender, e);
                     return Task.CompletedTask;
                 },
-                LocalizedStrings.DeleteMessageNoInternetError,
-                false);
+                LocalizedStrings.DeleteMessageNoInternetError);
         }
 
         /// <summary>
@@ -143,8 +143,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OnLoadMoreMessages(object sender, ItemVisibilityEventArgs e)
         {
             var message = (Message)e.Item;
-            var messages = this.messagesManager.GetMessages(dialogId);
-            if (messages.Count >= Consts.BatchSize && messages.All(i => i.Id >= message.Id))
+            var messages = messagesManager.GetMessages(dialogId);
+            if (messages?.Count >= Consts.BatchSize && messages.All(i => i.Id >= message.Id))
             {
                 await messagesManager.UpdateMessagesFromApi(dialogId, messages.Count);
                 messagesListView.ScrollIfExist(message, ScrollToPosition.Center);
@@ -173,8 +173,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                  OnTextCompleted();
                  return Task.CompletedTask;
                 },
-                LocalizedStrings.SendMessageNoInternetError,
-                false);
+                LocalizedStrings.SendMessageNoInternetError);
         }
 
         private async void OpenKeyboard()
@@ -192,7 +191,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 return;
 
             await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
-            await Navigation.PushAsync(new RecordVoicePage(dialogId));
+            recordVoicePage = new RecordVoicePage(dialogId);
+            await Navigation.PushAsync(recordVoicePage);
         }
 
         protected override void OnDisappearing()

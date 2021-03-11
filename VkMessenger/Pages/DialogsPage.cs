@@ -3,7 +3,6 @@ using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Models;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Helpers;
 using ru.MaxKuzmin.VkMessenger.Managers;
@@ -45,7 +44,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         }
 
         /// <summary>
-        /// Called on start. If update unsuccessful show error popup and retry
+        /// Called when long pooling calls Reset. If update unsuccessful show error popup and retry
         /// </summary>
         private async Task InitFromApi()
         {
@@ -53,13 +52,9 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             refreshingPopup?.Show();
 
             await NetExceptionCatchHelpers.CatchNetException(
-                async () =>
-                {
-                    await dialogsManager.UpdateDialogsFromApi();
-                },
+                dialogsManager.UpdateDialogsFromApi,
                 InitFromApi,
-                LocalizedStrings.DialogsNoInternetError,
-                true);
+                LocalizedStrings.DialogsNoInternetError);
 
             refreshingPopup?.Dismiss();
         }
@@ -70,8 +65,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OnDialogTapped(object sender, ItemTappedEventArgs e)
         {
             var dialog = (Dialog)e.Item;
-            await Navigation.PushAsync(new MessagesPage(dialog.Id, messagesManager, dialogsManager, dialog.IsInitRequired));
-            dialog.IsInitRequired = false;
+            await Navigation.PushAsync(new MessagesPage(dialog.Id, messagesManager, dialogsManager));
         }
 
         public async Task Reset()

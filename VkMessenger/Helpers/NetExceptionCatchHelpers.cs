@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Exceptions;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Managers;
 using ru.MaxKuzmin.VkMessenger.Pages;
-using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Helpers
 {
@@ -14,19 +14,19 @@ namespace ru.MaxKuzmin.VkMessenger.Helpers
         public static async Task CatchNetException(
             Func<Task> action,
             Func<Task> retryAction,
-            string noInternetError,
-            bool quitOnUnknown)
+            string noInternetError)
         {
             try
             {
                 await action();
             }
-            catch (WebException)
+            catch (Exception e) when(e is HttpRequestException || e is WebException || e is EmptyHttpResponseException)
             {
                 new CustomPopup(
                         noInternetError,
                         LocalizedStrings.Retry,
-                        async () => await retryAction())
+                        async () => await retryAction(),
+                        true)
                     .Show();
             }
             catch (InvalidSessionException)
@@ -42,7 +42,8 @@ namespace ru.MaxKuzmin.VkMessenger.Helpers
                 new CustomPopup(
                         ex.ToString(),
                         LocalizedStrings.Ok,
-                        quitOnUnknown ? Application.Current.Quit : (Action?)null)
+                        null,
+                        true)
                     .Show();
             }
         }
