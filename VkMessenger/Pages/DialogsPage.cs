@@ -15,6 +15,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
     {
         private readonly DialogsManager dialogsManager;
         private readonly MessagesManager messagesManager;
+        private InformationPopup? refreshingPopup;
 
         private readonly CircleListView dialogsListView = new CircleListView
         {
@@ -39,7 +40,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private async void OnAppearing(object s, EventArgs e)
         {
             await dialogsManager.UpdateDialogsFromCache();
-            dialogsListView.ScrollIfExist(dialogsManager.First(), ScrollToPosition.Center);
+            var firstDialog = dialogsManager.First();
+            if (firstDialog == null)
+            {
+                refreshingPopup = new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
+                refreshingPopup?.Show();
+            }
+            dialogsListView.ScrollIfExist(firstDialog, ScrollToPosition.Center);
             Appearing -= OnAppearing;
         }
 
@@ -48,15 +55,16 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async Task InitFromApi()
         {
-            var refreshingPopup = dialogsManager.First() != null ? null : new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
-            refreshingPopup?.Show();
-
             await NetExceptionCatchHelpers.CatchNetException(
                 dialogsManager.UpdateDialogsFromApi,
                 InitFromApi,
                 LocalizedStrings.DialogsNoInternetError);
 
-            refreshingPopup?.Dismiss();
+            if (refreshingPopup != null)
+            {
+                refreshingPopup.Dismiss();
+                dialogsListView.ScrollIfExist(dialogsManager.First(), ScrollToPosition.Center);
+            }
         }
 
         /// <summary>
