@@ -11,11 +11,13 @@ using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 using Xamarin.Forms.PlatformConfiguration.TizenSpecific;
+using NavigationPage = Xamarin.Forms.NavigationPage;
+using Rectangle = Xamarin.Forms.Rectangle;
 using TizenConfig = Xamarin.Forms.PlatformConfiguration.Tizen;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    public class RecordVoicePage : ContentPage, IDisposable
+    public class RecordVoicePage : PageWithActivityIndicator, IDisposable
     {
         private readonly int dialogId;
         private string? voiceMessageTempPath;
@@ -30,23 +32,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             AudioChannels = 1
         };
 
-        private readonly StackLayout verticalLayout = new StackLayout
-        {
-            VerticalOptions = LayoutOptions.Fill
-        };
         private readonly Button recordButton = new Button
         {
-            ImageSource = ImageResources.RecordSymbol,
-            VerticalOptions = LayoutOptions.Start,
-            HorizontalOptions = LayoutOptions.Center,
-            WidthRequest = 75,
-            HeightRequest = 75,
-            Margin = new Thickness(0, 25, 0, 0)
+            ImageSource = ImageResources.RecordSymbol
         };
         private readonly Button sendButton = new Button
         {
             Text = LocalizedStrings.Send,
-            VerticalOptions = LayoutOptions.EndAndExpand,
             IsEnabled = false
         };
 
@@ -54,11 +46,13 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             this.dialogId = dialogId;
 
+            NavigationPage.SetHasNavigationBar(this, false);
             recordButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
             sendButton.On<TizenConfig>().SetStyle(ButtonStyle.Bottom);
-            verticalLayout.Children.Add(recordButton);
-            verticalLayout.Children.Add(sendButton);
-            Content = verticalLayout;
+            absoluteLayout.Children.Add(recordButton, new Rectangle(0.5, 0.5, 75, 75), AbsoluteLayoutFlags.PositionProportional);
+            absoluteLayout.Children.Add(sendButton, new Rectangle(0.5, 0.9, 200, 50), AbsoluteLayoutFlags.PositionProportional);
+            absoluteLayout.Children.Add(activityIndicator);
+            Content = absoluteLayout;
 
             audioRecorder.RecordingLimitReached += OnRecordingLimitReached;
             recordButton.Clicked += OnRecordButtonPressed;
@@ -109,6 +103,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (voiceMessageTempPath == null)
                 return;
 
+            activityIndicator.IsVisible = true;
+
             await NetExceptionCatchHelpers.CatchNetException(
                 async () =>
                 {
@@ -124,6 +120,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 },
                 LocalizedStrings.SendMessageNoInternetError);
 
+            activityIndicator.IsVisible = false;
             sendButton.IsEnabled = true;
         }
 

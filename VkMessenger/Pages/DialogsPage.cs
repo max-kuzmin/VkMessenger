@@ -11,11 +11,10 @@ using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    public class DialogsPage : BezelInteractionPage, IResettable
+    public class DialogsPage : PageWithActivityIndicator, IResettable
     {
         private readonly DialogsManager dialogsManager;
         private readonly MessagesManager messagesManager;
-        private InformationPopup? refreshingPopup;
 
         private readonly CircleListView dialogsListView = new CircleListView
         {
@@ -31,23 +30,20 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             NavigationPage.SetHasNavigationBar(this, false);
             SetBinding(RotaryFocusObjectProperty, new Binding { Source = dialogsListView });
             dialogsListView.ItemsSource = dialogsManager.Collection;
-            Content = dialogsListView;
+            absoluteLayout.Children.Add(dialogsListView);
+            absoluteLayout.Children.Add(activityIndicator);
+            Content = absoluteLayout;
 
             dialogsListView.ItemTapped += OnDialogTapped;
-            Appearing += OnAppearing;
+            Appearing += OnConstructor;
         }
 
-        private async void OnAppearing(object s, EventArgs e)
+        private async void OnConstructor(object s, EventArgs e)
         {
             await dialogsManager.UpdateDialogsFromCache();
-            var firstDialog = dialogsManager.First();
-            if (firstDialog == null)
-            {
-                refreshingPopup = new InformationPopup { Text = LocalizedStrings.LoadingDialogs };
-                refreshingPopup?.Show();
-            }
-            dialogsListView.ScrollIfExist(firstDialog, ScrollToPosition.Center);
-            Appearing -= OnAppearing;
+            activityIndicator.IsVisible = true;
+            dialogsListView.ScrollIfExist(dialogsManager.First(), ScrollToPosition.Center);
+            Appearing -= OnConstructor;
         }
 
         /// <summary>
@@ -55,16 +51,15 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async Task InitFromApi()
         {
+            activityIndicator.IsVisible = true;
+
             await NetExceptionCatchHelpers.CatchNetException(
                 dialogsManager.UpdateDialogsFromApi,
                 InitFromApi,
                 LocalizedStrings.DialogsNoInternetError);
 
-            if (refreshingPopup != null)
-            {
-                refreshingPopup.Dismiss();
-                dialogsListView.ScrollIfExist(dialogsManager.First(), ScrollToPosition.Center);
-            }
+            activityIndicator.IsVisible = false;
+            dialogsListView.ScrollIfExist(dialogsManager.First(), ScrollToPosition.Center);
         }
 
         /// <summary>

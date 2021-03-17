@@ -117,12 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="LoadingDialogs" xml:space="preserve">
-    <value>Loading dialogs...</value>
-  </data>
-  <data name="LoadingMessages" xml:space="preserve">
-    <value>Loading messages...</value>
-  </data>
   <data name="WallPost" xml:space="preserve">
     <value>Wall post</value>
   </data>
@@ -167,9 +161,6 @@
   </data>
   <data name="PleaseWait" xml:space="preserve">
     <value>Please, wait</value>
-  </data>
-  <data name="LoadingAuthPage" xml:space="preserve">
-    <value>Loading authorization page...</value>
   </data>
   <data name="Sticker" xml:space="preserve">
     <value>Sticker</value>

@@ -167,14 +167,14 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     message.conversation_message_id,
                     fullText,
                     date,
+                    message.deleted > 0,
                     profiles.FirstOrDefault(p => p.Id == peerId),
                     groups.FirstOrDefault(p => p.Id == peerId),
                     attachmentImages,
                     attachmentUris,
                     attachmentMessages,
                     voiceMessage,
-                    otherAttachments,
-                    message.deleted > 0);
+                    otherAttachments);
 
             }
             catch (Exception e)
@@ -200,7 +200,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
             return json.response;
         }
 
-        public static async Task Send(int dialogId, string? text, string? voiceMessagePath)
+        public static async Task<int> Send(int dialogId, string? text, string? voiceMessagePath)
         {
             try
             {
@@ -229,9 +229,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 }
 
                 using var client = new ProxiedWebClient();
-                await HttpHelpers.RetryIfEmptyResponse<JsonDto<long>>(
+                var result = await HttpHelpers.RetryIfEmptyResponse<JsonDto<int>>(
                     () => client.GetAsync(new Uri(url)),
                     e => e?.response != null);
+
+                return result.response;
             }
             catch (Exception e)
             {

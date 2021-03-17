@@ -62,7 +62,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             refreshingPopup?.Dismiss();
             refreshingPopup = new InformationPopup
             {
-                Text = LocalizedStrings.LoadingAuthPage
+                IsProgressRunning = true
             };
             refreshingPopup.Show();
             loginWebView.Navigated += OnNavigated;

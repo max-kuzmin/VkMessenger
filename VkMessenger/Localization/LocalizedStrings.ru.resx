@@ -117,12 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="LoadingDialogs" xml:space="preserve">
-    <value>Загрузка диалогов...</value>
-  </data>
-  <data name="LoadingMessages" xml:space="preserve">
-    <value>Загрузка сообщений...</value>
-  </data>
   <data name="WallPost" xml:space="preserve">
     <value>Запись со стены</value>
   </data>
@@ -168,9 +162,6 @@
   <data name="PleaseWait" xml:space="preserve">
     <value>Пожалуйста, подождите</value>
   </data>
-  <data name="LoadingAuthPage" xml:space="preserve">
-    <value>Загрузка страницы авторизации...</value>
-  </data>
   <data name="Sticker" xml:space="preserve">
     <value>Стикер</value>
   </data>
@@ -192,7 +183,7 @@
   <data name="VoiceMessageLimit" xml:space="preserve">
     <value>Достигнут лимит записи аудио сообщения (5 минут). Запись остановлена.</value>
   </data>
-  <data name="String1" xml:space="preserve">
+  <data name="DeleteMessageNoInternetError" xml:space="preserve">
     <value>Невозможно удалить сообщение. Нет интернет соединения</value>
   </data>
 </root>

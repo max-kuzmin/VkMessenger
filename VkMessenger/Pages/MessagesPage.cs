@@ -14,9 +14,8 @@ using Xamarin.Forms;
 
 namespace ru.MaxKuzmin.VkMessenger.Pages
 {
-    public class MessagesPage : BezelInteractionPage, IResettable
+    public class MessagesPage : PageWithActivityIndicator, IResettable
     {
-        private readonly StackLayout verticalLayout = new StackLayout();
         private readonly int dialogId;
         private readonly MessagesManager messagesManager;
         private readonly DialogsManager dialogsManager;
@@ -55,9 +54,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             NavigationPage.SetHasNavigationBar(this, false);
             SetBinding(RotaryFocusObjectProperty, new Binding { Source = messagesListView });
             messagesListView.ItemsSource = messagesManager.GetMessages(dialogId);
-            verticalLayout.Children.Add(messagesListView);
-            verticalLayout.Children.Add(popupEntryView);
-            Content = verticalLayout;
+            absoluteLayout.Children.Add(messagesListView);
+            absoluteLayout.Children.Add(popupEntryView);
+            absoluteLayout.Children.Add(activityIndicator);
+            Content = absoluteLayout;
 
             swipeLeftRecognizer.Command = new Command(OpenKeyboard);
             swipeRightRecognizer.Command = new Command(OnOpenRecorder);
@@ -70,12 +70,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             popupEntryView.Completed += OnTextCompleted;
 
             if (dialogsManager.GetIsInitRequired(this.dialogId))
-                Appearing += OnAppearing;
+                Appearing += OnConstructor;
         }
 
-        private async void OnAppearing(object s, EventArgs e)
+        private async void OnConstructor(object s, EventArgs e)
         {
-            Appearing -= OnAppearing;
+            Appearing -= OnConstructor;
             await InitFromApi();
         }
 
@@ -84,9 +84,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async Task InitFromApi()
         {
-            var messagesCount = messagesManager.GetMessagesCount(dialogId);
-            var refreshingPopup = messagesCount > 1 ? null : new InformationPopup { Text = LocalizedStrings.LoadingMessages };
-            refreshingPopup?.Show();
+            activityIndicator.IsVisible = true;
 
             await NetExceptionCatchHelpers.CatchNetException(
                 async () =>
@@ -97,7 +95,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 InitFromApi,
                 LocalizedStrings.MessagesNoInternetError);
 
-            refreshingPopup?.Dismiss();
+            activityIndicator.IsVisible = false;
         }
 
         private async void OnItemTapped(object sender, ItemTappedEventArgs e)
@@ -126,6 +124,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 || message.Deleted)
                 return;
 
+            activityIndicator.IsVisible = true;
+
             await NetExceptionCatchHelpers.CatchNetException(
                 () => messagesManager.DeleteMessage(dialogId, message.Id),
                 () =>
@@ -134,6 +134,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                     return Task.CompletedTask;
                 },
                 LocalizedStrings.DeleteMessageNoInternetError);
+
+            activityIndicator.IsVisible = false;
         }
 
         /// <summary>
@@ -166,6 +168,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (string.IsNullOrEmpty(text))
                 return;
 
+            activityIndicator.IsVisible = true;
+
             await NetExceptionCatchHelpers.CatchNetException(
                 async () =>
                 {
@@ -178,6 +182,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                  return Task.CompletedTask;
                 },
                 LocalizedStrings.SendMessageNoInternetError);
+
+            activityIndicator.IsVisible = false;
         }
 
         private async void OpenKeyboard()
