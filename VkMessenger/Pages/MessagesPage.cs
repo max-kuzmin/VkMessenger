@@ -162,13 +162,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async void OnTextCompleted(object? sender = null, EventArgs? args = null)
         {
-            await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
-
             var text = popupEntryView.Text;
             if (string.IsNullOrEmpty(text))
                 return;
 
+            popupEntryView.Completed -= OnTextCompleted;
             activityIndicator.IsVisible = true;
+
+            await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
 
             await NetExceptionCatchHelpers.CatchNetException(
                 async () =>
@@ -184,6 +185,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 LocalizedStrings.SendMessageNoInternetError);
 
             activityIndicator.IsVisible = false;
+            popupEntryView.Completed += OnTextCompleted;
         }
 
         private async void OpenKeyboard()

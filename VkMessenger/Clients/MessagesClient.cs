@@ -78,6 +78,11 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var date = DateTimeOffset
                     .FromUnixTimeSeconds(message.date).UtcDateTime
                     .Add(TimeZoneInfo.Local.BaseUtcOffset);
+                var updateTime = message.update_time != null
+                    ? DateTimeOffset
+                        .FromUnixTimeSeconds(message.update_time.Value).UtcDateTime
+                        .Add(TimeZoneInfo.Local.BaseUtcOffset)
+                    : (DateTime?)null;
                 var fullText = message.text;
 
                 var attachmentImages = new List<AttachmentImage>();
@@ -166,14 +171,15 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     message.id,
                     message.conversation_message_id,
                     fullText,
+                    voiceMessage,
                     date,
+                    updateTime,
                     message.deleted > 0,
                     profiles.FirstOrDefault(p => p.Id == peerId),
                     groups.FirstOrDefault(p => p.Id == peerId),
                     attachmentImages,
                     attachmentUris,
                     attachmentMessages,
-                    voiceMessage,
                     otherAttachments);
 
             }

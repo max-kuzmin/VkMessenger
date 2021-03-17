@@ -4,6 +4,8 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
     public sealed class MessageDto
     {
         public int date { get; set; }
+
+        public int? update_time { get; set; }
         
         /// <summary>
         /// Can be negative number

@@ -25,6 +25,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public string Text { get; set; }
         public bool? Read { get; set; }
         public DateTime Date { get; set; }
+        public DateTime? UpdateTime { get; set; }
         public string TimeFormatted { get; set; }
         public Profile? Profile { get; set; }
         public Group? Group { get; set; }
@@ -35,6 +36,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public Uri? VoiceMessage { get; set; }
         public int? VoiceMessageDuration { get; set; }
         public IReadOnlyCollection<AttachmentMessage> AttachmentMessages { get; set; }
+        public IReadOnlyCollection<string> OtherAttachments { get; set; }
         public bool FullScreenAllowed { get; set; }
         public bool Deleted { get; set; }
 
@@ -62,25 +64,27 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         [JsonConstructor]
 #pragma warning disable CS8618
         public Message() { }
-#pragma warning restore CS8618
 
         public Message(
+#pragma warning restore CS8618
             int id,
             int conversationMessageId,
             string fullText,
+            (Uri, int)? voiceMessage,
             DateTime date,
+            DateTime? updateTime,
+            bool deleted,
             Profile? profile,
             Group? group,
             IReadOnlyCollection<AttachmentImage>? attachmentImages,
             IReadOnlyCollection<Uri>? attachmentUris,
             IReadOnlyCollection<AttachmentMessage>? attachmentMessages,
-            (Uri, int)? voiceMessage,
-            IReadOnlyCollection<string> otherAttachments,
-            bool deleted)
+            IReadOnlyCollection<string>? otherAttachments)
         {
             Id = id;
             ConversationMessageId = conversationMessageId;
             Date = date;
+            UpdateTime = updateTime;
             Group = group;
             Profile = profile;
             AttachmentImages = attachmentImages ?? Array.Empty<AttachmentImage>();
@@ -88,10 +92,42 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             VoiceMessage = voiceMessage?.Item1;
             VoiceMessageDuration = voiceMessage?.Item2;
             AttachmentMessages = attachmentMessages ?? Array.Empty<AttachmentMessage>();
-            FullText = fullText;
+            OtherAttachments = otherAttachments ?? Array.Empty<string>();
             TimeFormatted = date.ToString("HH:mm");
             Deleted = deleted;
+            ComposeText(fullText);
+        }
 
+        public void SetRead(bool value)
+        {
+            if (Read != value)
+            {
+                Read = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Read)));
+            }
+        }
+
+        public void SetFullText(string fullText)
+        {
+            if (FullText != fullText)
+            {
+                ComposeText(fullText);
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
+            }
+        }
+
+        public void SetVoiceMessage(Uri? voiceMessage)
+        {
+            if (VoiceMessage != voiceMessage)
+            {
+                VoiceMessage = voiceMessage;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(VoiceMessage)));
+            }
+        }
+
+        private void ComposeText(string fullText)
+        {
+            FullText = fullText;
             if (fullText.Length > MaxLength)
             {
                 Text = fullText.Substring(0, MaxLength) + "...";
@@ -126,34 +162,16 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 FullScreenAllowed = true;
             }
 
-            foreach (var other in otherAttachments.Distinct())
+            foreach (var other in OtherAttachments.Distinct())
             {
                 Text += $"\n{PaperClip} {other}";
             }
 
             Text = Text.Trim('\n');
 
-            PreviewText = voiceMessage != null
+            PreviewText = VoiceMessage != null
                 ? $"{PaperClip} {LocalizedStrings.VoiceMessage}"
                 : Text.Replace('\n', ' ');
-        }
-
-        public void SetRead(bool value)
-        {
-            if (Read != value)
-            {
-                Read = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Read)));
-            }
-        }
-
-        public void SetText(string text)
-        {
-            if (Text != text)
-            {
-                Text = text;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
-            }
         }
     }
 }

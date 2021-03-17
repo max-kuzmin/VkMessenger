@@ -193,7 +193,11 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         /// </summary>
         private static void UpdateMessage(Message newMessage, Message foundMessage)
         {
-            foundMessage.SetText(newMessage.Text);
+            if (foundMessage.UpdateTime != newMessage.UpdateTime)
+            {
+                foundMessage.SetFullText(newMessage.FullText);
+                foundMessage.SetVoiceMessage(newMessage.VoiceMessage);
+            }
         }
 
         private Dialog? FirstOrDefaultWithLock(int dialogId)

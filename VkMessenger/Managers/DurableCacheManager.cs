@@ -12,7 +12,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 {
     public static class DurableCacheManager
     {
-        private const string DialogsCacheKey = "_dialogsCache_7";
+        private const string DialogsCacheKey = "dialogsCache_18";
 
         public static Task SaveDialogs(IReadOnlyCollection<Dialog> dialogs)
         {
