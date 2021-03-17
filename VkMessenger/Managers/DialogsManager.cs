@@ -34,7 +34,6 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             var newDialogs = await DialogsClient.GetDialogs();
             if (newDialogs.Any())
             {
-                //Trim to batch size to prevent skipping new dialogs between cached and 20 loaded on init
                 AddUpdateDialogsInCollection(newDialogs, true);
                 // ReSharper disable once InconsistentlySynchronizedField
                 await DurableCacheManager.SaveDialogs(collection);
@@ -136,7 +135,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        private void AddUpdateDialogsInCollection(IReadOnlyCollection<Dialog> newDialogs, bool trim)
+        private void AddUpdateDialogsInCollection(IReadOnlyCollection<Dialog> newDialogs, bool isNewestMessagesBatch)
         {
             lock (collection)
             {
@@ -189,7 +188,8 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 collection.AddRange(oldDialogsToPrepend);
                 collection.PrependRange(newDialogsToAppend);
 
-                if (trim)
+                //Trim to batch size to prevent skipping new dialogs between cached and 20 loaded on init
+                if (isNewestMessagesBatch)
                     collection.Trim(Consts.BatchSize);
             }
         }
@@ -203,7 +203,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             {
                 foundDialog.SetOnline(newProfile.Id, newDialog.Online);
             }
-            messagesManager.AddUpdateMessagesInCollection(foundDialog.Id, newDialog.Messages, newDialog.UnreadCount, false, false);
+            messagesManager.AddUpdateMessagesInCollection(foundDialog.Id, newDialog.Messages, newDialog.UnreadCount, false);
             foundDialog.SetUnreadCount(newDialog.UnreadCount);
         }
 

@@ -20,7 +20,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private readonly int dialogId;
         private readonly MessagesManager messagesManager;
         private readonly DialogsManager dialogsManager;
-        private RecordVoicePage? recordVoicePage;
+        private bool newMessageInputShown;
+        private readonly TimeSpan newMessageInputShownTimeout = TimeSpan.FromSeconds(2);
 
         private readonly SwipeGestureRecognizer swipeLeftRecognizer = new SwipeGestureRecognizer
         {
@@ -83,7 +84,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// </summary>
         private async Task InitFromApi()
         {
-            var messagesCount = messagesManager.GetMessages(dialogId)?.Count;
+            var messagesCount = messagesManager.GetMessagesCount(dialogId);
             var refreshingPopup = messagesCount > 1 ? null : new InformationPopup { Text = LocalizedStrings.LoadingMessages };
             refreshingPopup?.Show();
 
@@ -101,7 +102,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OnItemTapped(object sender, ItemTappedEventArgs e)
         {
-            if (popupEntryView.IsPopupOpened || recordVoicePage?.IsVisible == true)
+            if (newMessageInputShown)
                 return;
 
             await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
@@ -113,7 +114,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OnItemLongPressed(object sender, ItemLongPressedEventArgs e)
         {
-            if (popupEntryView.IsPopupOpened || recordVoicePage?.IsVisible == true)
+            if (newMessageInputShown)
                 return;
 
             var message = (Message)e.Item;
@@ -142,11 +143,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         /// <param name="e"></param>
         private async void OnLoadMoreMessages(object sender, ItemVisibilityEventArgs e)
         {
+            if (dialogsManager.GetIsInitRequired(dialogId))
+                return;
+
             var message = (Message)e.Item;
-            var messages = messagesManager.GetMessages(dialogId);
-            if (messages?.Count >= Consts.BatchSize && messages.All(i => i.Id >= message.Id))
+            var messagesCount = messagesManager.GetMessagesCount(dialogId);
+            if (messagesCount >= Consts.BatchSize && messagesManager.IsMessageOlderThanAll(dialogId, message.Id))
             {
-                await messagesManager.UpdateMessagesFromApi(dialogId, messages.Count);
+                await messagesManager.UpdateMessagesFromApi(dialogId, messagesCount);
                 messagesListView.ScrollIfExist(message, ScrollToPosition.Center);
             }
         }
@@ -181,8 +185,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (!dialogsManager.CanWrite(dialogId))
                 return;
 
+            newMessageInputShown = true;
             await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
             popupEntryView.IsPopupOpened = true;
+            await Task.Delay(newMessageInputShownTimeout);
+            newMessageInputShown = false;
         }
 
         private async void OnOpenRecorder()
@@ -190,9 +197,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             if (!dialogsManager.CanWrite(dialogId))
                 return;
 
+            newMessageInputShown = true;
             await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
-            recordVoicePage = new RecordVoicePage(dialogId);
-            await Navigation.PushAsync(recordVoicePage);
+            await Navigation.PushAsync(new RecordVoicePage(dialogId));
+            await Task.Delay(newMessageInputShownTimeout);
+            newMessageInputShown = false;
         }
 
         protected override void OnDisappearing()

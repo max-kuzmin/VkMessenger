@@ -29,9 +29,8 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             var newMessages = await MessagesClient.GetMessages(dialog.Id, offset);
             if (newMessages.Any())
             {
-                var isLastMessagesUpdate = offset == null;
-                //Trim to batch size to prevent skipping new messages between cached and 20 loaded on init
-                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount, isLastMessagesUpdate, true);
+                var isNewestMessagesBatch = offset == null;
+                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount, isNewestMessagesBatch);
                 await DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
             }
         }
@@ -46,12 +45,12 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             var newMessages = await MessagesClient.GetMessagesByIds(messagesIds);
             if (newMessages.Any())
             {
-                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount, false, false);
+                AddUpdateMessagesInCollection(dialogId, newMessages, dialog.UnreadCount, false);
                 await DurableCacheManager.SaveMessages(dialog.Id, collection).ConfigureAwait(false);
             }
         }
 
-        public void AddUpdateMessagesInCollection(int dialogId, IReadOnlyCollection<Message> newMessages, int unreadCount, bool isLastMessagesUpdate, bool trim)
+        public void AddUpdateMessagesInCollection(int dialogId, IReadOnlyCollection<Message> newMessages, int unreadCount, bool isNewestMessagesBatch)
         {
             var dialog = FirstOrDefaultWithLock(dialogId);
             if (dialog == null)
@@ -97,7 +96,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 }
 
                 // Delete messages, that was not returned by update of last messages in dialog
-                if (isLastMessagesUpdate)
+                if (isNewestMessagesBatch)
                 {
                     var oldestNewId = newMessages.Last().ConversationMessageId;
                     for (int id = oldestNewId + 1; id <= newestExistingId; id++)
@@ -116,7 +115,8 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 collection.PrependRange(newMessagesToPrepend);
                 UpdateMessagesRead(dialogId, unreadCount);
 
-                if (trim)
+                //Trim to batch size to prevent skipping new messages between cached and 20 loaded on init
+                if (isNewestMessagesBatch)
                     collection.Trim(Consts.BatchSize);
             }
         }
@@ -159,6 +159,32 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 var message = collection.FirstOrDefault(e => e.Id == messageId);
                 if (message != null)
                     collection.Remove(message);
+            }
+        }
+
+        public int GetMessagesCount(int dialogId)
+        {
+            var dialog = FirstOrDefaultWithLock(dialogId);
+            if (dialog == null)
+                return 0;
+
+            var collection = dialog.Messages;
+            lock (collection)
+            {
+                return collection.Count;
+            }
+        }
+
+        public bool IsMessageOlderThanAll(int dialogId, int messageId)
+        {
+            var dialog = FirstOrDefaultWithLock(dialogId);
+            if (dialog == null)
+                return false;
+
+            var collection = dialog.Messages;
+            lock (collection)
+            {
+                return collection.All(i => i.Id >= messageId);
             }
         }
 
