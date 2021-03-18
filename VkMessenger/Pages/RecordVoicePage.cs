@@ -48,9 +48,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             NavigationPage.SetHasNavigationBar(this, false);
             recordButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
-            sendButton.On<TizenConfig>().SetStyle(ButtonStyle.Bottom);
             absoluteLayout.Children.Add(recordButton, new Rectangle(0.5, 0.5, 75, 75), AbsoluteLayoutFlags.PositionProportional);
-            absoluteLayout.Children.Add(sendButton, new Rectangle(0.5, 0.9, 200, 50), AbsoluteLayoutFlags.PositionProportional);
+            absoluteLayout.Children.Add(sendButton, new Rectangle(0.5, 0.9, 200, 60), AbsoluteLayoutFlags.PositionProportional);
             absoluteLayout.Children.Add(activityIndicator);
             Content = absoluteLayout;
 

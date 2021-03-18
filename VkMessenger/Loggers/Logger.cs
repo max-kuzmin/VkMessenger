@@ -9,7 +9,7 @@ namespace ru.MaxKuzmin.VkMessenger.Loggers
     public static class Logger
     {
         private const string Tag = "VK";
-        private const string Version = "1.5.3";
+        private const string Version = "1.6.0";
 
         public static void Info(string text, [CallerFilePath] string? file = null, [CallerMemberName] string? caller = null, [CallerLineNumber] int line = 0)
         {

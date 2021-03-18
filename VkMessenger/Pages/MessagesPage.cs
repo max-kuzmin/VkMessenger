@@ -3,7 +3,7 @@ using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Extensions;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Models;
-using System;   
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Helpers;
@@ -20,7 +20,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         private readonly MessagesManager messagesManager;
         private readonly DialogsManager dialogsManager;
         private bool newMessageInputShown;
-        private readonly TimeSpan newMessageInputShownTimeout = TimeSpan.FromSeconds(2);
+        private readonly TimeSpan newMessageInputShownTimeout = TimeSpan.FromSeconds(3);
+        private int? longTappedMessageId;
 
         private readonly SwipeGestureRecognizer swipeLeftRecognizer = new SwipeGestureRecognizer
         {
@@ -116,13 +117,23 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 return;
 
             var message = (Message)e.Item;
-            
+
             // Possible to delete current user messages that is not older than 1d
             if (dialogId == AuthorizationManager.UserId
                 || message.Profile?.Id != AuthorizationManager.UserId
                 || message.Date < DateTime.Now.AddDays(-1)
                 || message.Deleted)
+            {
+                longTappedMessageId = null;
                 return;
+            }
+
+            // Delete by double long press
+            if (longTappedMessageId != message.Id)
+            {
+                longTappedMessageId = message.Id;
+                return;
+            }
 
             activityIndicator.IsVisible = true;
 
@@ -152,8 +163,20 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             var messagesCount = messagesManager.GetMessagesCount(dialogId);
             if (messagesCount >= Consts.BatchSize && messagesManager.IsMessageOlderThanAll(dialogId, message.Id))
             {
-                await messagesManager.UpdateMessagesFromApi(dialogId, messagesCount);
-                messagesListView.ScrollIfExist(message, ScrollToPosition.Center);
+                activityIndicator.IsVisible = true;
+                await NetExceptionCatchHelpers.CatchNetException(
+                    async () =>
+                    {
+                        await messagesManager.UpdateMessagesFromApi(dialogId, messagesCount);
+                        messagesListView.ScrollIfExist(message, ScrollToPosition.Center);
+                    },
+                    () =>
+                    {
+                        OnLoadMoreMessages(sender, e);
+                        return Task.CompletedTask;
+                    },
+                    LocalizedStrings.MessagesNoInternetError);
+                activityIndicator.IsVisible = false;
             }
         }
 
@@ -179,8 +202,8 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 },
                 () =>
                 {
-                 OnTextCompleted();
-                 return Task.CompletedTask;
+                    OnTextCompleted();
+                    return Task.CompletedTask;
                 },
                 LocalizedStrings.SendMessageNoInternetError);
 

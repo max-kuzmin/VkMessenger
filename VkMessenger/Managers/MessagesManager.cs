@@ -158,7 +158,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             {
                 var message = collection.FirstOrDefault(e => e.Id == messageId);
                 if (message != null)
-                    collection.Remove(message);
+                    message.Deleted = true;
             }
         }
 
