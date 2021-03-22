@@ -26,8 +26,9 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         private string? Key;
         private string? Server;
         private int? Ts;
-        private readonly TimeSpan LongPoolingRequestInterval = TimeSpan.FromSeconds(1);
-        private readonly TimeSpan LongPoolingStartStopInterval = TimeSpan.FromSeconds(1);
+        private readonly TimeSpan LongPoolingRequestInterval = TimeSpan.FromSeconds(2);
+        private readonly TimeSpan LongPoolingStartInterval = TimeSpan.FromSeconds(1);
+        private readonly TimeSpan LongPoolingStopInterval = TimeSpan.FromSeconds(10);
         private const string CanceledException = "canceled";
 
         private CancellationTokenSource? startingTokenSource, stoppingTokenSource, startedTokenSource;
@@ -74,7 +75,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 startingTokenSource = new CancellationTokenSource();
                 var token = startingTokenSource.Token;
                 status = Status.Starting;
-                await Task.Delay(LongPoolingStartStopInterval, token);
+                await Task.Delay(LongPoolingStartInterval, token);
             }
             catch
             {
@@ -122,7 +123,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 stoppingTokenSource = new CancellationTokenSource();
                 var token = stoppingTokenSource.Token;
                 status = Status.Stopping;
-                await Task.Delay(LongPoolingStartStopInterval, token);
+                await Task.Delay(LongPoolingStopInterval, token);
             }
             catch
             {
@@ -158,7 +159,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                         else
                         {
                             // It's important to get params before reset pages to stay synced with it's content
-                            await GetServer();
+                            await GetServer(cancellationToken);
                             await Reset();
                             isInitialized = true;
                         }
@@ -189,12 +190,12 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        private async Task GetServer()
+        private async Task GetServer(CancellationToken cancellationToken)
         {
-            var response = await LongPollingClient.GetLongPollServer();
+            var response = await LongPollingClient.GetLongPollServer(cancellationToken);
             Key = response.key;
             Server = response.server;
-            Ts ??= response.ts;
+            Ts = response.ts;
         }
 
         private async Task ParseLongPollingJson(LongPollingUpdatesJsonDto json)

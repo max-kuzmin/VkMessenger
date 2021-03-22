@@ -11,7 +11,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
     {
         public const int LongPoolingWaitTime = 25;
 
-        public static async Task<LongPollingInitResponseDto> GetLongPollServer()
+        public static async Task<LongPollingInitResponseDto> GetLongPollServer(CancellationToken cancellationToken)
         {
             var url =
                 "https://api.vk.com/method/messages.getLongPollServer" +
@@ -21,7 +21,7 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
 
             using var client = new ProxiedWebClient();
             var json = await HttpHelpers.RetryIfEmptyResponse<JsonDto<LongPollingInitResponseDto>>(
-                () => client.GetAsync(new Uri(url)), e => e?.response != null);
+                () => client.GetAsync(new Uri(url), cancellationToken), e => e?.response != null);
 
             return json.response;
         }
