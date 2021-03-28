@@ -188,7 +188,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public void SetProfile(Profile? profile)
         {
-            if (Profile != profile)
+            if (Profile != null && profile != null && !profile.Equals(Profile))
             {
                 Profile = profile;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Profile)));
@@ -197,7 +197,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
         public void SetGroup(Group? group)
         {
-            if (Group != group)
+            if (Group != null && group != null && !group.Equals(Group))
             {
                 Group = group;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Group)));

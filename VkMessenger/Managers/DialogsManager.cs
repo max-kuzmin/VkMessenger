@@ -199,12 +199,11 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         /// </summary>
         private void UpdateDialog(Dialog newDialog, Dialog foundDialog)
         {
-            foreach (var newProfile in newDialog.Profiles)
-            {
-                foundDialog.SetOnline(newProfile.Id, newDialog.Online);
-            }
             messagesManager.AddUpdateMessagesInCollection(foundDialog.Id, newDialog.Messages, newDialog.UnreadCount, false);
             foundDialog.SetUnreadCount(newDialog.UnreadCount);
+            foundDialog.SetProfiles(newDialog.Profiles);
+            foundDialog.SetChat(newDialog.Chat);
+            foundDialog.SetGroup(newDialog.Group);
         }
 
         private Dialog? FirstOrDefaultWithLock(int dialogId)

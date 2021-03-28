@@ -135,5 +135,47 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Online)));
             }
         }
+
+        public void SetProfiles(IReadOnlyCollection<Profile> profiles)
+        {
+            foreach (var profile in profiles)
+            {
+                var foundProfile = Profiles.FirstOrDefault(e => e.Id == profile.Id);
+                if (foundProfile != null && foundProfile.Equals(profile))
+                    continue;
+
+                Profiles = profiles;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Profiles)));
+                TriggerEventForUserDependentProperties();
+                break;
+            }
+        }
+
+        public void SetGroup(Group? group)
+        {
+            if (group != null && Group != null && !group.Equals(Group))
+            {
+                Group = group;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Group)));
+                TriggerEventForUserDependentProperties();
+            }
+        }
+
+        public void SetChat(Chat? chat)
+        {
+            if (chat != null && Chat != null && !chat.Equals(Chat))
+            {
+                Chat = chat;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Chat)));
+                TriggerEventForUserDependentProperties();
+            }
+        }
+
+        private void TriggerEventForUserDependentProperties()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Title)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Photo)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Online)));
+        }
     }
 }
