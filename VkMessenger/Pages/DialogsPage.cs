@@ -69,6 +69,12 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
         {
             var dialog = (Dialog)e.Item;
             await Navigation.PushAsync(new MessagesPage(dialog.Id, messagesManager, dialogsManager));
+
+            if (!AuthorizationManager.TutorialShown)
+            {
+                new CustomPopup(LocalizedStrings.MessagesPageTutorial, LocalizedStrings.Ok).Show();
+                AuthorizationManager.TutorialShown = true;
+            }
         }
 
         public async Task Reset()

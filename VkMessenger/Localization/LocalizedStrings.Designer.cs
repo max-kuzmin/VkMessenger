@@ -169,6 +169,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tutorial:\n -SwipeLeft: write text message\nSwipe right: record voice message\nTap: show attachments and full text\n-Double long tap: remove message.
+        /// </summary>
+        internal static string MessagesPageTutorial {
+            get {
+                return ResourceManager.GetString("MessagesPageTutorial", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OK.
         /// </summary>
         internal static string Ok {
@@ -178,11 +187,29 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Opening browser. If nothing will have happend, enshure that it&apos;s installed.
+        /// </summary>
+        internal static string OpeningBrowser {
+            get {
+                return ResourceManager.GetString("OpeningBrowser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please, wait.
         /// </summary>
         internal static string PleaseWait {
             get {
                 return ResourceManager.GetString("PleaseWait", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Press round button to start recording.
+        /// </summary>
+        internal static string RecordMessageHint {
+            get {
+                return ResourceManager.GetString("RecordMessageHint", resourceCulture);
             }
         }
         
@@ -228,6 +255,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         internal static string Sticker {
             get {
                 return ResourceManager.GetString("Sticker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Press round button to stop recording.
+        /// </summary>
+        internal static string StopRecordMessageHint {
+            get {
+                return ResourceManager.GetString("StopRecordMessageHint", resourceCulture);
             }
         }
         

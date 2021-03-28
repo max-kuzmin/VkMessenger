@@ -12,10 +12,12 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         private const string TokenKey = "Token2";
         private const string UserIdKey = "UserId";
         private const string PhotoKey = "Photo";
+        private const string TutorialShownKey = "TutorialShown";
 
         private static string? token;
         private static int userId;
         private static ImageSource? photoSource;
+        private static bool? tutorialShown;
 
         public static string? Token
         {
@@ -51,6 +53,20 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             {
                 Preference.Set(UserIdKey, value);
                 userId = value;
+            }
+        }
+
+        public static bool TutorialShown
+        {
+            get
+            {
+                tutorialShown ??= Preference.Contains(TutorialShownKey) && Preference.Get<bool>(TutorialShownKey);
+                return tutorialShown.Value;
+            }
+            set
+            {
+                Preference.Set(TutorialShownKey, value);
+                tutorialShown = value;
             }
         }
 

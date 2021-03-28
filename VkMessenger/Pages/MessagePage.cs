@@ -68,11 +68,14 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
                 var tapGestureRecognizer = new TapGestureRecognizer();
                 tapGestureRecognizer.Tapped += (s, e) =>
+                {
                     AppControl.SendLaunchRequest(new AppControl
                     {
                         Operation = AppControlOperations.View,
                         Uri = item.ToString()
                     });
+                    Toast.DisplayText(LocalizedStrings.OpeningBrowser);
+                };
                 uri.GestureRecognizers.Add(tapGestureRecognizer);
             }
 

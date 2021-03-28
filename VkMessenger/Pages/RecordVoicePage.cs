@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Helpers;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Loggers;
@@ -12,6 +11,7 @@ using Tizen.System;
 using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
 using Xamarin.Forms.PlatformConfiguration.TizenSpecific;
+using Label = Xamarin.Forms.Label;
 using NavigationPage = Xamarin.Forms.NavigationPage;
 using Rectangle = Xamarin.Forms.Rectangle;
 using TizenConfig = Xamarin.Forms.PlatformConfiguration.Tizen;
@@ -44,6 +44,11 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             IsEnabled = false
         };
 
+        private readonly Label hint = new Label
+        {
+            Text = LocalizedStrings.RecordMessageHint
+        };
+
         public RecordVoicePage(int dialogId, MessagesManager messagesManager)
         {
             this.dialogId = dialogId;
@@ -51,6 +56,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             NavigationPage.SetHasNavigationBar(this, false);
             recordButton.On<TizenConfig>().SetStyle(ButtonStyle.Circle);
+            absoluteLayout.Children.Add(hint, new Rectangle(0.5, 0.2, 200, 200), AbsoluteLayoutFlags.PositionProportional);
             absoluteLayout.Children.Add(recordButton, new Rectangle(0.5, 0.5, 75, 75), AbsoluteLayoutFlags.PositionProportional);
             absoluteLayout.Children.Add(sendButton, new Rectangle(0.5, 0.9, 200, 60), AbsoluteLayoutFlags.PositionProportional);
             absoluteLayout.Children.Add(activityIndicator);
@@ -81,6 +87,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 audioRecorder.Unprepare();
                 recordButton.ImageSource = ImageResources.RecordSymbol;
                 sendButton.IsEnabled = true;
+                hint.Text = LocalizedStrings.RecordMessageHint;
             }
             else
             {
@@ -95,6 +102,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 audioRecorder.Start(voiceMessageTempPath);
                 recordButton.ImageSource = ImageResources.StopSymbol;
                 sendButton.IsEnabled = false;
+                hint.Text = LocalizedStrings.StopRecordMessageHint;
             }
 
             isRecording = !isRecording;

@@ -186,4 +186,16 @@
   <data name="DeleteMessageNoInternetError" xml:space="preserve">
     <value>Невозможно удалить сообщение. Нет интернет соединения</value>
   </data>
+  <data name="MessagesPageTutorial" xml:space="preserve">
+    <value>Обучение:\n-Свайп влево: написать текстовое сообщение\n-Свайп вправо: записать голосовое сообщение\nОдин тап: просмотр вложений и полного текста\nДвойной долгий тап: удалить сообщение</value>
+  </data>
+  <data name="OpeningBrowser" xml:space="preserve">
+    <value>Открытие браузера. Если ничего не произошло, убедитесь, что он установлен</value>
+  </data>
+  <data name="RecordMessageHint" xml:space="preserve">
+    <value>Нажмите круглую кнопку для начала записи</value>
+  </data>
+  <data name="StopRecordMessageHint" xml:space="preserve">
+    <value>Нажмите круглую кнопку для остановки записи</value>
+  </data>
 </root>
