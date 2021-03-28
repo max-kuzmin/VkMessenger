@@ -61,8 +61,8 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             var collection = dialog.Messages;
             lock (collection)
             {
-                var newestExistingId = collection.First().ConversationMessageId;
-                var oldestExistingId = collection.Last().ConversationMessageId;
+                var newestExistingId = collection.First().Id;
+                var oldestExistingId = collection.Last().Id;
 
                 var oldMessagesToAppend = new List<Message>();
                 var newMessagesToPrepend = new List<Message>();
@@ -80,16 +80,16 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                     else if (foundMessage != null)
                         UpdateMessage(newMessage, foundMessage);
                     // Prepend new message
-                    else if (newestExistingId < newMessage.ConversationMessageId)
+                    else if (newestExistingId < newMessage.Id)
                         newMessagesToPrepend.Add(newMessage);
                     // Append old message
-                    else if (oldestExistingId > newMessage.ConversationMessageId)
+                    else if (oldestExistingId > newMessage.Id)
                         oldMessagesToAppend.Add(newMessage);
                     // Find message place in collection
                     else
                         for (int newIndex = 0; newIndex < collection.Count; newIndex++)
                         {
-                            if (collection[newIndex].ConversationMessageId < newMessage.ConversationMessageId)
+                            if (collection[newIndex].Id < newMessage.Id)
                             {
                                 collection.Insert(newIndex, newMessage);
                                 break;
@@ -100,14 +100,14 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 // Delete messages, that was not returned by update of last messages in dialog
                 if (isNewestMessagesBatch)
                 {
-                    var oldestNewId = newMessages.Last().ConversationMessageId;
+                    var oldestNewId = newMessages.Last().Id;
                     for (int id = oldestNewId + 1; id <= newestExistingId; id++)
                     {
-                        var newMessage = newMessages.FirstOrDefault(e => e.ConversationMessageId == id);
+                        var newMessage = newMessages.FirstOrDefault(e => e.Id == id);
                         if (newMessage != null)
                             continue;
 
-                        var oldMessage = collection.FirstOrDefault(e => e.ConversationMessageId == id);
+                        var oldMessage = collection.FirstOrDefault(e => e.Id == id);
                         if (oldMessage != null)
                             collection.Remove(oldMessage);
                     }
@@ -180,10 +180,10 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
             var newMessage = new Message(
                 messageId,
-                int.MaxValue, //Use max value, will be updated
-                text ?? LocalizedStrings.VoiceMessage,
-                null, //Will be loaded on next update
-                DateTime.UtcNow,
+                //Will be loaded on next update
+                text ?? $"{Consts.PaperClip} {LocalizedStrings.VoiceMessage}",
+                null,
+                DateTime.UtcNow, 
                 DateTime.UtcNow,
                 false,
                 myProfile,
@@ -234,6 +234,8 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 foundMessage.SetVoiceMessage(newMessage.VoiceMessage);
                 foundMessage.SetDate(newMessage.Date);
                 foundMessage.SetUpdateTime(newMessage.UpdateTime);
+                foundMessage.SetProfile(newMessage.Profile);
+                foundMessage.SetGroup(newMessage.Group);
             }
         }
 

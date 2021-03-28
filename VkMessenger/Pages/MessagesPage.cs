@@ -230,7 +230,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
             newMessageInputShown = true;
             await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
-            await Navigation.PushAsync(new RecordVoicePage(dialogId));
+            await Navigation.PushAsync(new RecordVoicePage(dialogId, messagesManager));
             await Task.Delay(newMessageInputShownTimeout);
             newMessageInputShown = false;
         }

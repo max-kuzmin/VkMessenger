@@ -13,37 +13,32 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     /// </summary>
     public class Message : INotifyPropertyChanged
     {
-        private const int MaxLength = 150;
-        private const string PaperClip = "📎";
-
         /// <summary>
         /// Positive number
         /// </summary>
-        public int Id { get; private set; }
-
-        public int ConversationMessageId { get; private set; }
-        public string Text { get; private set; }
-        public bool? Read { get; private set; }
-        public DateTime Date { get; private set; }
-        public DateTime? UpdateTime { get; private set; }
-        public Profile? Profile { get; private set; }
-        public Group? Group { get; private set; }
-        public string FullText { get; private set; }
-        public IReadOnlyCollection<AttachmentImage> AttachmentImages { get; private set; }
-        public IReadOnlyCollection<Uri> AttachmentUris { get; private set; }
-        public Uri? VoiceMessage { get; private set; }
-        public int? VoiceMessageDuration { get; private set; }
-        public IReadOnlyCollection<AttachmentMessage> AttachmentMessages { get; private set; }
-        public IReadOnlyCollection<string> OtherAttachments { get; private set; }
-        public bool FullScreenAllowed { get; private set; }
-        public bool Deleted { get; private set; }
+        public int Id { get; set; }
+        public string Text { get; set; }
+        public bool? Read { get; set; }
+        public DateTime Date { get; set; }
+        public DateTime? UpdateTime { get; set; }
+        public Profile? Profile { get; set; }
+        public Group? Group { get; set; }
+        public string FullText { get; set; }
+        public IReadOnlyCollection<AttachmentImage> AttachmentImages { get; set; }
+        public IReadOnlyCollection<Uri> AttachmentUris { get; set; }
+        public Uri? VoiceMessage { get; set; }
+        public int? VoiceMessageDuration { get; set; }
+        public IReadOnlyCollection<AttachmentMessage> AttachmentMessages { get; set; }
+        public IReadOnlyCollection<string> OtherAttachments { get; set; }
+        public bool FullScreenAllowed { get; set; }
+        public bool Deleted { get; set; }
 
         [JsonIgnore]
         public string TimeFormatted => Date.ToString("HH:mm");
 
         [JsonIgnore]
         public string PreviewText => VoiceMessage != null
-             ? $"{PaperClip} {LocalizedStrings.VoiceMessage}"
+             ? $"{Consts.PaperClip} {LocalizedStrings.VoiceMessage}"
              : Text.Replace('\n', ' ');
 
         [JsonIgnore]
@@ -74,7 +69,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public Message(
 #pragma warning restore CS8618
             int id,
-            int conversationMessageId,
             string fullText,
             (Uri, int)? voiceMessage,
             DateTime date,
@@ -88,7 +82,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             IReadOnlyCollection<string>? otherAttachments)
         {
             Id = id;
-            ConversationMessageId = conversationMessageId;
             Date = date;
             UpdateTime = updateTime;
             Group = group;
@@ -133,9 +126,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         private void ComposeText(string fullText)
         {
             FullText = fullText;
-            if (fullText.Length > MaxLength)
+            if (fullText.Length > Consts.MaxMessagePreviewLength)
             {
-                Text = fullText.Substring(0, MaxLength) + "...";
+                Text = fullText.Substring(0, Consts.MaxMessagePreviewLength) + "...";
                 FullScreenAllowed = true;
             }
             else
@@ -145,31 +138,31 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 
             if (AttachmentMessages.Any())
             {
-                Text += $"\n{PaperClip} {LocalizedStrings.Message}";
+                Text += $"\n{Consts.PaperClip} {LocalizedStrings.Message}";
                 FullScreenAllowed = true;
             }
 
             if (AttachmentUris.Any())
             {
-                Text += $"\n{PaperClip} {LocalizedStrings.Link}";
+                Text += $"\n{Consts.PaperClip} {LocalizedStrings.Link}";
                 FullScreenAllowed = true;
             }
 
             if (AttachmentImages.Any(e => !e.IsSticker))
             {
-                Text += $"\n{PaperClip} {LocalizedStrings.Image}";
+                Text += $"\n{Consts.PaperClip} {LocalizedStrings.Image}";
                 FullScreenAllowed = true;
             }
 
             if (AttachmentImages.Any(e => e.IsSticker))
             {
-                Text += $"\n{PaperClip} {LocalizedStrings.Sticker}";
+                Text += $"\n{Consts.PaperClip} {LocalizedStrings.Sticker}";
                 FullScreenAllowed = true;
             }
 
             foreach (var other in OtherAttachments.Distinct())
             {
-                Text += $"\n{PaperClip} {other}";
+                Text += $"\n{Consts.PaperClip} {other}";
             }
 
             Text = Text.Trim('\n');
@@ -190,6 +183,24 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             {
                 UpdateTime = updateTime;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UpdateTime)));
+            }
+        }
+
+        public void SetProfile(Profile? profile)
+        {
+            if (Profile != profile)
+            {
+                Profile = profile;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Profile)));
+            }
+        }
+
+        public void SetGroup(Group? group)
+        {
+            if (Group != group)
+            {
+                Group = group;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Group)));
             }
         }
     }

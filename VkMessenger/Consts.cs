@@ -5,6 +5,8 @@ namespace ru.MaxKuzmin.VkMessenger
     public static class Consts
     {
         public const int BatchSize = 20;
+        public const int MaxMessagePreviewLength = 150;
+        public const string PaperClip = "📎";
 
         public static readonly Color DarkBlue = Color.FromHex("00354A");
         public static readonly Color BrightBlue = Color.FromHex("6464ff");
