@@ -19,26 +19,32 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         /// <summary>
         /// Positive number
         /// </summary>
-        public int Id { get; set; }
+        public int Id { get; private set; }
 
-        public int ConversationMessageId { get; set; }
-        public string Text { get; set; }
-        public bool? Read { get; set; }
-        public DateTime Date { get; set; }
-        public DateTime? UpdateTime { get; set; }
-        public string TimeFormatted { get; set; }
-        public Profile? Profile { get; set; }
-        public Group? Group { get; set; }
-        public string FullText { get; set; }
-        public string PreviewText { get; set; }
-        public IReadOnlyCollection<AttachmentImage> AttachmentImages { get; set; }
-        public IReadOnlyCollection<Uri> AttachmentUris { get; set; }
-        public Uri? VoiceMessage { get; set; }
-        public int? VoiceMessageDuration { get; set; }
-        public IReadOnlyCollection<AttachmentMessage> AttachmentMessages { get; set; }
-        public IReadOnlyCollection<string> OtherAttachments { get; set; }
-        public bool FullScreenAllowed { get; set; }
-        public bool Deleted { get; set; }
+        public int ConversationMessageId { get; private set; }
+        public string Text { get; private set; }
+        public bool? Read { get; private set; }
+        public DateTime Date { get; private set; }
+        public DateTime? UpdateTime { get; private set; }
+        public Profile? Profile { get; private set; }
+        public Group? Group { get; private set; }
+        public string FullText { get; private set; }
+        public IReadOnlyCollection<AttachmentImage> AttachmentImages { get; private set; }
+        public IReadOnlyCollection<Uri> AttachmentUris { get; private set; }
+        public Uri? VoiceMessage { get; private set; }
+        public int? VoiceMessageDuration { get; private set; }
+        public IReadOnlyCollection<AttachmentMessage> AttachmentMessages { get; private set; }
+        public IReadOnlyCollection<string> OtherAttachments { get; private set; }
+        public bool FullScreenAllowed { get; private set; }
+        public bool Deleted { get; private set; }
+
+        [JsonIgnore]
+        public string TimeFormatted => Date.ToString("HH:mm");
+
+        [JsonIgnore]
+        public string PreviewText => VoiceMessage != null
+             ? $"{PaperClip} {LocalizedStrings.VoiceMessage}"
+             : Text.Replace('\n', ' ');
 
         [JsonIgnore]
         public int SenderId
@@ -93,7 +99,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             VoiceMessageDuration = voiceMessage?.Item2;
             AttachmentMessages = attachmentMessages ?? Array.Empty<AttachmentMessage>();
             OtherAttachments = otherAttachments ?? Array.Empty<string>();
-            TimeFormatted = date.ToString("HH:mm");
             Deleted = deleted;
             ComposeText(fullText);
         }
@@ -168,10 +173,24 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             }
 
             Text = Text.Trim('\n');
+        }
 
-            PreviewText = VoiceMessage != null
-                ? $"{PaperClip} {LocalizedStrings.VoiceMessage}"
-                : Text.Replace('\n', ' ');
+        public void SetDate(DateTime date)
+        {
+            if (Date != date)
+            {
+                Date = date;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Date)));
+            }
+        }
+
+        public void SetUpdateTime(DateTime? updateTime)
+        {
+            if (UpdateTime != updateTime)
+            {
+                UpdateTime = updateTime;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UpdateTime)));
+            }
         }
     }
 }

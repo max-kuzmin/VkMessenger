@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Extensions;
+using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Models;
 
 namespace ru.MaxKuzmin.VkMessenger.Managers
@@ -50,7 +52,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        public void AddUpdateMessagesInCollection(int dialogId, IReadOnlyCollection<Message> newMessages, int unreadCount, bool isNewestMessagesBatch)
+        public void AddUpdateMessagesInCollection(int dialogId, IReadOnlyCollection<Message> newMessages, int? unreadCount, bool isNewestMessagesBatch)
         {
             var dialog = FirstOrDefaultWithLock(dialogId);
             if (dialog == null)
@@ -113,7 +115,8 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
                 collection.AddRange(oldMessagesToAppend);
                 collection.PrependRange(newMessagesToPrepend);
-                UpdateMessagesRead(dialogId, unreadCount);
+                if (unreadCount.HasValue)
+                    UpdateMessagesRead(dialogId, unreadCount.Value);
 
                 //Trim to batch size to prevent skipping new messages between cached and 20 loaded on init
                 if (isNewestMessagesBatch)
@@ -158,8 +161,40 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             {
                 var message = collection.FirstOrDefault(e => e.Id == messageId);
                 if (message != null)
-                    message.Deleted = true;
+                    collection.Remove(message);
             }
+        }
+
+        public async Task SendMessage(int dialogId, string? text, string? voiceMessagePath)
+        {
+            var messageId = await MessagesClient.Send(dialogId, text, voiceMessagePath);
+
+            var myProfile = new Profile
+            {
+                Id = AuthorizationManager.UserId,
+                Name = string.Empty,
+                Photo = AuthorizationManager.Photo,
+                Online = true,
+                Surname = string.Empty
+            };
+
+            var newMessage = new Message(
+                messageId,
+                int.MaxValue, //Use max value, will be updated
+                text ?? LocalizedStrings.VoiceMessage,
+                null, //Will be loaded on next update
+                DateTime.UtcNow,
+                DateTime.UtcNow,
+                false,
+                myProfile,
+                null,
+                // All next fields can't be set by our app
+                null,
+                null,
+                null,
+                null);
+
+            AddUpdateMessagesInCollection(dialogId, new []{ newMessage }, null, false);
         }
 
         public int GetMessagesCount(int dialogId)
@@ -197,6 +232,8 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             {
                 foundMessage.SetFullText(newMessage.FullText);
                 foundMessage.SetVoiceMessage(newMessage.VoiceMessage);
+                foundMessage.SetDate(newMessage.Date);
+                foundMessage.SetUpdateTime(newMessage.UpdateTime);
             }
         }
 

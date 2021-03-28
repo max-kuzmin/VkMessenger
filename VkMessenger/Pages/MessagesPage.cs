@@ -197,7 +197,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             await NetExceptionCatchHelpers.CatchNetException(
                 async () =>
                 {
-                    await MessagesClient.Send(dialogId, text, null);
+                    await messagesManager.SendMessage(dialogId, text, null);
                     popupEntryView.Text = string.Empty;
                 },
                 () =>
