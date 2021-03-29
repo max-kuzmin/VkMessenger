@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ru.MaxKuzmin.VkMessenger.Clients;
 using ru.MaxKuzmin.VkMessenger.Localization;
 using ru.MaxKuzmin.VkMessenger.Loggers;
+using Tizen.Multimedia;
+using Tizen.Wearable.CircularUI.Forms;
 using Xamarin.Forms;
-using Xamarin.Forms.Platform.Tizen.Native;
 using Xamarin.Forms.PlatformConfiguration.TizenSpecific;
 using Button = Xamarin.Forms.Button;
 using Label = Xamarin.Forms.Label;
+using MediaPlayer = Xamarin.Forms.Platform.Tizen.Native.MediaPlayer;
 using TextAlignment = Xamarin.Forms.TextAlignment;
 using TizenConfig = Xamarin.Forms.PlatformConfiguration.Tizen;
 
@@ -127,6 +130,10 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             if (Source == null)
                 return;
 
+            if (!AudioManager.GetConnectedDevices().Any(e => 
+                e.Type == AudioDeviceType.BuiltinSpeaker || e.Type == AudioDeviceType.BluetoothMedia))
+                Toast.DisplayText(LocalizedStrings.CantPlayAudioMessageNoHeadphones);
+
             isLoading = true;
             playButton.ImageSource = ImageResources.LoadingSymbol;
             playButton.IsEnabled = false;
@@ -220,6 +227,7 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             OnPauseAllPlayers?.Invoke(this, null);
             playButton.IsEnabled = true;
             playButton.ImageSource = ImageResources.PauseSymbol;
+
             await player.Start();
             timer?.Change(TimeSpan.Zero, TimeSpan.FromSeconds(timerInterval));
         }

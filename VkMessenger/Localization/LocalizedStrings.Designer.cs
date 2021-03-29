@@ -79,6 +79,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t play voice message. Connect headphones.
+        /// </summary>
+        internal static string CantPlayAudioMessageNoHeadphones {
+            get {
+                return ResourceManager.GetString("CantPlayAudioMessageNoHeadphones", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t delete message. No internet connection.
         /// </summary>
         internal static string DeleteMessageNoInternetError {

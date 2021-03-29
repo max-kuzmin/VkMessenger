@@ -186,6 +186,9 @@
   <data name="DeleteMessageNoInternetError" xml:space="preserve">
     <value>Can't delete message. No internet connection</value>
   </data>
+  <data name="CantPlayAudioMessageNoHeadphones" xml:space="preserve">
+    <value>Can't play voice message. Connect headphones</value>
+  </data>
   <data name="MessagesPageTutorial" xml:space="preserve">
     <value>Tutorial:\n -SwipeLeft: write text message\nSwipe right: record voice message\nTap: show attachments and full text\n-Double long tap: remove message</value>
     <comment>:</comment>

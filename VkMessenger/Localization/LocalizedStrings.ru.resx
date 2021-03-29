@@ -186,6 +186,9 @@
   <data name="DeleteMessageNoInternetError" xml:space="preserve">
     <value>Невозможно удалить сообщение. Нет интернет соединения</value>
   </data>
+  <data name="CantPlayAudioMessageNoHeadphones" xml:space="preserve">
+    <value>Невозможно воспроизвести голосовое сообщение. Подключите наушники</value>
+  </data>
   <data name="MessagesPageTutorial" xml:space="preserve">
     <value>Обучение:\n-Свайп влево: написать текстовое сообщение\n-Свайп вправо: записать голосовое сообщение\nОдин тап: просмотр вложений и полного текста\nДвойной долгий тап: удалить сообщение</value>
   </data>
