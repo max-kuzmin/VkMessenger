@@ -177,11 +177,12 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 Online = true,
                 Surname = string.Empty
             };
-
+            var fullText = text ?? $"{Consts.PaperClip} {LocalizedStrings.VoiceMessage}";
             var newMessage = new Message(
                 messageId,
                 //Will be loaded on next update
-                text ?? $"{Consts.PaperClip} {LocalizedStrings.VoiceMessage}",
+                fullText,
+                fullText,
                 null,
                 DateTime.UtcNow, 
                 DateTime.UtcNow,
@@ -189,7 +190,6 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 myProfile,
                 null,
                 // All next fields can't be set by our app
-                null,
                 null,
                 null,
                 null);
@@ -231,6 +231,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             if (foundMessage.UpdateTime != newMessage.UpdateTime)
             {
                 foundMessage.SetFullText(newMessage.FullText);
+                foundMessage.SetText(newMessage.Text);
                 foundMessage.SetVoiceMessage(newMessage.VoiceMessage);
                 foundMessage.SetDate(newMessage.Date);
                 foundMessage.SetUpdateTime(newMessage.UpdateTime);

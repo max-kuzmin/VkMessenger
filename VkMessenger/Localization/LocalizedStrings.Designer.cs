@@ -88,6 +88,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Chat rename.
+        /// </summary>
+        internal static string ChatRename {
+            get {
+                return ResourceManager.GetString("ChatRename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t delete message. No internet connection.
         /// </summary>
         internal static string DeleteMessageNoInternetError {

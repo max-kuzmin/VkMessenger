@@ -202,4 +202,7 @@
   <data name="StopRecordMessageHint" xml:space="preserve">
     <value>Press round button to stop recording</value>
   </data>
+  <data name="ChatRename" xml:space="preserve">
+    <value>Chat rename</value>
+  </data>
 </root>

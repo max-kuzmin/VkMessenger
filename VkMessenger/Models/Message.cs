@@ -29,9 +29,14 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         public Uri? VoiceMessage { get; set; }
         public int? VoiceMessageDuration { get; set; }
         public IReadOnlyCollection<AttachmentMessage> AttachmentMessages { get; set; }
-        public IReadOnlyCollection<string> OtherAttachments { get; set; }
-        public bool FullScreenAllowed { get; set; }
         public bool Deleted { get; set; }
+
+        [JsonIgnore]
+        public bool FullScreenAllowed =>
+            FullText.Length > Consts.MaxMessagePreviewLength
+            || AttachmentImages.Any()
+            || AttachmentMessages.Any()
+            || AttachmentUris.Any();
 
         [JsonIgnore]
         public string TimeFormatted => Date.ToString("HH:mm");
@@ -70,6 +75,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
 #pragma warning restore CS8618
             int id,
             string fullText,
+            string text,
             (Uri, int)? voiceMessage,
             DateTime date,
             DateTime? updateTime,
@@ -78,8 +84,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             Group? group,
             IReadOnlyCollection<AttachmentImage>? attachmentImages,
             IReadOnlyCollection<Uri>? attachmentUris,
-            IReadOnlyCollection<AttachmentMessage>? attachmentMessages,
-            IReadOnlyCollection<string>? otherAttachments)
+            IReadOnlyCollection<AttachmentMessage>? attachmentMessages)
         {
             Id = id;
             Date = date;
@@ -91,9 +96,9 @@ namespace ru.MaxKuzmin.VkMessenger.Models
             VoiceMessage = voiceMessage?.Item1;
             VoiceMessageDuration = voiceMessage?.Item2;
             AttachmentMessages = attachmentMessages ?? Array.Empty<AttachmentMessage>();
-            OtherAttachments = otherAttachments ?? Array.Empty<string>();
             Deleted = deleted;
-            ComposeText(fullText);
+            FullText = fullText;
+            Text = text;
         }
 
         public void SetRead(bool value)
@@ -109,7 +114,16 @@ namespace ru.MaxKuzmin.VkMessenger.Models
         {
             if (FullText != fullText)
             {
-                ComposeText(fullText);
+                FullText = fullText;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FullText)));
+            }
+        }
+
+        public void SetText(string text)
+        {
+            if (Text != text)
+            {
+                Text = text;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
             }
         }
@@ -121,51 +135,6 @@ namespace ru.MaxKuzmin.VkMessenger.Models
                 VoiceMessage = voiceMessage;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(VoiceMessage)));
             }
-        }
-
-        private void ComposeText(string fullText)
-        {
-            FullText = fullText;
-            if (fullText.Length > Consts.MaxMessagePreviewLength)
-            {
-                Text = fullText.Substring(0, Consts.MaxMessagePreviewLength) + "...";
-                FullScreenAllowed = true;
-            }
-            else
-            {
-                Text = fullText;
-            }
-
-            if (AttachmentMessages.Any())
-            {
-                Text += $"\n{Consts.PaperClip} {LocalizedStrings.Message}";
-                FullScreenAllowed = true;
-            }
-
-            if (AttachmentUris.Any())
-            {
-                Text += $"\n{Consts.PaperClip} {LocalizedStrings.Link}";
-                FullScreenAllowed = true;
-            }
-
-            if (AttachmentImages.Any(e => !e.IsSticker))
-            {
-                Text += $"\n{Consts.PaperClip} {LocalizedStrings.Image}";
-                FullScreenAllowed = true;
-            }
-
-            if (AttachmentImages.Any(e => e.IsSticker))
-            {
-                Text += $"\n{Consts.PaperClip} {LocalizedStrings.Sticker}";
-                FullScreenAllowed = true;
-            }
-
-            foreach (var other in OtherAttachments.Distinct())
-            {
-                Text += $"\n{Consts.PaperClip} {other}";
-            }
-
-            Text = Text.Trim('\n');
         }
 
         public void SetDate(DateTime date)

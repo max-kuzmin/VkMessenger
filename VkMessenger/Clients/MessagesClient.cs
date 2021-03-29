@@ -88,11 +88,12 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                 var attachmentImages = new List<AttachmentImage>();
                 var attachmentUris = new List<Uri>();
                 (Uri, int)? voiceMessage = null;
-                var otherAttachments = new List<string>();
+                var attachmentsNames = new HashSet<string>();
 
                 var attachmentMessages = message.fwd_messages?
                     .Select(i =>
-                    new AttachmentMessage {
+                    new AttachmentMessage
+                    {
                         Profile = profiles.SingleOrDefault(e => e.Id == Math.Abs(i.from_id)), // FromId can be negative
                         Text = i.text
                     }).ToArray();
@@ -104,33 +105,37 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                         switch (item.type)
                         {
                             case "photo":
-                                var photoUri = item.photo?.sizes.SingleOrDefault(i => i.type == "q") 
+                                var photoUri = item.photo?.sizes.SingleOrDefault(i => i.type == "q")
                                                ?? item.photo?.sizes.FirstOrDefault();
 
                                 if (photoUri != null)
                                     attachmentImages.Add(new AttachmentImage { Url = photoUri.url, IsSticker = false });
+
+                                attachmentsNames.Add(LocalizedStrings.Image);
                                 break;
 
                             case "link":
                                 Uri.TryCreate(item.link?.url, UriKind.RelativeOrAbsolute, out Uri? uriResult);
                                 if (uriResult != null)
                                     attachmentUris.Add(uriResult);
+
+                                attachmentsNames.Add(LocalizedStrings.Link);
                                 break;
 
                             case "wall":
-                                otherAttachments.Add(LocalizedStrings.WallPost);
+                                attachmentsNames.Add(LocalizedStrings.WallPost);
                                 break;
 
                             case "video":
-                                otherAttachments.Add(LocalizedStrings.Video);
+                                attachmentsNames.Add(LocalizedStrings.Video);
                                 break;
 
                             case "doc":
-                                otherAttachments.Add(LocalizedStrings.File);
+                                attachmentsNames.Add(LocalizedStrings.File);
                                 break;
 
                             case "album":
-                                otherAttachments.Add(LocalizedStrings.Album);
+                                attachmentsNames.Add(LocalizedStrings.Album);
                                 break;
 
                             case "sticker":
@@ -140,36 +145,31 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                                     Logger.Error("Uri for sticker attachment is null. Attachment: " + item.ToJson());
                                 else
                                     attachmentImages.Add(new AttachmentImage { Url = stickerUri.url, IsSticker = true });
+
+                                attachmentsNames.Add(LocalizedStrings.Sticker);
                                 break;
 
                             case "audio_message":
                                 voiceMessage = item.audio_message != null
                                     ? (item.audio_message.link_mp3, item.audio_message.duration)
                                     : ((Uri, int)?)null;
+
+                                attachmentsNames.Add(LocalizedStrings.VoiceMessage);
                                 break;
 
                             default:
-                                otherAttachments.Add(item.type);
+                                attachmentsNames.Add(item.type);
                                 break;
                         }
                     }
                 }
 
-                if (!attachmentUris.Any())
-                {
-                    var matches = Regex.Matches(fullText, LinkRegex);
-                    foreach (Match match in matches)
-                    {
-                        if (Uri.TryCreate(match.Value, UriKind.Absolute, out Uri parsed))
-                        {
-                            attachmentUris.Add(parsed);
-                        }
-                    }
-                }
+                ParseUrisFromText(fullText, attachmentUris);
 
                 return new Message(
                     message.id,
                     fullText,
+                    ComposeText(fullText, attachmentsNames, message.action),
                     voiceMessage,
                     date,
                     updateTime,
@@ -178,14 +178,49 @@ namespace ru.MaxKuzmin.VkMessenger.Clients
                     groups.FirstOrDefault(p => p.Id == peerId),
                     attachmentImages,
                     attachmentUris,
-                    attachmentMessages,
-                    otherAttachments);
+                    attachmentMessages);
 
             }
             catch (Exception e)
             {
                 Logger.Error(e);
                 throw;
+            }
+        }
+
+        private static string ComposeText(string fullText, HashSet<string> attachmentsNames, MessageActionDto? action)
+        {
+            var text = fullText.Length > Consts.MaxMessagePreviewLength
+                ? fullText.Substring(0, Consts.MaxMessagePreviewLength) + "..."
+                : fullText;
+
+            if (action != null)
+                text = action.type switch
+                {
+                    "chat_title_update" => $"\n{LocalizedStrings.ChatRename}: {action.text}",
+                    _ => ""
+                };
+
+            foreach (var attachment in attachmentsNames)
+            {
+                text += $"\n{Consts.PaperClip} {attachment}";
+            }
+
+            return text.Trim('\n');
+        }
+
+        private static void ParseUrisFromText(string fullText, List<Uri> attachmentUris)
+        {
+            if (!attachmentUris.Any())
+            {
+                var matches = Regex.Matches(fullText, LinkRegex);
+                foreach (Match match in matches)
+                {
+                    if (Uri.TryCreate(match.Value, UriKind.Absolute, out Uri parsed))
+                    {
+                        attachmentUris.Add(parsed);
+                    }
+                }
             }
         }
 

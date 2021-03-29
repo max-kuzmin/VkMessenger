@@ -201,4 +201,7 @@
   <data name="StopRecordMessageHint" xml:space="preserve">
     <value>Нажмите круглую кнопку для остановки записи</value>
   </data>
+  <data name="ChatRename" xml:space="preserve">
+    <value>Изменение названия</value>
+  </data>
 </root>

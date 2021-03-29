@@ -23,5 +23,7 @@ namespace ru.MaxKuzmin.VkMessenger.Dtos
         public AttachmentDto[]? attachments { get; set; }
 
         public int deleted { get; set; }
+
+        public MessageActionDto? action { get; set; }
     }
 }
