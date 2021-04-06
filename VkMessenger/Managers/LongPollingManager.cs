@@ -54,6 +54,9 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
 
         public async Task Start()
         {
+            if (AuthorizationManager.Token == null)
+                return;
+
             switch (status)
             {
                 case Status.Starting:

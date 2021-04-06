@@ -58,7 +58,6 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private void OnAppearing(object sender, EventArgs e)
         {
-            _ = longPollingManager.Stop().ConfigureAwait(false);
             refreshingPopup?.Dismiss();
             refreshingPopup = new InformationPopup
             {
