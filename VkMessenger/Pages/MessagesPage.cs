@@ -101,7 +101,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OnItemTapped(object sender, ItemTappedEventArgs e)
         {
-            if (newMessageInputShown)
+            if (newMessageInputShown || longTappedMessageId != null)
                 return;
 
             await dialogsManager.SetDialogAndMessagesReadAndPublish(dialogId);
@@ -135,6 +135,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 return;
             }
 
+            longTappedMessageId = null;
             activityIndicator.IsVisible = true;
 
             await NetExceptionCatchHelpers.CatchNetException(

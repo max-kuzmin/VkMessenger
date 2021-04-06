@@ -187,7 +187,10 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tutorial:\n -SwipeLeft: write text message\nSwipe right: record voice message\nTap: show attachments and full text\n-Double long tap: remove message.
+        ///   Looks up a localized string similar to · SwipeLeft: write text message.
+        ///· Swipe right: record voice message.
+        ///· Tap: show attachments and full text.
+        ///· Double long tap: remove message..
         /// </summary>
         internal static string MessagesPageTutorial {
             get {

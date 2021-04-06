@@ -71,10 +71,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
             await Navigation.PushAsync(new MessagesPage(dialog.Id, messagesManager, dialogsManager));
 
             if (!AuthorizationManager.TutorialShown)
-            {
-                new CustomPopup(LocalizedStrings.MessagesPageTutorial, LocalizedStrings.Ok).Show();
-                AuthorizationManager.TutorialShown = true;
-            }
+                new CustomPopup(
+                    LocalizedStrings.MessagesPageTutorial,
+                    LocalizedStrings.Ok,
+                    () => AuthorizationManager.TutorialShown = true).Show();
         }
 
         public async Task Reset()

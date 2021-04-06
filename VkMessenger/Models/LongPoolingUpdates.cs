@@ -6,6 +6,7 @@ namespace ru.MaxKuzmin.VkMessenger.Models
     {
         public ISet<int> UpdatedDialogIds { get; set; } = new HashSet<int>();
         public ISet<MessageUpdatesData> MessageUpdatesData { get; set; } = new HashSet<MessageUpdatesData>();
+        public ISet<MessageUpdatesData> MessageDeletionsData { get; set; } = new HashSet<MessageUpdatesData>();
         public ISet<UserStatusUpdatesData> UserStatusUpdatesData { get; set; } = new HashSet<UserStatusUpdatesData>();
     }
 

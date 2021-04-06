@@ -43,7 +43,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
         /// <summary>
         /// Returns updated messages ids
         /// </summary>
-        public async Task<int[]> UpdateDialogsFromApiByIds(IReadOnlyCollection<int> dialogIds)
+        public async Task UpdateDialogsFromApiByIds(IReadOnlyCollection<int> dialogIds)
         {
             var newDialogs = await DialogsClient.GetDialogsByIds(dialogIds);
             if (newDialogs.Any())
@@ -52,8 +52,6 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 // ReSharper disable once InconsistentlySynchronizedField
                 await DurableCacheManager.SaveDialogs(collection);
             }
-
-            return newDialogs.SelectMany(e => e.Messages.Select(m => m.Id)).Distinct().ToArray();
         }
 
         /// <summary>
@@ -192,6 +190,25 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 if (isNewestMessagesBatch)
                     collection.Trim(Consts.BatchSize);
             }
+        }
+
+        public void ReorderDialogs(int[] dialogIds)
+        {
+            var dialogs = new List<Dialog>();
+            lock (collection)
+            {
+                foreach (var dialogId in dialogIds)
+                {
+                    var dialog = collection.FirstOrDefault(e => e.Id == dialogId);
+                    if (dialog != null)
+                        dialogs.Add(dialog);
+                }
+            }
+
+            if (!dialogs.Any())
+                return;
+
+            AddUpdateDialogsInCollection(dialogs, false);
         }
 
         /// <summary>

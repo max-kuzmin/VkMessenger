@@ -218,12 +218,16 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                         {
                             if (update.Length >= 4)
                             {
-                                parsedUpdates.MessageUpdatesData.Add(new MessageUpdatesData
+                                var deleted = (update[2].Value<int>() & 131072) != 0;
+                                var updateData = new MessageUpdatesData
                                 {
                                     MessageId = update[1].Value<int>(),
                                     DialogId = update[3].Value<int>()
-                                });
-                                parsedUpdates.UpdatedDialogIds.Add(update[3].Value<int>());
+                                };
+                                if (deleted)
+                                    parsedUpdates.MessageDeletionsData.Add(updateData);
+                                else
+                                    parsedUpdates.MessageUpdatesData.Add(updateData);
                             }
 
                             break;
@@ -270,11 +274,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             {
                 Logger.Info($"Long pooling dialogs update {parsedUpdates.UpdatedDialogIds.ToJson()}");
 
-                var updatedMessagesIds = await HandleDialogUpdates(parsedUpdates.UpdatedDialogIds);
-
-                //Exclude updated messages from further updates
-                parsedUpdates.MessageUpdatesData = parsedUpdates.MessageUpdatesData
-                    .Where(e => !updatedMessagesIds.Contains(e.MessageId)).ToHashSet();
+                await HandleDialogUpdates(parsedUpdates.UpdatedDialogIds);
             }
 
             if (parsedUpdates.MessageUpdatesData.Any())
@@ -282,6 +282,13 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 Logger.Info($"Long pooling messages update {parsedUpdates.MessageUpdatesData.Select(e => e.MessageId).ToJson()}");
 
                 await HandleMessageUpdates(parsedUpdates.MessageUpdatesData);
+            }
+
+            if (parsedUpdates.MessageDeletionsData.Any())
+            {
+                Logger.Info($"Long pooling messages deletion {parsedUpdates.MessageDeletionsData.Select(e => e.MessageId).ToJson()}");
+
+                HandleMessageDeletions(parsedUpdates.MessageDeletionsData);
             }
 
             if (parsedUpdates.UserStatusUpdatesData.Any())
@@ -301,6 +308,22 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 await messagesManager.UpdateMessagesFromApiByIds(group.Key, messageIds);
             }
 
+            dialogsManager.ReorderDialogs(updates.Select(e => e.DialogId).Distinct().ToArray());
+
+            new Feedback().Play(FeedbackType.Vibration, "Tap");
+        }
+
+        private void HandleMessageDeletions(ISet<MessageUpdatesData> deletions)
+        {
+            var groups = deletions.GroupBy(e => e.DialogId).ToArray();
+            foreach (var group in groups)
+            {
+                var messageIds = group.Select(e => e.MessageId).Distinct().ToArray();
+                messagesManager.DeleteMessagesFromCollectionOnly(group.Key, messageIds);
+            }
+
+            dialogsManager.ReorderDialogs(deletions.Select(e => e.DialogId).Distinct().ToArray());
+
             new Feedback().Play(FeedbackType.Vibration, "Tap");
         }
 
@@ -309,11 +332,10 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             dialogsManager.SetDialogsOnline(updates.Select(e => (e.UserId, e.Status)).ToArray());
         }
 
-        private async Task<int[]> HandleDialogUpdates(ISet<int> dialogIds)
+        private async Task HandleDialogUpdates(ISet<int> dialogIds)
         {
-            var updatedMessagesIds = await dialogsManager.UpdateDialogsFromApiByIds(dialogIds.ToArray());
+            await dialogsManager.UpdateDialogsFromApiByIds(dialogIds.ToArray());
             new Feedback().Play(FeedbackType.Vibration, "Tap");
-            return updatedMessagesIds;
         }
 
         private async Task Reset()

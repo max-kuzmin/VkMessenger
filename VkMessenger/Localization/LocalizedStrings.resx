@@ -190,7 +190,10 @@
     <value>Can't play voice message. Connect headphones</value>
   </data>
   <data name="MessagesPageTutorial" xml:space="preserve">
-    <value>Tutorial:\n -SwipeLeft: write text message\nSwipe right: record voice message\nTap: show attachments and full text\n-Double long tap: remove message</value>
+    <value>· SwipeLeft: write text message.
+· Swipe right: record voice message.
+· Tap: show attachments and full text.
+· Double long tap: remove message.</value>
     <comment>:</comment>
   </data>
   <data name="OpeningBrowser" xml:space="preserve">

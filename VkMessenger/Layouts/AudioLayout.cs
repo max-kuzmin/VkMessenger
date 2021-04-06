@@ -130,9 +130,8 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             if (Source == null)
                 return;
 
-            if (!AudioManager.GetConnectedDevices().Any(e => 
-                e.Type == AudioDeviceType.BuiltinSpeaker || e.Type == AudioDeviceType.BluetoothMedia))
-                Toast.DisplayText(LocalizedStrings.CantPlayAudioMessageNoHeadphones);
+            if (!CheckDevice())
+                return;
 
             isLoading = true;
             playButton.ImageSource = ImageResources.LoadingSymbol;
@@ -161,6 +160,18 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
             {
                 isLoading = false;
             }
+        }
+
+        private bool CheckDevice()
+        {
+            if (!AudioManager.GetConnectedDevices().Any(e =>
+                e.Type == AudioDeviceType.BuiltinSpeaker || e.Type == AudioDeviceType.BluetoothMedia))
+            {
+                Toast.DisplayText(LocalizedStrings.CantPlayAudioMessageNoHeadphones);
+                return false;
+            }
+
+            return true;
         }
 
         private async Task<MediaPlayer> InitPlayer()
@@ -222,6 +233,9 @@ namespace ru.MaxKuzmin.VkMessenger.Layouts
         private async Task Start()
         {
             if (player == null)
+                return;
+
+            if (!CheckDevice())
                 return;
 
             OnPauseAllPlayers?.Invoke(this, null);

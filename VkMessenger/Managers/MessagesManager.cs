@@ -165,6 +165,24 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
+        public void DeleteMessagesFromCollectionOnly(int dialogId, int[] messageIds)
+        {
+            var dialog = FirstOrDefaultWithLock(dialogId);
+            if (dialog == null)
+                return;
+
+            var collection = dialog.Messages;
+            lock (collection)
+            {
+                foreach (var messageId in messageIds)
+                {
+                    var message = collection.FirstOrDefault(e => e.Id == messageId);
+                    if (message != null)
+                        collection.Remove(message);
+                }
+            }
+        }
+
         public async Task SendMessage(int dialogId, string? text, string? voiceMessagePath)
         {
             var messageId = await MessagesClient.Send(dialogId, text, voiceMessagePath);
@@ -177,15 +195,15 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 Online = true,
                 Surname = string.Empty
             };
-            var fullText = text ?? $"{Consts.PaperClip} {LocalizedStrings.VoiceMessage}";
+            var fullText = text?.Trim() ?? $"{Consts.PaperClip} {LocalizedStrings.VoiceMessage}";
             var newMessage = new Message(
                 messageId,
                 //Will be loaded on next update
                 fullText,
                 fullText,
                 null,
-                DateTime.UtcNow, 
-                DateTime.UtcNow,
+                DateTime.Now, 
+                DateTime.Now,
                 false,
                 myProfile,
                 null,
@@ -193,6 +211,7 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
                 null,
                 null,
                 null);
+            newMessage.SetRead(true);
 
             AddUpdateMessagesInCollection(dialogId, new []{ newMessage }, null, false);
         }

@@ -46,7 +46,10 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private readonly Label hint = new Label
         {
-            Text = LocalizedStrings.RecordMessageHint
+            Text = LocalizedStrings.RecordMessageHint,
+            HorizontalTextAlignment = TextAlignment.Center,
+            FontSize = Device.GetNamedSize(NamedSize.Micro, typeof(Label)),
+            TextColor = Color.Gray,
         };
 
         public RecordVoicePage(int dialogId, MessagesManager messagesManager)
