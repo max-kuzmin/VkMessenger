@@ -190,7 +190,8 @@
     <value>Невозможно воспроизвести голосовое сообщение. Подключите наушники</value>
   </data>
   <data name="MessagesPageTutorial" xml:space="preserve">
-    <value>· Свайп влево: написать текстовое сообщение.
+    <value>Подсказка:
+· Свайп влево: написать текстовое сообщение.
 · Свайп вправо: записать голосовое сообщение.
 · Один тап: просмотр вложений и полного текста.
 · Двойной долгий тап: удалить сообщение.</value>
@@ -206,5 +207,8 @@
   </data>
   <data name="ChatRename" xml:space="preserve">
     <value>Изменение названия</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Загрузка</value>
   </data>
 </root>

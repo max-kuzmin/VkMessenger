@@ -169,6 +169,15 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Loading.
+        /// </summary>
+        internal static string Loading {
+            get {
+                return ResourceManager.GetString("Loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message.
         /// </summary>
         internal static string Message {
@@ -187,7 +196,8 @@ namespace ru.MaxKuzmin.VkMessenger.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to · SwipeLeft: write text message.
+        ///   Looks up a localized string similar to Hint:
+        ///· Swipe left: write text message.
         ///· Swipe right: record voice message.
         ///· Tap: show attachments and full text.
         ///· Double long tap: remove message..

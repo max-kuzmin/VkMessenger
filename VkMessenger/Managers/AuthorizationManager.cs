@@ -80,16 +80,13 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             }
         }
 
-        public static async Task<bool> AuthorizeFromUrl(Uri url)
+        public static bool AuthorizeFromUrl(Uri url)
         {
             var result = AuthorizationClient.SetUserFromUrl(url);
             if (result.HasValue)
             {
                 Token = result.Value.Token;
                 UserId = result.Value.UserId;
-
-                var photoUrl = await AuthorizationClient.GetPhoto(Token, UserId);
-                SetPhoto(photoUrl);
             }
 
             return result.HasValue;
@@ -101,8 +98,12 @@ namespace ru.MaxKuzmin.VkMessenger.Managers
             Application.Current.Quit();
         }
 
-        private static void SetPhoto(Uri url)
+        public static async Task SetPhoto()
         {
+            if (token == null || userId == 0)
+                return;
+            
+            var url = await AuthorizationClient.GetPhoto(token, userId);
             Preference.Set(PhotoKey, url.ToString());
             photoSource = ImageSource.FromUri(url);
         }

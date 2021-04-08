@@ -28,7 +28,7 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
 
         private async void OnNavigated(object sender, WebNavigatedEventArgs e)
         {
-            if (e.Result == WebNavigationResult.Failure && refreshingPopup != null)
+            if (e.Result == WebNavigationResult.Failure)
             {
                 new CustomPopup(
                         LocalizedStrings.AuthNoInternetError,
@@ -38,34 +38,42 @@ namespace ru.MaxKuzmin.VkMessenger.Pages
                 return;
             }
 
-            refreshingPopup?.Dismiss();
-            refreshingPopup = null;
+            var url = new Uri(((UrlWebViewSource)loginWebView.Source).Url);
+            if (AuthorizationManager.AuthorizeFromUrl(url))
+            {
+                await AuthorizationManager.SetPhoto();
+                Navigation.InsertPageBefore(new DialogsPage(dialogsManager, messagesManager), Navigation.NavigationStack[0]);
+                await Navigation.PopToRootAsync();
+                _ = longPollingManager.Start().ConfigureAwait(false);
+                refreshingPopup?.Dismiss();
+                refreshingPopup = null;
+                return;
+            }
 
             var script = AuthorizationPageScript.Script
                 .Replace("{PleaseWait}", LocalizedStrings.PleaseWait);
             loginWebView.Eval(script);
 
-            var url = new Uri(((UrlWebViewSource)loginWebView.Source).Url);
-
-            if (await AuthorizationManager.AuthorizeFromUrl(url))
-            {
-                loginWebView.Navigated -= OnNavigated;
-                Navigation.InsertPageBefore(new DialogsPage(dialogsManager, messagesManager), Navigation.NavigationStack[0]);
-                await Navigation.PopToRootAsync();
-                _ = longPollingManager.Start().ConfigureAwait(false);
-            }
+            refreshingPopup?.Dismiss();
+            refreshingPopup = null;
         }
 
         private void OnAppearing(object sender, EventArgs e)
         {
+            loginWebView.Navigating += CreatePopup;
+            loginWebView.Navigated += OnNavigated;
+            loginWebView.Source = AuthorizationClient.GetAuthorizeUri();
+        }
+
+        private void CreatePopup(object? s = null, EventArgs? e = null)
+        {
             refreshingPopup?.Dismiss();
             refreshingPopup = new InformationPopup
             {
-                IsProgressRunning = true
+                IsProgressRunning = true,
+                Text = LocalizedStrings.Loading
             };
             refreshingPopup.Show();
-            loginWebView.Navigated += OnNavigated;
-            loginWebView.Source = AuthorizationClient.GetAuthorizeUri();
         }
     }
 }

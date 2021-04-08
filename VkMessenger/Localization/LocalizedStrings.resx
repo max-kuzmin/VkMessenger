@@ -190,7 +190,8 @@
     <value>Can't play voice message. Connect headphones</value>
   </data>
   <data name="MessagesPageTutorial" xml:space="preserve">
-    <value>· SwipeLeft: write text message.
+    <value>Hint:
+· Swipe left: write text message.
 · Swipe right: record voice message.
 · Tap: show attachments and full text.
 · Double long tap: remove message.</value>
@@ -207,5 +208,8 @@
   </data>
   <data name="ChatRename" xml:space="preserve">
     <value>Chat rename</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading</value>
   </data>
 </root>
